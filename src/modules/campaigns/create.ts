@@ -16,10 +16,6 @@ export type DropEstimate = {
   estimatedCredits: number;
 };
 
-/**
- * `/dashboard/drops/new`: "audience count = opted-in shoppers
- * with a ready twin, estimated credits = audience × products."
- */
 export async function estimateDrop(
   merchantId: string,
   productIds: string[],

@@ -13,14 +13,6 @@ import {
 } from '@/db/schema';
 import { user, session, account } from '@/db/auth-schema';
 
-/**
- * them (section 5's own ownership model), not the merchant, so links are
- * archived-then-orphaned rather than hard-deleted; deleting them would
- * cascade-delete (or FK-reject deleting) renders a shopper may still want in
- * their own `/me` closet. Stores are unclaimed (`merchantId: null`), the
- * same "unowned store" state section 9.6 already models for reverse
- * acquisition, so product/render history for shoppers survives.
- */
 export async function deleteMerchantAccount(merchantId: string, email: string): Promise<void> {
   await db.update(links).set({ status: 'archived' }).where(eq(links.merchantId, merchantId));
   await db.update(stores).set({ merchantId: null }).where(eq(stores.merchantId, merchantId));

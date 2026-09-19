@@ -21,20 +21,9 @@ async function skipItem(itemId: string, reason: string): Promise<void> {
     .where(eq(campaignItems.id, itemId));
 }
 
-/**
- * one `campaign.renderItem` job per campaign_items row, drained
- * through the same `jobs` table/loop as every other job type (M1's
- * `cron/jobs`, M6's `store.crawled`). DECISION: this is deliberately NOT a
- * separate priority queue; "priority below live shopper renders" is
- * satisfied simply by these jobs competing for the same drain batch as
- * everything else rather than getting their own faster-polled lane, which
- * is the simplest correct v1 reading, not true scheduling priority.
- *
- * Unlike a normal shopper render (`submitRender`, credit-ledger.ts), this
- * does NOT call `reserveRenderCredit`; the whole campaign's credits were
- * already reserved in bulk when the drop was confirmed (`createDrop`).
- * Deducting again here would double-charge the merchant.
- */
+// Does not call reserveRenderCredit: the whole campaign's credits were
+// already reserved in bulk in createDrop, so deducting again here would
+// double-charge the merchant.
 registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>> => {
   const parsed = payloadSchema.safeParse(payload);
   if (!parsed.success) {
@@ -48,7 +37,7 @@ registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>>
     .where(eq(campaignItems.id, campaignItemId))
     .limit(1);
   if (!item) return err({ code: 'NOT_FOUND', message: 'campaign item not found' });
-  if (item.status !== 'pending') return ok(undefined); // already resolved, nothing to do
+  if (item.status !== 'pending') return ok(undefined);
 
   const [campaign] = await db
     .select()
@@ -137,7 +126,8 @@ registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>>
       .set({ status: 'failed', skipReason: submission.error.message, renderId })
       .where(eq(campaignItems.id, item.id));
     await checkCampaignHealth(item.campaignId);
-    return ok(undefined); // a submission failure is a business outcome (recorded), not a job failure to retry
+    // Recorded as a business outcome, not a job failure to retry.
+    return ok(undefined);
   }
 
   await db
