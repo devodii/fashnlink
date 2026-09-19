@@ -73,6 +73,7 @@ export const GET = apiHandler({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={row.outputUrl}
+          alt=""
           width={width}
           height={height}
           style={{ position: 'absolute', top: 0, left: 0, objectFit: 'cover' }}
