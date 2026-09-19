@@ -15,11 +15,6 @@ function jitter(baseMs: number) {
   return baseMs + Math.random() * baseMs * 0.5;
 }
 
-/**
- * Per-domain token bucket in Redis so concurrent requests from
- * multiple users don't hammer one store. No-ops (never blocks) when Redis
- * isn't configured, which is the default in local dev.
- */
 async function waitForDomainSlot(domain: string, perDomainRps: number) {
   if (!redis || perDomainRps <= 0) return;
   const windowMs = 1000;
@@ -31,10 +26,6 @@ async function waitForDomainSlot(domain: string, perDomainRps: number) {
   }
 }
 
-/**
- * One fetch factory used by every adapter: realistic browser UA,
- * per-domain rate limiting, retries on 429/5xx with jitter, and a hard timeout.
- */
 export function createFetch(opts: CreateFetchOptions): typeof fetch {
   const { log, perDomainRps = 2, retries = 2, timeoutMs = 10_000 } = opts;
 
@@ -66,10 +57,7 @@ export function createFetch(opts: CreateFetchOptions): typeof fetch {
           },
         });
         clearTimeout(timeout);
-        /**
-         * 430 is Shopify's own throttle status; treated the
-         * same as a generic 429.
-         */
+        // 430 is Shopify's own throttle status, treated like a generic 429.
         if (
           (response.status === 429 || response.status === 430 || response.status >= 500) &&
           attempt < retries

@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { decrypt, encrypt } from './crypto';
 
-/**
- * Real AES-256-GCM round trip against the real ENCRYPTION_KEY in .env.local
- * ; no mocking needed, this is pure local crypto with no external service.
- */
 describe('crypto encrypt/decrypt', () => {
   it('round-trips a plaintext string', () => {
     const plaintext = 'sk_live_klaviyo_abc123';

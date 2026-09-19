@@ -3,9 +3,9 @@ import { SOURCE_LANGUAGE_CODE } from '@/config/languages';
 const COOKIE_NAME = 'googtrans';
 
 /**
- * DECISION: Google's widget reads this cookie on load and translates the DOM
- * ; it is the entire interface between our picker and the
- * widget, so every helper here is a thin read/write around it, nothing more.
+ * Google's translate widget has no imperative API. It reads this cookie on
+ * load and translates the DOM from it, so every helper here is a thin
+ * read/write around the cookie.
  */
 export function readGoogTransCookie(): string | null {
   if (typeof document === 'undefined') return null;
@@ -25,8 +25,6 @@ function apexDomain(hostname: string): string {
   return parts.length > 2 ? parts.slice(-2).join('.') : hostname;
 }
 
-/** Sets the cookie and reloads; this is the only way to drive the widget
- *, there's no imperative "translate now" API to call instead. */
 export function setLanguage(code: string) {
   if (typeof document === 'undefined') return;
 
@@ -41,7 +39,7 @@ export function setLanguage(code: string) {
   try {
     localStorage.setItem('lang', code);
   } catch {
-    // private window / blocked storage; the cookie is the source of truth
+    // ignored, the cookie is the source of truth
   }
 
   location.reload();

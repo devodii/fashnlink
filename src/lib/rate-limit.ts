@@ -1,18 +1,6 @@
 import { redis } from '@/lib/redis';
 
-/**
- * Extracted from src/lib/api-handler.ts (which used this only for its
- * HTTP-bound `config.rateLimit` slot) so module-level code; render
- * submission, twin creation; that isn't behind a Next.js
- * route yet can use the same primitive instead of a second implementation.
- *
- * Fixed-window counter, not a true sliding window.
- * DECISION: simpler to reason about and cheap in Redis (one INCR+EXPIRE per
- * request); a true sliding window can replace this later if a burst right at
- * a window boundary turns out to matter for the limits this protects
- * (renders/twins/scrapes; see section 7.4/13, none of which are precise
- * enough to need sub-window accuracy).
- */
+// Fixed-window counter, not a true sliding window.
 export async function consumeRateLimit(
   key: string,
   limit: number,

@@ -1,45 +1,17 @@
 import { z } from 'zod';
 
-/**
- * Nothing else in the codebase reads process.env directly. Every
- * consumer imports `env` from here so a missing var fails fast at boot with a
- * readable message instead of surfacing as an obscure runtime error later.
- */
-
 const isProd = process.env.NODE_ENV === 'production';
 
-/**
- * Only these are required in local development; everything else may be empty
- * so `pnpm dev` boots without a full production credential set.
- */
 const devRequired = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   APP_SECRET: z.string().min(32, 'APP_SECRET must be at least 32 characters'),
   BETTER_AUTH_SECRET: z.string().min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
   FAL_KEY: z.string().min(1, 'FAL_KEY is required'),
   OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required'),
-  /**
-   * DECISION: storage backend switched from Cloudflare R2 (spec section 2/3)
-   * to UploadThing per user request mid-build; one token replaces the whole
-   * R2 credential block. UploadThing's v7 SDK reads a single UPLOADTHING_TOKEN
-   * (dashboard → API Keys), not separate secret/app-id vars.
-   */
   UPLOADTHING_TOKEN: z.string().min(1, 'UPLOADTHING_TOKEN is required'),
-  /**
-   * DECISION: added mid-build, on top of section 6.7's two-stage gate; a
-   * cheap/fast text-only classification stage (TypeSafe AI's "Jev" model,
-   * called direct, not through Vercel AI Gateway) sits between Stage 1's free
-   * keyword scoring and Stage 2's OpenAI vision call. Dev-required at the
-   * same tier as OPENAI_API_KEY since the gate can't meaningfully run without
-   * it (see src/modules/scraper/wearable-gate.ts).
-   */
   TYPESAFE_AI_API_KEY: z.string().min(1, 'TYPESAFE_AI_API_KEY is required'),
 });
 
-/**
- * Required in production only (section 3: "Required in production: everything
- * except the Optional block and Google OAuth").
- */
 const prodOnlyRequired = z.object({
   DATABASE_URL_UNPOOLED: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
