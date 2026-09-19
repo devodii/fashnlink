@@ -1,50 +1,48 @@
 import type { GarmentCategory } from '@/modules/scraper/types';
 
 /**
- * render providers, all invoked through fal's queue API
- * (https://queue.fal.run/{modelId}). Verified against fal's live model pages
- * on 2026-09-19; real endpoint ids, not guessed:
+ * Render providers, invoked through fal's queue API
+ * (https://queue.fal.run/{modelId}) for fashn and nano_banana, and directly
+ * through OpenAI's synchronous images API for openai_image. Model ids
+ * verified against each provider's live docs on 2026-09-19, not guessed:
  * https://fal.ai/models/fal-ai/fashn/tryon/v1.6/api
- * https://fal.ai/models/fal-ai/kling/v1-5/kolors-virtual-try-on/api
  * https://fal.ai/models/fal-ai/nano-banana-2/edit/api
+ * https://developers.openai.com/api/docs/models/gpt-image-2
+ *
+ * Kling Kolors Virtual Try-On v1.5 (the model section 7.1 originally named)
+ * was checked against its live fal.ai page and is deprecated there
+ * ("This model is no longer supported"), with no direct multi-garment
+ * replacement in fal's current try-on catalog, so it has been dropped
+ * entirely rather than routed to a dead endpoint. Nano Banana 2 accepts up
+ * to 14 reference images per edit, which covers the multi-garment `set`
+ * case Kling used to handle.
  */
-export type ProviderKey = 'fashn' | 'kling' | 'nano_banana';
+export type ProviderKey = 'fashn' | 'nano_banana' | 'openai_image';
 
 export const MODEL_IDS: Record<ProviderKey, string> = {
   fashn: 'fal-ai/fashn/tryon/v1.6',
-  /**
-   * DECISION: fal's own docs page for this exact endpoint (the one section
-   * 7.1 names) says "This endpoint is deprecated and no longer supported."
-   * Kept anyway because the spec is explicit about it and there's no
-   * written-down replacement to substitute unasked; flagging here so
-   * whoever wires a real FAL_KEY picks fal's current multi-garment/kolors
-   * endpoint at that time instead of hitting a dead one.
-   */
-  kling: 'fal-ai/kling/v1-5/kolors-virtual-try-on',
   nano_banana: 'fal-ai/nano-banana-2/edit',
+  openai_image: 'gpt-image-2',
 };
 
 /**
- * Cost basis for section 13's pricing config comments; updated here when
- * fal's per-call pricing changes, nowhere else references these numbers.
+ * Cost basis for section 13's pricing config comments; updated here when a
+ * provider's per-call pricing changes, nowhere else references these
+ * numbers.
  */
 export const PROVIDER_COST_CENTS: Record<ProviderKey, number> = {
-  fashn: 8, // ~$0.075/render, section 13
-  kling: 7, // ~$0.07/render, section 13
-  nano_banana: 8, // ~$0.08/render, section 13
+  fashn: 8, // ~$0.075/render
+  nano_banana: 8, // ~$0.08/render
+  openai_image: 5, // ~$0.042/render, gpt-image-2 standard quality
 };
 
-/**
- * Routing table verbatim: first provider is tried, on failure
- * the render engine retries once with the next.
- */
 export const ROUTING: Record<GarmentCategory, ProviderKey[]> = {
   top: ['fashn', 'nano_banana'],
   bottom: ['fashn', 'nano_banana'],
   one_piece: ['fashn', 'nano_banana'],
   outerwear: ['fashn', 'nano_banana'],
-  set: ['kling', 'nano_banana'],
-  shoes: ['nano_banana'],
-  accessory: ['nano_banana'],
-  unknown: ['nano_banana'],
+  set: ['nano_banana', 'openai_image'],
+  shoes: ['nano_banana', 'openai_image'],
+  accessory: ['nano_banana', 'openai_image'],
+  unknown: ['nano_banana', 'openai_image'],
 };

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { err, ok, type Result } from '@/lib/result';
 import type { Ctx } from '@/lib/adapter';
 import { MODEL_IDS } from '@/config/models';
-import { NANO_BANANA_TRYON } from '@/config/prompts';
+import { IMAGE_EDIT_TRYON } from '@/config/prompts';
 import { submitToFalQueue } from '../fal-queue';
 import {
   falWebhookEnvelopeSchema,
@@ -70,7 +70,7 @@ export const nanoBananaProvider: RenderProvider = {
 
   submit(input: RenderInput, webhookUrl: string, ctx: Ctx): Promise<Result<SubmitResult>> {
     return submitNanoBananaEdit(
-      NANO_BANANA_TRYON,
+      IMAGE_EDIT_TRYON,
       [input.twinUrl, input.garmentUrl],
       webhookUrl,
       ctx,

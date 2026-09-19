@@ -53,4 +53,4 @@ export const WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS: Record<GarmentCate
   unknown: 'Wearable, but none of the above fit, or not enough information to tell.',
 };
 
-export const NANO_BANANA_TRYON = `The first image shows a person. The second image shows an item they are wearing/carrying. Edit the first image so the person is wearing/carrying the exact item from the second image, in a natural and realistic way. Keep the person's face, body, pose, and background from the first image completely unchanged. Match the item's true color, pattern, and material from the second image exactly.`;
+export const IMAGE_EDIT_TRYON = `The first image shows a person. The second image shows an item they are wearing/carrying. Edit the first image so the person is wearing/carrying the exact item from the second image, in a natural and realistic way. Keep the person's face, body, pose, and background from the first image completely unchanged. Match the item's true color, pattern, and material from the second image exactly.`;
