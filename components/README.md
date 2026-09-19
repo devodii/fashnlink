@@ -1,6 +1,6 @@
 # Components
 
-Flat, generic, reusable — no feature-scoped folders (section 1/14 of the build spec). Every component below is showcased in `/dev/components` (dev-only, gated by `app/dev/components/page.tsx`).
+Flat, generic, reusable — no feature-scoped folders (section 1/14 of the build spec). Every component below has a co-located `*.stories.tsx` file (e.g. `app-shell.tsx` / `app-shell.stories.tsx`) — run `pnpm storybook` to browse them all interactively, or `pnpm build-storybook` for a static build. `pnpm test:storybook` runs every story as a real headless-browser test (default/loading/empty/error/mobile states, `prefers-reduced-motion` variants for motion primitives) — this is what `/dev/components` used to do, now co-located instead of a single gallery page.
 
 ## Layout (`components/*`)
 
