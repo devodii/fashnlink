@@ -1,25 +1,34 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod';
+import { experimental_evaluate as evaluate } from 'ai';
 import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { openai } from '@/lib/openai';
+import { typesafeAi } from '@/lib/typesafe-ai';
 import { redis } from '@/lib/redis';
 import { garmentCategoryEnum, wearableTypeEnum } from '@/db/schema';
-import { WEARABLE_GATE } from '@/config/prompts';
+import {
+  WEARABLE_GATE,
+  WEARABLE_GATE_JEV_GARMENT_CATEGORY,
+  WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS,
+  WEARABLE_GATE_JEV_IS_KIDS,
+  WEARABLE_GATE_JEV_IS_WEARABLE,
+} from '@/config/prompts';
 import { KIDS_KEYWORDS, WEARABLE_NEGATIVE, WEARABLE_POSITIVE } from '@/config/wearable-keywords';
 import {
   resolveVerdict,
   type FinalWearabilityVerdict,
   type ImageVisionVerdict,
 } from '@/config/wearable-rules';
+import type { GarmentCategory } from './types';
 
 export type WearabilityCandidate = {
   title: string;
   productType: string | null;
   tags: string[];
   descriptionText: string;
-  images: { url: string; width: number | null; height: number | null }[];
+  images: { url: string; alt?: string | null; width: number | null; height: number | null }[];
 };
 
 // ---------- Stage 1: text (free, sync, no model) ----------
@@ -43,6 +52,113 @@ export function scoreCandidateText(candidate: WearabilityCandidate): TextStageRe
   const positives = WEARABLE_POSITIVE.filter((word) => haystack.includes(word)).length;
   const negatives = WEARABLE_NEGATIVE.filter((word) => haystack.includes(word)).length;
   return { score: positives - 2 * negatives, isKids: false };
+}
+
+// ---------- Stage 1b: Jev (TypeSafe AI), fast/cheap text classification ----------
+// Added mid-build (user's idea): most of what Stage 2's vision call is asked
+// is actually resolvable from text alone (title/tags/description/image alt
+// text) — Jev answers that cheaply, and only genuinely visual questions
+// (image_kind, usable_for_tryon, subject_count, is_minor_present) still go to
+// Stage 2. Jev has NO image modality; never ask it about pixel content.
+
+export type JevStageResult =
+  | { outcome: 'not_wearable'; probability: number }
+  | { outcome: 'kids'; probability: number }
+  | { outcome: 'uncertain'; garmentCategoryGuess: GarmentCategory | null };
+
+// DECISION: Jev's boolean probability is "not guaranteed to be calibrated
+// across providers" per the AI SDK's own evaluation docs — thresholds below
+// are deliberately conservative (only short-circuit on a strong signal in
+// either direction) rather than the naive 0.5 midpoint, so an uncertain call
+// always falls through to Stage 2's vision call instead of a wrong gate
+// decision skipping it. Tune these against real labeled data once Jev has
+// run against production traffic.
+const JEV_NOT_WEARABLE_MAX_PROBABILITY = 0.1;
+const JEV_KIDS_MIN_PROBABILITY = 0.85;
+
+const CACHE_TTL_SECONDS_JEV = 60 * 60 * 24 * 30; // 30 days, matches Stage 2's convention
+
+function cacheKeyForText(state: unknown): string {
+  const hash = createHash('sha256').update(JSON.stringify(state)).digest('hex');
+  return `wearable-gate:jev:v1:${hash}`;
+}
+
+async function classifyWithJev(
+  candidate: WearabilityCandidate,
+  ctx: Ctx,
+): Promise<Result<JevStageResult>> {
+  const state = {
+    title: candidate.title,
+    productType: candidate.productType,
+    tags: candidate.tags,
+    descriptionText: candidate.descriptionText.slice(0, 500),
+    images: candidate.images.slice(0, 3).map((image) => ({
+      alt: image.alt ?? null,
+      filename: image.url.split('/').pop()?.split('?')[0] ?? null,
+    })),
+  };
+
+  const cacheKey = cacheKeyForText(state);
+  if (redis) {
+    const cached = await redis.get<JevStageResult>(cacheKey);
+    if (cached) return ok(cached);
+  }
+
+  try {
+    const result = await evaluate({
+      model: typesafeAi.evaluationModel('jev-latest'),
+      state,
+      questions: {
+        is_wearable: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_WEARABLE },
+        is_kids: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_KIDS },
+        garment_category: {
+          type: 'choice',
+          instructions: WEARABLE_GATE_JEV_GARMENT_CATEGORY,
+          criteria: Object.fromEntries(
+            garmentCategoryEnum.enumValues.map((category) => [
+              category,
+              WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS[category],
+            ]),
+          ),
+        },
+      },
+    });
+
+    const isWearable = result.answers.is_wearable;
+    const isKids = result.answers.is_kids;
+    const garmentCategory = result.answers.garment_category;
+    if (
+      isWearable.type !== 'boolean' ||
+      isKids.type !== 'boolean' ||
+      garmentCategory.type !== 'choice'
+    ) {
+      return err({ code: 'INTERNAL', message: 'wearable gate: unexpected jev answer shape' });
+    }
+
+    let stageResult: JevStageResult;
+    if (isKids.probability >= JEV_KIDS_MIN_PROBABILITY) {
+      stageResult = { outcome: 'kids', probability: isKids.probability };
+    } else if (isWearable.probability <= JEV_NOT_WEARABLE_MAX_PROBABILITY) {
+      stageResult = { outcome: 'not_wearable', probability: isWearable.probability };
+    } else {
+      const guess = garmentCategoryEnum.enumValues.includes(
+        garmentCategory.choice as GarmentCategory,
+      )
+        ? (garmentCategory.choice as GarmentCategory)
+        : null;
+      stageResult = { outcome: 'uncertain', garmentCategoryGuess: guess };
+    }
+
+    if (redis) {
+      await redis.set(cacheKey, stageResult, { ex: CACHE_TTL_SECONDS_JEV });
+    }
+    return ok(stageResult);
+  } catch (cause) {
+    // Jev is a cost/latency optimization, not a safety gate — if it's down or
+    // errors, fall through to Stage 2 rather than failing the whole pipeline.
+    ctx.log.warn({ cause }, 'wearable gate jev call failed, falling through to vision');
+    return ok({ outcome: 'uncertain', garmentCategoryGuess: null });
+  }
 }
 
 // ---------- Stage 2: vision (batched, cached) ----------
@@ -190,6 +306,36 @@ export async function assessWearability(
       verdict: {
         eligibility: 'not_wearable',
         eligibilityReason: 'text:negative',
+        wearableType: 'none',
+        garmentCategory: 'unknown',
+        tryonSourceIndex: null,
+      },
+      perImageVisionVerdicts: [],
+    });
+  }
+
+  const jevResult = await classifyWithJev(candidate, ctx);
+  if (!jevResult.ok) return jevResult;
+  // jevResult.value.garmentCategoryGuess (uncertain case) isn't threaded
+  // further — Stage 2's vision call remains authoritative for category when
+  // it runs; the guess exists for future telemetry, not decisioning.
+  if (jevResult.value.outcome === 'kids') {
+    return ok({
+      verdict: {
+        eligibility: 'kids',
+        eligibilityReason: 'text:jev_kids',
+        wearableType: 'none',
+        garmentCategory: 'unknown',
+        tryonSourceIndex: null,
+      },
+      perImageVisionVerdicts: [],
+    });
+  }
+  if (jevResult.value.outcome === 'not_wearable') {
+    return ok({
+      verdict: {
+        eligibility: 'not_wearable',
+        eligibilityReason: 'text:jev_not_wearable',
         wearableType: 'none',
         garmentCategory: 'unknown',
         tryonSourceIndex: null,

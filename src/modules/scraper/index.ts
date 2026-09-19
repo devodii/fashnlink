@@ -152,7 +152,7 @@ export async function scrapeUrl(
       descriptionText: product.descriptionText.slice(0, 500),
       images: product.images
         .slice(0, 3)
-        .map((i) => ({ url: i.url, width: i.width, height: i.height })),
+        .map((i) => ({ url: i.url, alt: i.alt, width: i.width, height: i.height })),
     },
     ctx,
   );
