@@ -1,0 +1,36 @@
+import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { stores } from '@/db/schema';
+import { newId } from '@/lib/ids';
+import type { PlatformKey } from '@/modules/scraper/types';
+
+export async function findStoreByDomain(domain: string) {
+  const [store] = await db.select().from(stores).where(eq(stores.domain, domain)).limit(1);
+  return store ?? null;
+}
+
+export async function findOrCreateStore(input: {
+  domain: string;
+  platform: PlatformKey;
+  fingerprint: Record<string, unknown>;
+}) {
+  const existing = await findStoreByDomain(input.domain);
+  if (existing) return existing;
+
+  const [created] = await db
+    .insert(stores)
+    .values({
+      id: newId('store'),
+      domain: input.domain,
+      platform: input.platform,
+      fingerprint: input.fingerprint,
+    })
+    .onConflictDoNothing({ target: stores.domain })
+    .returning();
+
+  return created ?? (await findStoreByDomain(input.domain));
+}
+
+export async function touchStoreCrawled(storeId: string) {
+  await db.update(stores).set({ lastCrawledAt: new Date() }).where(eq(stores.id, storeId));
+}
