@@ -23,12 +23,6 @@ import {
 } from '@/config/wearable-rules';
 import type { GarmentCategory } from './types';
 
-/**
- * A cache is never allowed to take the feature it caches down with it; an
- * Upstash outage (or, as CI caught, a broken/placeholder REST URL) must
- * degrade to "treat as a cache miss", not throw. Every redis read/write in
- * this file goes through these two helpers instead of the raw client.
- */
 async function safeRedisGet<T>(ctx: Ctx, key: string): Promise<T | null> {
   if (!redis) return null;
   try {
@@ -63,10 +57,6 @@ export type TextStageResult = {
   isKids: boolean;
 };
 
-/**
- * Exported standalone so it's unit-testable without the model (section 6.7's
- * own testing note: "Stage 1 is unit-tested without the model").
- */
 export function scoreCandidateText(candidate: WearabilityCandidate): TextStageResult {
   const haystack = [candidate.title, candidate.productType ?? '', ...candidate.tags]
     .join(' ')
@@ -81,33 +71,21 @@ export function scoreCandidateText(candidate: WearabilityCandidate): TextStageRe
   return { score: positives - 2 * negatives, isKids: false };
 }
 
-/**
- * ---------- Stage 1b: Jev (TypeSafe AI), fast/cheap text classification ----------
- * Added mid-build (user's idea): most of what Stage 2's vision call is asked
- * is actually resolvable from text alone (title/tags/description/image alt
- * text); Jev answers that cheaply, and only genuinely visual questions
- * (image_kind, usable_for_tryon, subject_count, is_minor_present) still go to
- * Stage 2. Jev has NO image modality; never ask it about pixel content.
- */
+// ---------- Stage 1b: Jev (TypeSafe AI), fast/cheap text classification ----------
+// Jev has no image modality; never ask it about pixel content.
 
 export type JevStageResult =
   | { outcome: 'not_wearable'; probability: number }
   | { outcome: 'kids'; probability: number }
   | { outcome: 'uncertain'; garmentCategoryGuess: GarmentCategory | null };
 
-/**
- * DECISION: Jev's boolean probability is "not guaranteed to be calibrated
- * across providers" per the AI SDK's own evaluation docs; thresholds below
- * are deliberately conservative (only short-circuit on a strong signal in
- * either direction) rather than the naive 0.5 midpoint, so an uncertain call
- * always falls through to Stage 2's vision call instead of a wrong gate
- * decision skipping it. Tune these against real labeled data once Jev has
- * run against production traffic.
- */
+// The AI SDK's evaluation docs note that boolean probabilities are not
+// guaranteed to be calibrated across providers, so these thresholds only
+// short-circuit on a strong signal rather than the naive 0.5 midpoint.
 const JEV_NOT_WEARABLE_MAX_PROBABILITY = 0.1;
 const JEV_KIDS_MIN_PROBABILITY = 0.85;
 
-const CACHE_TTL_SECONDS_JEV = 60 * 60 * 24 * 30; // 30 days, matches Stage 2's convention
+const CACHE_TTL_SECONDS_JEV = 60 * 60 * 24 * 30;
 
 function cacheKeyForText(state: unknown): string {
   const hash = createHash('sha256').update(JSON.stringify(state)).digest('hex');
@@ -181,10 +159,8 @@ async function classifyWithJev(
     await safeRedisSet(ctx, cacheKey, stageResult, CACHE_TTL_SECONDS_JEV);
     return ok(stageResult);
   } catch (cause) {
-    /**
-     * Jev is a cost/latency optimization, not a safety gate; if it's down or
-     * errors, fall through to Stage 2 rather than failing the whole pipeline.
-     */
+    // Jev is a cost/latency optimization, not a safety gate, so a failed
+    // call falls through to Stage 2 rather than failing the whole pipeline.
     ctx.log.warn({ cause }, 'wearable gate jev call failed, falling through to vision');
     return ok({ outcome: 'uncertain', garmentCategoryGuess: null });
   }
@@ -196,11 +172,8 @@ const visionResponseSchema = z.object({
   images: z.array(
     z.object({
       is_wearable: z.boolean(),
-      /**
-       * Runtime-derived from db/schema.ts's enums (not just the TS type) so
-       * the values OpenAI is asked to return and the values the DB will
-       * accept can never drift apart.
-       */
+      // Derived from db/schema.ts's enums so what OpenAI returns and what
+      // the DB accepts can never drift apart.
       wearable_type: z.enum(wearableTypeEnum.enumValues),
       garment_category: z.enum(garmentCategoryEnum.enumValues),
       subject_count: z.number().int(),
@@ -221,17 +194,11 @@ const visionResponseSchema = z.object({
   ),
 });
 
-const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+const CACHE_TTL_SECONDS = 60 * 60 * 24 * 30;
 
-/**
- * DECISION: section 6.7 says "cache the verdict in Redis by image phash" ;
- * true perceptual hashing needs pixel access (`sharp`, section 6.6) which
- * only enrichment (a later pipeline step) has; the gate only ever sees a
- * source URL. A sha256 of the URL is used as the cache key instead; it still
- * makes repeated pastes and re-crawls of the same product free (the actual
- * goal), just without near-duplicate (different-URL-same-image) matching,
- * which enrichment's real phash dedupe handles separately.
- */
+// Keyed by a sha256 of the URL, not a true perceptual hash: this gate only
+// ever sees a source URL, not pixel access, so it cannot dedupe
+// different-URL-same-image cases the way enrichment's real phash does.
 function cacheKeyForImage(url: string): string {
   return `wearable-gate:v1:${createHash('sha256').update(url).digest('hex')}`;
 }
@@ -298,19 +265,13 @@ async function classifyImagesWithVision(
 export type WearabilityAssessment = {
   verdict: FinalWearabilityVerdict;
   /**
-   * Raw per-image Stage 2 output, same order as `candidate.images.slice(0,3)`,
-   * `null` for an image that never reached Stage 2 (text short-circuited, or
-   * there were no images at all). Enrichment reuses this for
+   * Raw per-image Stage 2 output, same order as candidate.images.slice(0,3),
+   * null for an image that never reached Stage 2. Enrichment reuses this for
    * image-role classification instead of running a second vision call.
    */
   perImageVisionVerdicts: (ImageVisionVerdict | null)[];
 };
 
-/**
- * Public entry point, run in the pipeline between `normalize`
- * and `enrich` and again in the manual-upload path.
- * Only the top 3 candidate images are considered, per spec.
- */
 export async function assessWearability(
   candidate: WearabilityCandidate,
   ctx: Ctx,
@@ -345,11 +306,8 @@ export async function assessWearability(
 
   const jevResult = await classifyWithJev(candidate, ctx);
   if (!jevResult.ok) return jevResult;
-  /**
-   * jevResult.value.garmentCategoryGuess (uncertain case) isn't threaded
-   * further (Stage 2's vision call remains authoritative for category when
-   * it runs) the guess exists for future telemetry, not decisioning.
-   */
+  // jevResult.value.garmentCategoryGuess is intentionally not used further
+  // here: Stage 2's vision call remains authoritative for category.
   if (jevResult.value.outcome === 'kids') {
     return ok({
       verdict: {
