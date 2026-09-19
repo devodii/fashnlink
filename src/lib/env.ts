@@ -19,6 +19,13 @@ const devRequired = z.object({
   // R2 credential block. UploadThing's v7 SDK reads a single UPLOADTHING_TOKEN
   // (dashboard → API Keys), not separate secret/app-id vars.
   UPLOADTHING_TOKEN: z.string().min(1, 'UPLOADTHING_TOKEN is required'),
+  // DECISION: added mid-build, on top of section 6.7's two-stage gate — a
+  // cheap/fast text-only classification stage (TypeSafe AI's "Jev" model,
+  // called direct, not through Vercel AI Gateway) sits between Stage 1's free
+  // keyword scoring and Stage 2's OpenAI vision call. Dev-required at the
+  // same tier as OPENAI_API_KEY since the gate can't meaningfully run without
+  // it (see src/modules/scraper/wearable-gate.ts).
+  TYPESAFE_AI_API_KEY: z.string().min(1, 'TYPESAFE_AI_API_KEY is required'),
 });
 
 // Required in production only (section 3: "Required in production: everything
