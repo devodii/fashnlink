@@ -83,7 +83,16 @@ const STATUS_BY_CODE: Record<AppError['code'], number> = {
   MODERATION_BLOCKED: 422,
   INSUFFICIENT_CREDITS: 402,
   RATE_LIMITED: 429,
-  SCRAPE_FAILED: 502,
+  // DECISION (M5, found via a real onboarding browser test): a scrape
+  // failure is almost always "this specific product URL 404s / can't be
+  // parsed" — a client-actionable problem the merchant should see and can
+  // fix by pasting a different URL, exactly like UNSUPPORTED_PLATFORM and
+  // MODERATION_BLOCKED below. It was 502 ("upstream server failed"), which
+  // this file's own catch handler maps to the generic "an internal error
+  // occurred" message for anything >= 500 — silently swallowing the real,
+  // useful error text (e.g. "Shopify product not found: ...") that
+  // onboarding step 1 and `/dashboard/links/new` are built to display.
+  SCRAPE_FAILED: 422,
   RENDER_FAILED: 502,
   INTERNAL: 500,
 };
