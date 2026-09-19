@@ -9,6 +9,16 @@ import type { WearabilityCandidate } from './wearable-gate';
 // API key needed. This exercises the REAL `experimental_evaluate` validation/
 // answer-shaping logic against a fake model, per `ai/test`'s intended use.
 
+// Redis is mocked to `null` (an already-supported, already-tested state per
+// src/lib/redis.ts's own null-safety convention) so this suite never depends
+// on real network state — whatever UPSTASH_REDIS_REST_URL happens to resolve
+// to in a given environment (unset locally, a placeholder in CI) is
+// irrelevant to what's being tested here. A CI run once actually hit this:
+// its placeholder Upstash URL doesn't resolve, and the client's own
+// retry/backoff before failing took long enough to blow the test timeout
+// even with `classifyWithJev`'s try/catch correctly in place.
+vi.mock('@/lib/redis', () => ({ redis: null }));
+
 type DoEvaluate = NonNullable<
   NonNullable<ConstructorParameters<typeof Experimental_EvaluationMockModelV4>[0]>['doEvaluate']
 >;

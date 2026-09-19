@@ -23,6 +23,29 @@ import {
 } from '@/config/wearable-rules';
 import type { GarmentCategory } from './types';
 
+// A cache is never allowed to take the feature it caches down with it — an
+// Upstash outage (or, as CI caught, a broken/placeholder REST URL) must
+// degrade to "treat as a cache miss", not throw. Every redis read/write in
+// this file goes through these two helpers instead of the raw client.
+async function safeRedisGet<T>(ctx: Ctx, key: string): Promise<T | null> {
+  if (!redis) return null;
+  try {
+    return (await redis.get<T>(key)) ?? null;
+  } catch (cause) {
+    ctx.log.warn({ cause, key }, 'wearable gate redis read failed, treating as cache miss');
+    return null;
+  }
+}
+
+async function safeRedisSet(ctx: Ctx, key: string, value: unknown, ttlSeconds: number) {
+  if (!redis) return;
+  try {
+    await redis.set(key, value, { ex: ttlSeconds });
+  } catch (cause) {
+    ctx.log.warn({ cause, key }, 'wearable gate redis write failed, continuing without cache');
+  }
+}
+
 export type WearabilityCandidate = {
   title: string;
   productType: string | null;
@@ -99,10 +122,8 @@ async function classifyWithJev(
   };
 
   const cacheKey = cacheKeyForText(state);
-  if (redis) {
-    const cached = await redis.get<JevStageResult>(cacheKey);
-    if (cached) return ok(cached);
-  }
+  const cached = await safeRedisGet<JevStageResult>(ctx, cacheKey);
+  if (cached) return ok(cached);
 
   try {
     const result = await evaluate({
@@ -149,9 +170,7 @@ async function classifyWithJev(
       stageResult = { outcome: 'uncertain', garmentCategoryGuess: guess };
     }
 
-    if (redis) {
-      await redis.set(cacheKey, stageResult, { ex: CACHE_TTL_SECONDS_JEV });
-    }
+    await safeRedisSet(ctx, cacheKey, stageResult, CACHE_TTL_SECONDS_JEV);
     return ok(stageResult);
   } catch (cause) {
     // Jev is a cost/latency optimization, not a safety gate — if it's down or
@@ -208,11 +227,7 @@ async function classifyImagesWithVision(
   ctx: Ctx,
 ): Promise<Result<ImageVisionVerdict[]>> {
   const cached: (ImageVisionVerdict | null)[] = await Promise.all(
-    images.map(async (image) => {
-      if (!redis) return null;
-      const raw = await redis.get<ImageVisionVerdict>(cacheKeyForImage(image.url));
-      return raw ?? null;
-    }),
+    images.map((image) => safeRedisGet<ImageVisionVerdict>(ctx, cacheKeyForImage(image.url))),
   );
 
   const uncachedIndexes = cached
@@ -257,11 +272,7 @@ async function classifyImagesWithVision(
         });
       }
       results[imageIndex] = verdict;
-      if (redis) {
-        await redis.set(cacheKeyForImage(images[imageIndex].url), verdict, {
-          ex: CACHE_TTL_SECONDS,
-        });
-      }
+      await safeRedisSet(ctx, cacheKeyForImage(images[imageIndex].url), verdict, CACHE_TTL_SECONDS);
     }
     return ok(results);
   } catch (cause) {
