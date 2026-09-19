@@ -1,0 +1,44 @@
+{
+  "name": "Tryon Abandoned",
+  "description": "Triggered when a shopper tries something on and doesn't buy within 24 hours. Shows them wearing the product to bring them back.",
+  "trigger": {
+    "type": "metric",
+    "metric": "Tryon Abandoned"
+  },
+  "flow_filter": {
+    "type": "profile_property",
+    "property": "unsubscribed_tryon",
+    "operator": "is_not",
+    "value": true
+  },
+  "actions": [
+    {
+      "type": "email",
+      "subject": "This looked good on you.",
+      "preview_text": "Still thinking about it?",
+      "delay_minutes": 0,
+      "body_blocks": [
+        {
+          "type": "image",
+          "source": "event.render_image_url",
+          "alt": "You wearing {{ event.product_title }}",
+          "note": "Use the event's render_image_url directly — it's a signed URL that expires at event.render_expires_at (30 days). Klaviyo does not need to fetch/store it; it just embeds the URL."
+        },
+        {
+          "type": "text",
+          "content": "You tried on {{ event.product_title }}{% if event.variant_size %} in size {{ event.variant_size }}{% endif %}{% if event.variant_color %}, {{ event.variant_color }}{% endif %}. It's still available."
+        },
+        {
+          "type": "button",
+          "label": "Buy it now",
+          "url": "{{ event.buy_url | default: event.product_url }}"
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "This is a starting-point template, not a finished flow — import it into Klaviyo's flow builder and adjust timing/copy to your brand.",
+    "The event properties available: product_title, product_url, buy_url, render_image_url, render_expires_at, variant_size, variant_color (see section 9.8 of the build spec).",
+    "Cap: this event fires at most once per shopper per merchant per 7 days, so a single-email flow (no repeat sends) is the right default."
+  ]
+}

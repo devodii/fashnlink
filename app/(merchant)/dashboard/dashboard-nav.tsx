@@ -9,6 +9,7 @@ import {
   Sparkles,
   CreditCard,
   Settings,
+  Mail,
 } from 'lucide-react';
 import { AppShell, type NavItem } from '@/components/app-shell';
 
@@ -18,6 +19,7 @@ const BASE_ITEMS: Omit<NavItem, 'active'>[] = [
   { label: 'Products', href: '/dashboard/products', icon: Package },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
   { label: 'Model pack', href: '/dashboard/model-pack', icon: Sparkles },
+  { label: 'Retargeting', href: '/dashboard/retargeting', icon: Mail },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];

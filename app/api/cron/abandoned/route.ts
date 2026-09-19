@@ -4,6 +4,7 @@ import { ok } from '@/lib/result';
 import { db } from '@/db';
 import {
   cartEvents,
+  espConnections,
   links,
   productVariants,
   products,
@@ -82,6 +83,17 @@ export const GET = apiHandler({
 
     for (const c of candidates) {
       if (!c.shopperEmail || !c.outputR2Key) continue;
+
+      const [connection] = await db
+        .select({ settings: espConnections.settings })
+        .from(espConnections)
+        .where(eq(espConnections.merchantId, c.merchantId))
+        .limit(1);
+      const settings = (connection?.settings ?? {}) as { abandonedEnabled?: boolean };
+      if (settings.abandonedEnabled === false) {
+        skippedNoEsp++;
+        continue;
+      }
 
       const [recent] = await db
         .select({ id: cartEvents.id })
