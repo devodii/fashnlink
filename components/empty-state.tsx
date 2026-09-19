@@ -10,8 +10,6 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-/** one sentence + one button, everywhere something has
- * nothing to show yet (empty catalog, no leads, no renders). */
 export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
   return (
     <div

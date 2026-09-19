@@ -15,9 +15,6 @@ export interface CopyFieldProps {
   className?: string;
 }
 
-/** read-only value with a copy button and "Copied" state.
- * `translate="no"`; the value is a URL/slug/price, never
- * something Google's widget should touch. */
 export function CopyField({ value, label, truncate, className }: CopyFieldProps) {
   const { copied, copy } = useCopy();
   const id = React.useId();

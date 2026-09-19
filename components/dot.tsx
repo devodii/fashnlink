@@ -14,8 +14,6 @@ export interface DotProps extends React.ComponentProps<'span'> {
   tone?: Tone;
 }
 
-/** small status token; a bare colored dot for the cases too
- * small for a `StatusBadge` (a `DataTable` cell, a list row). */
 export function Dot({ tone = 'neutral', className, ...props }: DotProps) {
   return (
     <span

@@ -6,8 +6,6 @@ export interface CountUpProps {
   className?: string;
 }
 
-/** thin wrapper so call sites (`StatCard`, dashboards) don't
- * reach into `components/motion` directly. */
 export function CountUp({ value, formatter, className }: CountUpProps) {
   return <NumberTicker value={value} formatter={formatter} className={className} />;
 }

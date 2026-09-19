@@ -19,8 +19,6 @@ export interface AvatarStackProps {
   className?: string;
 }
 
-/** group members; thin wrapper over the
- * generated `AvatarGroup` primitive that takes plain `{ src, alt }` data. */
 export function AvatarStack({ items, max = 5, size = 'default', className }: AvatarStackProps) {
   const visible = items.slice(0, max);
   const overflow = items.length - visible.length;

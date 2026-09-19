@@ -19,8 +19,6 @@ export interface AppShellProps {
   children: React.ReactNode;
 }
 
-/** sidebar on desktop, bottom tab bar on mobile. `nav` items
- * decide their own `active` state (the shell doesn't know about routing). */
 export function AppShell({ nav, user, actions, footer, children }: AppShellProps) {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
