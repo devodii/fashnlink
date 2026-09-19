@@ -9,18 +9,9 @@ import {
   type ProductPageRaw,
 } from '../shared/product-page';
 
-/**
- * ; the fallback of last resort, and every "thin" platform
- * adapter leans on the same shared/product-page.ts scraper rather than
- * reimplementing JSON-LD/OpenGraph parsing.
- */
 export const genericAdapter: ScraperAdapter = {
   key: 'generic',
   displayName: 'Generic (JSON-LD / OpenGraph)',
-  /**
-   * Lowest priority; always matches, only used once every specific adapter
-   * has declined.
-   */
   priority: 1000,
   capabilities: new Set(['detect', 'getProduct', 'listProducts']),
   rawSchema: productPageRawSchema,
