@@ -22,30 +22,55 @@ async function fetchSitemapLocs(sitemapUrl: string, ctx: Ctx): Promise<string[]>
 }
 
 // Recurses one level into sitemap indexes (a sitemap of sitemaps), fetches
-// with the given concurrency, and returns only URLs that look like product
-// pages, capped at `maxProducts`.
+// with the given concurrency, and returns product page URLs, capped at
+// `maxProducts`.
+//
+// `sitemapNameFilter` (section 6.5's Wix adapter: "sitemap.xml ->
+// store-products-sitemap*.xml") — when a child sitemap's own URL matches
+// this pattern, every `<loc>` inside it is trusted as a product URL outright
+// rather than re-filtered by `PRODUCT_URL_PATTERN`: Wix's real product URLs
+// look like `/product-page/{slug}` (confirmed against a real store), which
+// that pattern doesn't match (it expects a `product`/`shop`/`item` path
+// *segment*, not a compound name like `product-page`) — the sitemap's own
+// name is the more reliable signal here, not the URL shape.
 export async function discoverProductUrls(
   origin: string,
   ctx: Ctx,
-  opts: { maxProducts: number; concurrency?: number } = { maxProducts: 200 },
+  opts: { maxProducts: number; concurrency?: number; sitemapNameFilter?: RegExp } = {
+    maxProducts: 200,
+  },
 ): Promise<string[]> {
   const concurrency = opts.concurrency ?? 4;
   const topLevelSitemaps = await discoverSitemapUrls(origin, ctx);
 
-  const allLocs: string[] = [];
+  const patternMatchedLocs: string[] = [];
+  const trustedLocs: string[] = [];
+
   for (const sitemapUrl of topLevelSitemaps) {
     const locs = await fetchSitemapLocs(sitemapUrl, ctx);
-    const isIndex = locs.some((loc) => loc.endsWith('.xml'));
-    if (isIndex) {
-      const childSitemaps = locs.filter((loc) => loc.endsWith('.xml')).slice(0, concurrency);
-      for (const child of childSitemaps) {
-        allLocs.push(...(await fetchSitemapLocs(child, ctx)));
-      }
-    } else {
-      allLocs.push(...locs);
+    const childSitemapUrls = locs.filter((loc) => loc.endsWith('.xml'));
+    const isIndex = childSitemapUrls.length > 0;
+
+    if (!isIndex) {
+      patternMatchedLocs.push(...locs);
+      continue;
+    }
+
+    const preferred = opts.sitemapNameFilter
+      ? childSitemapUrls.filter((loc) => opts.sitemapNameFilter?.test(loc))
+      : [];
+    const childrenToFetch = (preferred.length ? preferred : childSitemapUrls).slice(0, concurrency);
+
+    for (const child of childrenToFetch) {
+      const childLocs = await fetchSitemapLocs(child, ctx);
+      if (preferred.includes(child)) trustedLocs.push(...childLocs);
+      else patternMatchedLocs.push(...childLocs);
     }
   }
 
-  const productUrls = allLocs.filter((url) => PRODUCT_URL_PATTERN.test(url));
+  const productUrls = [
+    ...trustedLocs,
+    ...patternMatchedLocs.filter((url) => PRODUCT_URL_PATTERN.test(url)),
+  ];
   return [...new Set(productUrls)].slice(0, opts.maxProducts);
 }
