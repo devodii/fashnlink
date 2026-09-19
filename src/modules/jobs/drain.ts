@@ -13,11 +13,7 @@ export type DrainSummary = {
   skipped: number;
 };
 
-/**
- * Claim up to BATCH_SIZE due jobs atomically (SKIP LOCKED so concurrent drain
- * calls never claim the same row), run each through the type -> handler
- * registry, and mark the outcome.
- */
+// FOR UPDATE SKIP LOCKED so concurrent drain calls never claim the same row.
 export async function drainJobs(ctx: Ctx): Promise<DrainSummary> {
   const claimed = await db.execute<typeof jobs.$inferSelect>(sql`
     UPDATE ${jobs}

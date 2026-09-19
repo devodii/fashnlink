@@ -14,12 +14,6 @@ export type CreatedLink = {
 
 export type ScrapedProductRef = { productId: string; productTitle: string };
 
-/**
- * Extracted from `createLinkFromUrl` (M6) so poll-link creation can scrape
- * several URLs without creating a `links` row per URL. Wraps M2's `scrapeUrl`
- * (which persists the product) plus the store/product lookup every caller
- * needs afterward.
- */
 export async function scrapeUrlToProduct(
   rawUrl: string,
   merchantId: string,
@@ -31,12 +25,6 @@ export async function scrapeUrlToProduct(
   const product = scraped.value.products[0];
   if (!product) return err({ code: 'INTERNAL', message: 'Scrape produced no product' });
 
-  /**
-   * Hostname only; the full normalizeUrl (protocol/tracking-param
-   * stripping) lives inside `scrapeUrl` itself and isn't exported; the
-   * store lookup only ever keys on hostname, which query stripping can't
-   * change anyway.
-   */
   const hostname = new URL(rawUrl).hostname;
   const store = await findStoreByDomain(hostname);
   if (!store) return err({ code: 'INTERNAL', message: 'Store not found after scrape' });
@@ -47,11 +35,6 @@ export async function scrapeUrlToProduct(
   return ok({ productId: saved.id, productTitle: product.title });
 }
 
-/**
- * Shared by `/onboarding` step 1 and `/dashboard/links/new` (spec section
- * 12/M5: "reuses the exact same scraping pipeline as onboarding step 1 ;
- * don't duplicate the logic").
- */
 export async function createLinkFromUrl(
   rawUrl: string,
   merchantId: string,
@@ -73,11 +56,6 @@ export async function createLinkFromUrl(
 
 export type CreatedMultiLink = { linkId: string; slug: string; products: ScrapedProductRef[] };
 
-/**
- * 2-3 product URLs -> one `links` row,
- * `kind: 'poll'`. Scrapes sequentially so a mid-list failure reports which
- * URL failed rather than an opaque Promise.all rejection.
- */
 export async function createPollLinkFromUrls(
   rawUrls: string[],
   merchantId: string,
@@ -104,10 +82,6 @@ export async function createPollLinkFromUrls(
   return ok({ linkId: link.id, slug: link.slug, products });
 }
 
-/**
- * a group link owns exactly one product (the shared style);
- * `settings.groupName`/`settings.groupNote` drive `/t/[slug]`'s group UI.
- */
 export async function createGroupLinkFromUrl(
   rawUrl: string,
   merchantId: string,
