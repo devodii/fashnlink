@@ -14,12 +14,6 @@ const bodySchema = z.object({
   abandonedEnabled: z.boolean().default(true),
 });
 
-/**
- * `/dashboard/retargeting`'s "connect Klaviyo/Mailchimp"
- * form. One connection per merchant (no multi-ESP support in v1); a
- * reconnect replaces the encrypted key and provider rather than adding a
- * second row.
- */
 export const POST = apiHandler({
   name: 'merchants.espConnection.upsert',
   auth: ['merchant_session'],

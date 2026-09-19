@@ -14,10 +14,9 @@ const bodySchema = z.object({
 });
 
 /**
- * "I'm in: size / color"; one `group_members` row per shopper
- * per group link. A shopper re-submitting updates their existing pick rather
- * than creating a duplicate row (no unique index on the table, so this is
- * enforced here, not by the DB).
+ * There's no unique index on `group_members`, so the existing-pick lookup
+ * and update below is what prevents a re-submitting shopper from creating a
+ * duplicate row; the DB doesn't enforce it.
  */
 export const POST = apiHandler({
   name: 'groups.join',

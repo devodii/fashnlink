@@ -8,10 +8,9 @@ import { ok } from '@/lib/result';
 export const dynamic = 'force-dynamic';
 
 /**
- * Vercel Cron, protected by CRON_SECRET via apiHandler's 'cron'
- * auth scope. Drains up to 50 due jobs per tick; the handler registry it
- * dispatches into starts empty and fills in as later modules register their
- * job types.
+ * The handler registry `drainJobs` dispatches into starts empty; the
+ * side-effecting `@/modules/jobs/handlers` import above is what registers
+ * job types into it.
  */
 export const GET = apiHandler({
   name: 'cron.drainJobs',
