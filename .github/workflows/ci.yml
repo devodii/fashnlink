@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  # Dummy values, not real secrets — env.ts (section 3 of the build spec)
+  # fails fast if any required var is missing, so CI needs something present
+  # for every var it validates. None of these are called against a real
+  # service in lint/typecheck/test/build.
+  APP_SECRET: ci-dummy-app-secret-at-least-32-characters-long
+  BETTER_AUTH_SECRET: ci-dummy-better-auth-secret-32-characters
+  BETTER_AUTH_URL: http://localhost:3000
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  FAL_KEY: ci-dummy-fal-key
+  OPENAI_API_KEY: ci-dummy-openai-key
+  UPLOADTHING_TOKEN: ci-dummy-uploadthing-token
+  RESEND_API_KEY: ci-dummy-resend-key
+  EMAIL_FROM: 'CI <ci@example.com>'
+  STRIPE_SECRET_KEY: ci-dummy-stripe-secret
+  STRIPE_WEBHOOK_SECRET: ci-dummy-stripe-webhook-secret
+  STRIPE_FOUNDING_PASS_PAYMENT_LINK: https://buy.stripe.com/ci-dummy
+  STRIPE_FOUNDING_PASS_PRICE_ID: price_ci_dummy
+  ENCRYPTION_KEY: Y2ktZHVtbXktMzItYnl0ZS1lbmNyeXB0aW9uLWtleSE=
+  UPSTASH_REDIS_REST_URL: https://ci-dummy.upstash.io
+  UPSTASH_REDIS_REST_TOKEN: ci-dummy-upstash-token
+  CRON_SECRET: ci-dummy-cron-secret
+  FAL_WEBHOOK_SECRET: ci-dummy-fal-webhook-secret
+  DATABASE_URL: postgresql://user:password@localhost:5432/app_dev
+  DATABASE_URL_UNPOOLED: postgresql://user:password@localhost:5432/app_dev
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: app_dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d app_dev"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Migrate database
+        run: pnpm db:migrate
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
