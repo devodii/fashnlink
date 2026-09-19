@@ -14,9 +14,6 @@ export interface FileFieldProps<
   capture?: 'user' | 'environment';
 }
 
-/** Wraps `UploadDropzone` for RHF forms. `UploadDropzone` owns
- * the actual upload (UploadThing, client-to-storage), so the field value is
- * the uploaded result (`UploadedFile | undefined`), not a raw `File`. */
 export function FileField<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>({
   control,
   name,

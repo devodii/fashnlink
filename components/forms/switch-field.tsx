@@ -13,9 +13,6 @@ export interface SwitchFieldProps<
   disabled?: boolean;
 }
 
-/** Retargeting opt-in/opt-out toggles (section 9.8, `/me`) are `SwitchField`.
- * Never rendered pre-ticked; that's a caller-side rule (defaultValues), not
- * something this component can enforce. */
 export function SwitchField<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>({
   control,
   name,

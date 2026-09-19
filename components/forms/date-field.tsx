@@ -14,14 +14,6 @@ export interface DateFieldProps<
   disabled?: boolean;
 }
 
-/**
- * DECISION: section 10.3's shadcn primitive list has no Calendar component,
- * and nothing in this spec's field list (10.5) needs a range picker; the
- * only date input in the whole app is the size-chart/date-ish metadata case.
- * A native `<input type="date">` styled through the shared `Input` primitive
- * covers it without adding a calendar dependency; revisit if a later
- * milestone needs a real date-range picker (none currently do).
- */
 export function DateField<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>({
   control,
   name,

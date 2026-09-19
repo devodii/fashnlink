@@ -12,10 +12,6 @@ export interface FieldLayoutProps {
   children: React.ReactNode;
 }
 
-/** Internal layout every `components/forms/*` field shares: label, control,
- * description, and error rendered in one consistent order. Not
- * itself one of the spec's named field components; it's the shared shell
- * they're all built on, to avoid duplicating this layout in every field. */
 export function FieldLayout({
   htmlFor,
   label,
