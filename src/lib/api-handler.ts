@@ -194,6 +194,20 @@ async function resolveAuth<TBody, TParams, TQuery>(
   throw appError('UNAUTHORIZED', 'Unauthorized');
 }
 
+// M4: every shopper-scoped route needs this exact narrowing (resolveAuth's
+// return type is the union of everything any scope could resolve to, even
+// though a route declaring only `['shopper_session']` will in fact always
+// get that variant back) — one helper instead of the same runtime check
+// copy-pasted into every shopper route.
+export function requireShopperSession(
+  resolvedAuth: ResolvedAuth,
+): Result<{ shopperId: string }, AppError> {
+  if (resolvedAuth.type !== 'shopper_session') {
+    return { ok: false, error: { code: 'UNAUTHORIZED', message: 'shopper session required' } };
+  }
+  return { ok: true, value: { shopperId: resolvedAuth.shopperId } };
+}
+
 function actorIdFor(resolvedAuth: ResolvedAuth): string {
   switch (resolvedAuth.type) {
     case 'merchant_session':
