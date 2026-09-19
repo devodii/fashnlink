@@ -6,12 +6,6 @@ import { LoadingButton } from '@/components/loading-button';
 import { InlineAlert } from '@/components/inline-alert';
 import { MediaTile } from '@/components/media-tile';
 
-/**
- * the live "paste a product URL" homepage demo, no account
- * required. Posts to `POST /api/public/quick-link` (rate-limited 3/IP/day,
- * section 13) and, once it has a slug, links straight to the real
- * `/t/[slug]` try-on flow so a visitor can actually try it on.
- */
 export function QuickDemoForm() {
   const [url, setUrl] = React.useState('');
   const [status, setStatus] = React.useState<'idle' | 'working' | 'done' | 'error'>('idle');

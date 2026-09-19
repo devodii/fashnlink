@@ -1,11 +1,5 @@
 import { Container } from '@/components/container';
 
-/**
- * Exact required disclosures (section 6.7's non-negotiables,
- * restated for shoppers): photos are used only for the uploader's own
- * renders, deletable any time, never used for training, 90-day retention
- * unless the shopper keeps a closet account.
- */
 export default function PrivacyPage() {
   return (
     <Container size="sm" className="flex-1 space-y-6 py-16">

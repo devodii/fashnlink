@@ -2,13 +2,6 @@ import { requireMerchant } from '@/modules/auth/require-merchant';
 import { PageHeader } from '@/components/page-header';
 import { NewLinkForm } from './new-link-form';
 
-/**
- * DECISION: the spec's secondary "Upload a photo instead" tab
- * needs its own manual-product API route (M2's `manual` scraper adapter
- * exists, but nothing calls it over HTTP yet); left for a follow-up rather
- * than half-building an upload flow with no server side to land on. The
- * primary URL path below is the one M5's directive calls "highest value."
- */
 export default async function NewLinkPage() {
   await requireMerchant();
 
