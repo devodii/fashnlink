@@ -7,16 +7,8 @@ import { shoppers } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { env } from '@/lib/env';
 
-/**
- * shoppers are anonymous by default, identified by a signed
- * `shopper_id` cookie; never a bare id (that would let anyone forge another
- * shopper's cookie and read/delete their closet). The cookie value is
- * `${shopperId}.${hmac}`; `shoppers.cookieId` mirrors `shoppers.id` rather
- * than being a second independent token; the HMAC is what makes the cookie
- * unforgeable, a distinct DB-side token would add nothing.
- */
 const COOKIE_NAME = 'shopper_id';
-const MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // ~400 days — the practical browser cap on Set-Cookie Max-Age
+const MAX_AGE_SECONDS = 60 * 60 * 24 * 400; // ~400 days, the practical browser cap on Set-Cookie Max-Age
 
 function sign(shopperId: string): string {
   const mac = createHmac('sha256', env.APP_SECRET).update(shopperId).digest('base64url');
@@ -36,25 +28,14 @@ function verify(token: string): string | null {
   return shopperId;
 }
 
-/**
- * Read-only lookup for Server Components, which cannot set cookies during
- * render (Next.js only allows cookie mutation from a Server Action or Route
- * Handler). Returns null if there's no shopper yet; callers render the
- * "not yet identified" state and let the first mutation (an API route call)
- * create one via `getOrCreateShopperId` below.
- */
+// Next.js only allows cookie mutation from a Server Action or Route
+// Handler, not during a Server Component's render, so this stays read-only.
 export async function readShopperId(): Promise<string | null> {
   const store = await cookies();
   const raw = store.get(COOKIE_NAME)?.value;
   return raw ? verify(raw) : null;
 }
 
-/**
- * Resolves the shopper for the current request, creating a `shoppers` row
- * and setting the cookie if none exists yet. Only callable from a Route
- * Handler / Server Action; this is what `AuthScope: 'shopper_session'`
- * resolves through in src/lib/api-handler.ts.
- */
 export async function getOrCreateShopperId(): Promise<string> {
   const store = await cookies();
   const raw = store.get(COOKIE_NAME)?.value;
