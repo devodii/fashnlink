@@ -37,5 +37,12 @@ export function NumberTicker({ value, durationMs = 600, formatter, className }: 
     return () => cancelAnimationFrame(frame);
   }, [value, durationMs, reduceMotion]);
 
-  return <span className={className}>{formatter ? formatter(display) : display.toLocaleString()}</span>;
+  // Section 10.7 mitigation #2: text that changes after mount is marked
+  // `translate="no"` so Google's widget doesn't fight React over this node
+  // on every tick.
+  return (
+    <span className={className} translate="no">
+      {formatter ? formatter(display) : display.toLocaleString()}
+    </span>
+  );
 }

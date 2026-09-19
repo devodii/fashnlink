@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { TranslateProvider } from "@/components/translate-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,11 +26,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      translate="yes"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
+      <body data-gt-root className="min-h-full flex flex-col">
+        <TranslateProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </TranslateProvider>
       </body>
     </html>
   );

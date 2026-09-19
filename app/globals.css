@@ -113,3 +113,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Section 10.7: Google's page-translate widget injects a top banner iframe
+   and a floating tooltip, and pushes `body` down to make room for the
+   banner. We drive translation from our own `LanguagePicker`, so all of
+   Google's own chrome is hidden and the body offset is reset. */
+.goog-te-banner-frame,
+.goog-te-gadget,
+#goog-gt-tt,
+.skiptranslate iframe {
+  display: none !important;
+}
+body {
+  top: 0 !important;
+}
