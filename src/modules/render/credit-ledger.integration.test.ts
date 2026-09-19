@@ -47,23 +47,19 @@ afterAll(async () => {
 describe('M3 credit ledger transaction against a real local Postgres', () => {
   it('reserves credit, blocks at zero, and refunds a failed render', async () => {
     merchantId = newId('merch');
-    await db
-      .insert(merchants)
-      .values({
-        id: merchantId,
-        email: `${TEST_SUFFIX}@example.com`,
-        name: 'Ledger Test Merchant',
-      });
+    await db.insert(merchants).values({
+      id: merchantId,
+      email: `${TEST_SUFFIX}@example.com`,
+      name: 'Ledger Test Merchant',
+    });
 
     const storeId = newId('store');
-    await db
-      .insert(stores)
-      .values({
-        id: storeId,
-        merchantId,
-        domain: `${TEST_SUFFIX}.example.com`,
-        platform: 'shopify',
-      });
+    await db.insert(stores).values({
+      id: storeId,
+      merchantId,
+      domain: `${TEST_SUFFIX}.example.com`,
+      platform: 'shopify',
+    });
 
     productId = newId('prod');
     await db.insert(products).values({
@@ -80,14 +76,12 @@ describe('M3 credit ledger transaction against a real local Postgres', () => {
     });
 
     linkId = newId('link');
-    await db
-      .insert(links)
-      .values({
-        id: linkId,
-        slug: newId('link').slice(0, 12),
-        merchantId,
-        productIds: [productId],
-      });
+    await db.insert(links).values({
+      id: linkId,
+      slug: newId('link').slice(0, 12),
+      merchantId,
+      productIds: [productId],
+    });
 
     shopperId = newId('shopper');
     await db.insert(shoppers).values({ id: shopperId, cookieId: TEST_SUFFIX });
