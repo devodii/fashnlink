@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { cn } from 'cn';
-
-export type StatusTone = 'neutral' | 'success' | 'warning' | 'destructive';
+import type { Tone } from '@/components/dot';
 
 export interface StatusBadgeMapEntry {
   label: string;
-  tone: StatusTone;
+  tone: Tone;
 }
 
 export interface StatusBadgeProps {
@@ -14,7 +13,7 @@ export interface StatusBadgeProps {
   className?: string;
 }
 
-const TONE_CLASS: Record<StatusTone, string> = {
+const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-secondary text-secondary-foreground',
   success: 'bg-success/15 text-success',
   warning: 'bg-warning/15 text-warning',
