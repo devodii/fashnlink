@@ -15,6 +15,7 @@ import { enqueueJob } from '@/modules/jobs';
 import { ScraperRegistry, probeHomepage } from './registry';
 import { shopifyAdapter } from './adapters/shopify';
 import { woocommerceAdapter } from './adapters/woocommerce';
+import { squarespaceAdapter } from './adapters/squarespace';
 import { genericAdapter } from './adapters/generic';
 import { manualAdapter } from './adapters/manual';
 import { assessWearability } from './wearable-gate';
@@ -31,6 +32,7 @@ import type { HomepageProbe, ScraperAdapter } from './types';
 export const scraperRegistry = new ScraperRegistry([
   shopifyAdapter,
   woocommerceAdapter,
+  squarespaceAdapter,
   genericAdapter,
   manualAdapter,
 ]);
