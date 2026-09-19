@@ -23,16 +23,6 @@ export type WebhookResult = {
   error?: string;
 };
 
-/**
- * Interface, adapted: `RenderProvider` mirrors `Adapter`'s
- * `key`/`canHandle` shape (kept structurally compatible so a provider could
- * still be handed to a generic `AdapterRegistry`) but does NOT implement
- * `run()`. Rendering is inherently async/webhook-driven (fal's queue API
- * has no synchronous request-response call) so `Adapter.run`'s
- * input-in/result-out-of-the-same-call contract doesn't fit and nothing here
- * calls it. `submit()` + `parseWebhook()` are the real interface; callers
- * use those directly, never `run()`.
- */
 export interface RenderProvider extends Omit<
   Adapter<RenderInput, RenderOutput, ProviderKey>,
   'run'
@@ -42,10 +32,9 @@ export interface RenderProvider extends Omit<
 }
 
 /**
- * fal's documented webhook payload shape (docs.fal.ai/model-endpoints/queue,
- * verified 2026-09-19): `status: "OK" | "ERROR"`, `payload` present on
- * success (model-specific; each provider narrows it further), `error`
- * present on failure. `request_id` is fal's job id, used for idempotency.
+ * fal's documented webhook payload shape (docs.fal.ai/model-endpoints/queue):
+ * `status: "OK" | "ERROR"`, `payload` present on success and narrowed
+ * further by each provider, `error` present on failure.
  */
 export const falWebhookEnvelopeSchema = z.object({
   request_id: z.string(),

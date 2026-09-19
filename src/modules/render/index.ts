@@ -17,7 +17,9 @@ export function getProvider(key: ProviderKey): RenderProvider {
   return PROVIDERS[key];
 }
 
-// later fails via webhook (that's the caller's refund path, not a retry).
+// Only retries a failed submission with the next provider in the chain; a
+// render that submits fine but later fails via webhook is the caller's
+// refund path, not this function's concern.
 export async function submitWithRouting(
   category: GarmentCategory,
   input: RenderInput,

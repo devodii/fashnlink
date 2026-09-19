@@ -11,13 +11,8 @@ import {
   type WebhookResult,
 } from '../types';
 
-/**
- * Category mapping verified against fal's own FASHN v1.6 API docs
- * (fal.ai/models/fal-ai/fashn/tryon/v1.6/api, 2026-09-19): the model's
- * `category` enum is `tops | bottoms | one-pieces | auto`, not the app's own
- * `GarmentCategory` union; this adapter is the one place that translation
- * happens.
- */
+// FASHN v1.6's own `category` enum (fal.ai/models/fal-ai/fashn/tryon/v1.6/api)
+// is tops | bottoms | one-pieces | auto, not this app's GarmentCategory union.
 const CATEGORY_MAP: Record<string, 'tops' | 'bottoms' | 'one-pieces' | 'auto'> = {
   top: 'tops',
   bottom: 'bottoms',

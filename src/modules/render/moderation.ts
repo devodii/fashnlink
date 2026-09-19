@@ -1,18 +1,8 @@
 import { err, ok, type Result } from '@/lib/result';
 import { openai } from '@/lib/openai';
 
-/**
- * OpenAI moderation on every shopper photo before any model
- * call. `omni-moderation-latest` per spec section 2; the only model this
- * module is allowed to name inline (it's the moderation endpoint identifier
- * itself, not a tunable prompt/price/limit, section 14's concern).
- */
 const MODERATION_MODEL = 'omni-moderation-latest';
 
-/**
- * Categories that block outright (section 7.4: "Block on sexual content,
- * sexual/minors, violence").
- */
 const BLOCKING_CATEGORIES = ['sexual', 'sexual/minors', 'violence', 'violence/graphic'] as const;
 
 export async function moderateImage(imageUrl: string): Promise<Result<void>> {

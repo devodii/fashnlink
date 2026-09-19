@@ -16,11 +16,6 @@ const payloadSchema = z.object({
   images: z.array(z.object({ url: z.string() })).min(1),
 });
 
-/**
- * Shared with twin creation, which needs a single-image edit
- * with a different prompt; nano_banana is one model used two ways, not two
- * models, so the submission mechanics live here once.
- */
 export async function submitNanoBananaEdit(
   prompt: string,
   imageUrls: string[],

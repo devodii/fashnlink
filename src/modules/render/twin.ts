@@ -19,20 +19,8 @@ import { consumeRateLimit } from '@/lib/rate-limit';
 import { moderateImage } from './moderation';
 import { submitNanoBananaEdit } from './providers/nano-banana';
 
-/**
- * DECISION: the shopper identity system (signed
- * `shopper_id` cookie) doesn't exist until M4. This module takes an
- * already-resolved `shopperId` as a plain parameter; resolving *which*
- * shopper is making the request, and the consent/age-attestation checkbox
- * flow in front of the upload, are M4's job, not built here.
- */
 export type CreateTwinInput = {
   shopperId: string;
-  /**
-   * The already-uploaded selfie (client uploads go straight to UploadThing
-   * via UploadDropzone/useUploadThing, section 10.4; this module never
-   * handles the raw upload itself).
-   */
   selfieKey: string;
   selfieUrl: string;
 };
@@ -62,13 +50,6 @@ async function classifyPhoto(selfieUrl: string): Promise<Result<z.infer<typeof c
   }
 }
 
-/**
- * moderation -> full-body/minor classification -> the right
- * nano_banana prompt (background cleanup for a full-body photo, full studio
- * generation for a selfie/half-body) -> a `pending` twin row, submitted
- * async. The webhook (app/api/webhooks/fal) marks it `ready` when the
- * generated image lands.
- */
 export async function createTwin(
   input: CreateTwinInput,
   ctx: Ctx,
