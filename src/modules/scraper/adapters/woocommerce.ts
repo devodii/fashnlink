@@ -157,20 +157,34 @@ export const woocommerceAdapter: ScraperAdapter = {
   rawSchema: woocommerceRawSchema,
 
   async detect(page: HomepageProbe, ctx: Ctx): Promise<DetectResult> {
-    const signals: string[] = [];
-    if (page.html.includes('/wp-content/')) signals.push('html:/wp-content/');
+    // DECISION: found via real-world testing, not spec text — a lone
+    // `/wp-content/` match is NOT sufficient on its own (unlike a real bug
+    // this caught: carillons.be is a real PrestaShop store with a companion
+    // WordPress *blog* at /blog, whose embedded post-thumbnail URLs contain
+    // `/wp-content/` and nothing else WooCommerce-specific, which falsely
+    // matched WooCommerce before this fix). Section 6.3's own table entry
+    // requires two independent HTML signals before trusting a match — this
+    // adapter's detect() hadn't actually enforced that the same way
+    // `src/modules/scraper/detect.ts`'s fingerprinting detector does; now it
+    // does. A successful live Store API probe is treated as authoritative on
+    // its own since it can't false-positive the way a substring match can.
+    const htmlSignals: string[] = [];
+    if (page.html.includes('/wp-content/')) htmlSignals.push('html:/wp-content/');
     if (/woocommerce|wc-blocks|wc_add_to_cart_params/.test(page.html))
-      signals.push('html:woocommerce');
+      htmlSignals.push('html:woocommerce');
 
     const probe = await fetchStoreApi<unknown[]>(
       page.url.origin,
       '/wc/store/v1/products?per_page=1',
       ctx,
     );
-    if (probe.ok && Array.isArray(probe.value)) signals.push('api:/wc/store/v1/products');
+    if (probe.ok && Array.isArray(probe.value)) {
+      return { match: true, confidence: 1, signals: [...htmlSignals, 'api:/wc/store/v1/products'] };
+    }
 
-    const confidence = Math.min(1, signals.length / 2);
-    return { match: confidence >= 0.5, confidence, signals };
+    if (htmlSignals.length < 2)
+      return { match: false, confidence: htmlSignals.length / 2, signals: htmlSignals };
+    return { match: true, confidence: 1, signals: htmlSignals };
   },
 
   async getProduct(url: URL, ctx: Ctx): Promise<Result<WooCommerceRawProduct>> {
