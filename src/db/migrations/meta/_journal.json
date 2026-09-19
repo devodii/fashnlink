@@ -50,6 +50,13 @@
       "when": 1789824470633,
       "tag": "0006_fluffy_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789826687007,
+      "tag": "0007_bouncy_green_goblin",
+      "breakpoints": true
     }
   ]
 }

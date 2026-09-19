@@ -410,6 +410,11 @@ export const groupMembers = pgTable('group_members', {
     .references(() => renders.id),
   chosenVariantId: text('chosen_variant_id').references(() => productVariants.id),
   note: text('note'),
+  // Section 9.4: "Members opt in to show their face to the group" — false by
+  // default, a member is always PART of the group (their size/color pick is
+  // always visible to the merchant) but their twin is only ever rendered in
+  // the group's AvatarStack once they explicitly flip this on.
+  showInGroup: boolean('show_in_group').notNull().default(false),
   ...timestamps,
 });
 

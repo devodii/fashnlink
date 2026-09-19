@@ -13,11 +13,17 @@ const bodySchema = z.object({
   productId: z.string().min(1),
   variantId: z.string().min(1).nullable().optional(),
   twinId: z.string().min(1),
+  // M6: a render's `via` must match the link's own kind — a 'poll'/'group'
+  // render only makes sense against a poll/group link, never a single link
+  // (which would let anyone inflate poll_votes/group_members joins against
+  // renders that were never really options in that poll/group).
+  via: z.enum(['poll', 'group']).nullable().optional(),
 });
 
 // Section 8.4: `POST /api/renders` — deducts a credit (M3's credit-ledger
-// transaction) and submits to fal via `submitRender`. Single-link mode only
-// (section 8.3) — poll/group `via` values are M6, not exposed here.
+// transaction) and submits to fal via `submitRender`. `via` defaults to
+// 'direct' (single-link mode, section 8.3); poll/group modes (M6) pass their
+// own `via` explicitly, checked against the link's `kind` below.
 export const POST = apiHandler({
   name: 'renders.create',
   auth: ['shopper_session'],
@@ -32,6 +38,7 @@ export const POST = apiHandler({
         id: links.id,
         merchantId: links.merchantId,
         status: links.status,
+        kind: links.kind,
         productIds: links.productIds,
       })
       .from(links)
@@ -40,6 +47,12 @@ export const POST = apiHandler({
     if (!link) return err({ code: 'NOT_FOUND', message: 'link not found' });
     if (link.status !== 'active') {
       return err({ code: 'INVALID_INPUT', message: 'this link is no longer active' });
+    }
+    if (body.via && body.via !== link.kind) {
+      return err({
+        code: 'INVALID_INPUT',
+        message: `via '${body.via}' does not match this link's kind`,
+      });
     }
     if (!link.productIds.includes(body.productId)) {
       return err({ code: 'INVALID_INPUT', message: 'product is not part of this link' });
@@ -97,7 +110,7 @@ export const POST = apiHandler({
         variantId: body.variantId ?? null,
         shopperId,
         twinId: body.twinId,
-        via: 'direct',
+        via: body.via ?? 'direct',
         category: product.garmentCategory,
         twinUrl: twin.twinUrl,
         garmentUrl: tryonImage.url,

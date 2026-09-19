@@ -10,6 +10,9 @@ const bodySchema = z.object({
   renderId: z.string().min(1),
   chosenVariantId: z.string().min(1).nullable().optional(),
   note: z.string().max(280).nullable().optional(),
+  // Section 9.4: "Members opt in to show their face to the group" — off by
+  // default, never inferred from anything else.
+  showInGroup: z.boolean().optional().default(false),
 });
 
 // Section 9.4: "I'm in: size / color" — one `group_members` row per shopper
@@ -44,6 +47,7 @@ export const POST = apiHandler({
           renderId: body.renderId,
           chosenVariantId: body.chosenVariantId ?? null,
           note: body.note ?? null,
+          showInGroup: body.showInGroup,
         })
         .where(eq(groupMembers.id, priorMembership.id))
         .returning();
@@ -59,6 +63,7 @@ export const POST = apiHandler({
         renderId: body.renderId,
         chosenVariantId: body.chosenVariantId ?? null,
         note: body.note ?? null,
+        showInGroup: body.showInGroup,
       })
       .returning();
     if (!member) return err({ code: 'INTERNAL', message: 'failed to join group' });
