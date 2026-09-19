@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app_dev
+    ports:
+      # Host 5437 — this machine runs several other local Postgres containers
+      # (5432-5436 already taken by unrelated projects); this avoids colliding
+      # with any of them.
+      - '5437:5432'
+    volumes:
+      # Postgres 18+'s official image expects the volume at /var/lib/postgresql
+      # (not .../data) — see https://github.com/docker-library/postgres/pull/1259.
+      - fashnlink_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U user -d app_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  fashnlink_postgres_data:
