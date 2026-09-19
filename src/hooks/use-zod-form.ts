@@ -4,13 +4,21 @@ import type { z } from 'zod';
 
 /** Section 10.5: every form is a zod schema shared with the server action that
  * consumes it, resolved once here instead of re-declaring validation client
- * and server side. */
-export function useZodForm<TSchema extends z.ZodType>(
-  schema: TSchema,
-  options?: Omit<RHF.UseFormProps<z.infer<TSchema>>, 'resolver'>
+ * and server side.
+ *
+ * DECISION: `zodResolver`'s zod-v4 overload infers its `Input`/`Output`
+ * generics from the schema's internal `_zod` shape, which TypeScript can't
+ * resolve through an opaque generic type parameter — a known friction point
+ * between @hookform/resolvers 5.x and zod 4.x. The cast below is a single,
+ * structurally-related `as` (Resolver<FieldValues> -> Resolver<TFieldValues>),
+ * not `as unknown as`, and is scoped to this one call site.
+ */
+export function useZodForm<TFieldValues extends RHF.FieldValues>(
+  schema: z.ZodType<TFieldValues, TFieldValues>,
+  options?: Omit<RHF.UseFormProps<TFieldValues>, 'resolver'>
 ) {
-  return RHF.useForm<z.infer<TSchema>>({
+  return RHF.useForm<TFieldValues>({
     ...options,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as RHF.Resolver<TFieldValues>,
   });
 }
