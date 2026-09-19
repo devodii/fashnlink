@@ -461,9 +461,14 @@ export const creditLedger = pgTable(
   (table) => [index('credit_ledger_merchant_created_idx').on(table.merchantId, table.createdAt)],
 );
 
-export const stripeEvents = pgTable('stripe_events', {
-  // Primary key is the Stripe event id itself (section 5), not a generated ulid.
+// DECISION: section 5 spec'd this as `stripe_events` (Stripe-only); renamed
+// to the provider-neutral `payment_events` mid-build when the processor
+// switched from Stripe to Polar, with a `provider` column so switching again
+// later is a new provider string, not another schema rename.
+export const paymentEvents = pgTable('payment_events', {
+  // Primary key is the provider's own event id (section 5), not a generated ulid.
   id: text('id').primaryKey(),
+  provider: text('provider').notNull(),
   type: text('type').notNull(),
   processedAt: timestamp('processed_at', { withTimezone: true }).notNull().defaultNow(),
   payload: jsonb('payload').notNull(),

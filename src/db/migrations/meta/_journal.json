@@ -43,6 +43,13 @@
       "when": 1789823042301,
       "tag": "0005_rare_harrier",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789824470633,
+      "tag": "0006_fluffy_hellion",
+      "breakpoints": true
     }
   ]
 }
