@@ -21,8 +21,8 @@ const input: RenderInput = {
 describe('getProvider', () => {
   it('returns the matching provider for each key', () => {
     expect(getProvider('fashn').key).toBe('fashn');
-    expect(getProvider('kling').key).toBe('kling');
     expect(getProvider('nano_banana').key).toBe('nano_banana');
+    expect(getProvider('openai_image').key).toBe('openai_image');
   });
 });
 
@@ -59,7 +59,7 @@ describe('submitWithRouting', () => {
     nanoBananaSpy.mockRestore();
   });
 
-  it('routes shoes/accessory categories to nano_banana only', async () => {
+  it('routes shoes/accessory categories to nano_banana first', async () => {
     const nanoBanana = getProvider('nano_banana');
     const spy = vi
       .spyOn(nanoBanana, 'submit')
@@ -71,15 +71,21 @@ describe('submitWithRouting', () => {
     spy.mockRestore();
   });
 
-  it('routes set (multi-garment) categories to kling first', async () => {
-    const kling = getProvider('kling');
-    const spy = vi
-      .spyOn(kling, 'submit')
+  it('falls back to openai_image when nano_banana fails for set categories', async () => {
+    const nanoBanana = getProvider('nano_banana');
+    const openaiImage = getProvider('openai_image');
+    const nanoBananaSpy = vi.spyOn(nanoBanana, 'submit').mockResolvedValue({
+      ok: false,
+      error: { code: 'RENDER_FAILED', message: 'nano_banana down' },
+    });
+    const openaiSpy = vi
+      .spyOn(openaiImage, 'submit')
       .mockResolvedValue({ ok: true, value: { providerJobId: 'job-4' } });
 
     const result = await submitWithRouting('set', input, 'https://example.com/webhook', ctx);
     expect(result.ok).toBe(true);
-    if (result.ok) expect(result.value.provider).toBe('kling');
-    spy.mockRestore();
+    if (result.ok) expect(result.value.provider).toBe('openai_image');
+    nanoBananaSpy.mockRestore();
+    openaiSpy.mockRestore();
   });
 });
