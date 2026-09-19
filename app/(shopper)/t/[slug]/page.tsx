@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { links, merchants, productImages, productVariants, products, twins } from '@/db/schema';
 import { readShopperId } from '@/modules/shoppers';
+import type { MerchantSettings } from '@/db/repos/merchants';
 import { TryOnFlow } from './try-on-flow';
 
 // Section 8.3: `/t/[slug]` — single-link mode (poll/group are M6). Server
@@ -101,15 +102,10 @@ export default async function LinkPage({
         .then((rows) => rows[0] ?? null)
     : null;
 
-  // DECISION: merchant contact channel (section 8.2's onboarding step 2 —
-  // WhatsApp/Instagram/email segmented control) has no dedicated schema
-  // column yet, and nothing writes it until M5's dashboard exists. Read it
-  // defensively from the jsonb `settings` bag so "Message the shop" just
-  // doesn't render until M5 ships the real UI, instead of inventing a shape
-  // here that M5 would then have to match.
-  const settings = (merchant?.settings ?? {}) as {
-    contactChannel?: { type: 'whatsapp' | 'instagram' | 'email'; value: string };
-  };
+  // M5 now writes this (onboarding step 2 / `/dashboard/settings`, via
+  // `PATCH /api/merchants/me`) — `MerchantSettings` (src/db/repos/merchants.ts)
+  // is the one shape both readers and writers share.
+  const settings = (merchant?.settings ?? {}) as MerchantSettings;
 
   return (
     <TryOnFlow
@@ -121,6 +117,7 @@ export default async function LinkPage({
       buyUrl={product.buyUrl}
       merchantName={merchant?.name ?? 'This shop'}
       contactChannel={settings.contactChannel ?? null}
+      accentToken={settings.accentToken ?? null}
       productImageUrl={tryonImage?.url ?? null}
       variantOptions={variantOptions}
       defaultTwin={defaultTwin}

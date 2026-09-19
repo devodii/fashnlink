@@ -27,6 +27,7 @@ export interface TryOnFlowProps {
   buyUrl: string | null;
   merchantName: string;
   contactChannel: ContactChannel;
+  accentToken: string | null;
   productImageUrl: string | null;
   variantOptions: VariantOption[];
   defaultTwin: Twin | null;
@@ -58,6 +59,7 @@ export function TryOnFlow({
   buyUrl,
   merchantName,
   contactChannel,
+  accentToken,
   productImageUrl,
   variantOptions,
   defaultTwin,
@@ -253,7 +255,11 @@ export function TryOnFlow({
   const price = formatPriceCents(priceCents, currency);
 
   return (
-    <Container size="sm" className="flex flex-1 flex-col gap-4 py-6 pb-28">
+    <Container
+      size="sm"
+      data-brand={accentToken ?? undefined}
+      className="flex flex-1 flex-col gap-4 py-6 pb-28"
+    >
       {preview && (
         <InlineAlert tone="warning" title="Preview">
           This is a merchant preview — nothing here counts as a real visit.
