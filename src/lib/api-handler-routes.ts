@@ -24,3 +24,4 @@ import '@/app/api/renders/[id]/buy-click/route';
 import '@/app/api/shoppers/attribution/route';
 import '@/app/api/leads/route';
 import '@/app/api/me/route';
+import '@/app/api/og/render/[renderId]/route';
