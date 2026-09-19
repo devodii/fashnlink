@@ -1,0 +1,39 @@
+import { z } from 'zod';
+import { and, eq } from 'drizzle-orm';
+import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { db } from '@/db';
+import { renders } from '@/db/schema';
+import { err, ok } from '@/lib/result';
+import { deleteObject } from '@/modules/storage';
+
+const paramsSchema = z.object({ id: z.string() });
+
+// Section 8.3 closet ("share, delete, buy" per render) + section 7.4's
+// hard-delete-the-image / tombstone-the-row pattern, same treatment
+// `deleteEverythingForShopper` gives every render, just for one at a time.
+export const DELETE = apiHandler({
+  name: 'renders.delete',
+  auth: ['shopper_session'],
+  schema: { params: paramsSchema },
+  handler: async ({ params, auth }) => {
+    const shopper = requireShopperSession(auth);
+    if (!shopper.ok) return shopper;
+
+    const [render] = await db
+      .select({ outputR2Key: renders.outputR2Key })
+      .from(renders)
+      .where(and(eq(renders.id, params.id), eq(renders.shopperId, shopper.value.shopperId)))
+      .limit(1);
+    if (!render) return err({ code: 'NOT_FOUND', message: 'render not found' });
+
+    if (render.outputR2Key) {
+      await deleteObject(render.outputR2Key).catch(() => {});
+    }
+    await db
+      .update(renders)
+      .set({ outputR2Key: null, outputUrl: null })
+      .where(eq(renders.id, params.id));
+
+    return ok({ deleted: true });
+  },
+});
