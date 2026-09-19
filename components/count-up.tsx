@@ -1,0 +1,13 @@
+import { NumberTicker } from '@/components/motion/number-ticker';
+
+export interface CountUpProps {
+  value: number;
+  formatter?: (value: number) => string;
+  className?: string;
+}
+
+/** Section 10.4: thin wrapper so call sites (`StatCard`, dashboards) don't
+ * reach into `components/motion` directly. */
+export function CountUp({ value, formatter, className }: CountUpProps) {
+  return <NumberTicker value={value} formatter={formatter} className={className} />;
+}
