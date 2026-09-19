@@ -1,7 +1,7 @@
 import { AdapterRegistry } from '@/lib/adapter';
 import type { Ctx } from '@/lib/adapter';
 import { decrypt } from '@/lib/crypto';
-import { err, ok, type Result } from '@/lib/result';
+import { err, type Result } from '@/lib/result';
 import { db } from '@/db';
 import { espConnections } from '@/db/schema';
 import { eq } from 'drizzle-orm';
