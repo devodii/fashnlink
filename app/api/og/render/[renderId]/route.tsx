@@ -16,13 +16,6 @@ const SIZES = {
   link: { width: 1200, height: 630 },
 } as const;
 
-/**
- * the share card; full-bleed render image, bottom-third solid
- * token-colored panel (no gradients, section 10.2), merchant/product/price
- * and the "See it on you" short URL. `next/og` runs server-side with no
- * external API dependency, so (unlike render/twin generation) this is
- * fully provable without a real FAL_KEY/OPENAI_API_KEY.
- */
 export const GET = apiHandler({
   name: 'og.render',
   auth: ['public'],
@@ -61,14 +54,11 @@ export const GET = apiHandler({
           display: 'flex',
           position: 'relative',
           /**
-           * DECISION: Satori (next/og's render engine) doesn't reliably
-           * parse oklch(); it silently fell back to black for both the
-           * panel background and the text color, making the copy
-           * invisible (confirmed empirically). Same reasoning as the fal
-           * webhook's watermark composite (src/app/api/webhooks/fal): this
-           * is a server-side raster, not a Tailwind class, so literal hex
-           * approximations of the --background/--card/--foreground tokens
-           * stand in here, never in actual component class names.
+           * Satori (next/og's render engine) doesn't reliably parse
+           * oklch(); it silently fell back to black for both the panel
+           * background and the text color, making the copy invisible
+           * (confirmed empirically). Literal hex values stand in here
+           * instead.
            */
           backgroundColor: '#0a0a0a',
           fontFamily: 'sans-serif',
