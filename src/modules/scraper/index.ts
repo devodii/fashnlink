@@ -33,12 +33,6 @@ import { buildStoreFingerprint } from './detect';
 import type { NormalizedProduct, ScrapeResult } from './schema';
 import type { HomepageProbe, ScraperAdapter } from './types';
 
-/**
- * the 3 deep adapters (shopify, woocommerce, squarespace), the
- * 8 thin adapters, and the fallbacks (generic, manual). Every platform in
- * section 6.5 now has an adapter; adding another platform later is still
- * "one file, one line here," proven twice over (deep + thin) by this list.
- */
 export const scraperRegistry = new ScraperRegistry([
   shopifyAdapter,
   woocommerceAdapter,
@@ -80,12 +74,6 @@ export type ScrapeOneOptions = {
   merchantId?: string | null;
 };
 
-/**
- * 7-step pipeline, scoped to `mode: 'product'` (a single pasted
- * URL; section 8.1/8.2's onboarding and "new link" flows). `mode: 'store'`
- * (full catalog mode) is handled by the `store.crawled` background job
- * registered below, which reuses the same per-product path via `scrapeOne`.
- */
 export async function scrapeUrl(
   rawUrl: string,
   opts: ScrapeOneOptions,
@@ -182,11 +170,8 @@ export async function scrapeUrl(
   if (!store) return err({ code: 'INTERNAL', message: 'Failed to create or find store' });
   mark('store', t);
 
-  /**
-   * Determined up front, not returned from the insert below; enrichment
-   * needs the product id to build image storage keys *before*
-   * the row exists, and an upsert's existing row already has one.
-   */
+  // Determined up front, not returned from the insert below: enrichment
+  // needs the product id to build image storage keys before the row exists.
   const existingProduct = await findProductByExternalId(store.id, product.externalId);
   const productId = existingProduct?.id ?? newId('prod');
 
