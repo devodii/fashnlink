@@ -1,11 +1,12 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { links, merchants, products, renders, shoppers, twins } from '@/db/schema';
+import { links, merchants, products, renders, retargetOptins, shoppers, twins } from '@/db/schema';
 import { readShopperId } from '@/modules/shoppers';
 import { Container } from '@/components/container';
 import { EmptyState } from '@/components/empty-state';
 import { Images } from 'lucide-react';
 import { Closet } from './closet';
+import { RetargetOptins } from './retarget-optins';
 
 // Section 8.3: `/me` — the closet. All the shopper's renders across every
 // merchant, newest first, grouped by merchant. Anonymous shoppers (no
@@ -54,6 +55,14 @@ export default async function ClosetPage() {
     .where(eq(shoppers.id, shopperId))
     .limit(1);
 
+  // Section 8.3: "a 'Shops that can email you looks' list with per-merchant
+  // opt-out toggles" — only currently-active opt-ins (opted_out_at IS NULL).
+  const optins = await db
+    .select({ merchantId: retargetOptins.merchantId, merchantName: merchants.name })
+    .from(retargetOptins)
+    .innerJoin(merchants, eq(retargetOptins.merchantId, merchants.id))
+    .where(and(eq(retargetOptins.shopperId, shopperId), isNull(retargetOptins.optedOutAt)));
+
   const withImage = rows.filter((r) => r.outputUrl);
 
   return (
@@ -71,6 +80,7 @@ export default async function ClosetPage() {
         twins={shopperTwins}
         hasEmail={!!shopper?.email}
       />
+      {optins.length > 0 && <RetargetOptins merchants={optins} />}
     </Container>
   );
 }

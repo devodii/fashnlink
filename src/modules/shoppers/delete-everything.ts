@@ -1,6 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { renders, shoppers, twins } from '@/db/schema';
+import { campaignItems, renders, shoppers, twins } from '@/db/schema';
 import { deleteObject } from '@/modules/storage';
 import { childLogger } from '@/lib/log';
 
@@ -34,6 +34,14 @@ export async function deleteEverythingForShopper(shopperId: string): Promise<voi
   if (shopperTwins.length > 0) {
     await db.delete(twins).where(eq(twins.shopperId, shopperId));
   }
+
+  // Section 9.8: "Deleting the twin cancels all pending campaign items for
+  // that shopper everywhere." This is the only place a shopper's twins are
+  // ever deleted (there's no standalone per-twin delete route yet), so it's
+  // the one place this cancellation needs to happen.
+  await db
+    .delete(campaignItems)
+    .where(and(eq(campaignItems.shopperId, shopperId), eq(campaignItems.status, 'pending')));
 
   const shopperRenders = await db
     .select({ id: renders.id, outputR2Key: renders.outputR2Key })

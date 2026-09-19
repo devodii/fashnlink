@@ -82,6 +82,9 @@ export function TryOnFlow({
   const [emailSkippedOnce, setEmailSkippedOnce] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [hasEmail, setHasEmail] = React.useState(false);
+  // Section 9.8: a second, unticked checkbox — never combined with the email
+  // gate's own submit into one implied consent. Default false always.
+  const [retargetOptIn, setRetargetOptIn] = React.useState(false);
 
   const attributedRef = React.useRef(false);
   React.useEffect(() => {
@@ -217,7 +220,7 @@ export function TryOnFlow({
     await fetch('/api/leads', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, renderId }),
+      body: JSON.stringify({ email, renderId, retargetOptIn }),
     }).catch(() => {});
     setHasEmail(true);
     setShowEmailGate(false);
@@ -382,6 +385,16 @@ export function TryOnFlow({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="retarget-opt-in"
+              checked={retargetOptIn}
+              onCheckedChange={(v) => setRetargetOptIn(v === true)}
+            />
+            <Label htmlFor="retarget-opt-in" className="text-sm leading-snug font-normal">
+              Send me looks from {merchantName} using my photo. Unsubscribe anytime.
+            </Label>
+          </div>
           <div className="flex gap-2">
             <Button onClick={handleEmailGateSubmit} disabled={!email}>
               Save

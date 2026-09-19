@@ -2,13 +2,17 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { apiHandler, requireShopperSession } from '@/lib/api-handler';
 import { db } from '@/db';
-import { leads, links, renders, shoppers } from '@/db/schema';
+import { leads, links, renders, retargetOptins, shoppers } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { err, ok } from '@/lib/result';
 
 const bodySchema = z.object({
   email: z.email(),
   renderId: z.string().min(1),
+  // Section 9.8: a SECOND, separately-ticked checkbox — never implied by
+  // submitting the email gate itself. Optional/defaulted false so existing
+  // callers that predate this field keep working as lead-only submissions.
+  retargetOptIn: z.boolean().default(false),
 });
 
 // Section 8.3/8.4: `POST /api/leads` — the email gate after the 3rd render
@@ -21,7 +25,7 @@ export const POST = apiHandler({
   name: 'leads.create',
   auth: ['shopper_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth }) => {
+  handler: async ({ body, auth, req }) => {
     const shopper = requireShopperSession(auth);
     if (!shopper.ok) return shopper;
     const { shopperId } = shopper.value;
@@ -57,6 +61,30 @@ export const POST = apiHandler({
       });
 
     await db.update(shoppers).set({ email: body.email }).where(eq(shoppers.id, shopperId));
+
+    // Section 14: "No retargeting event or campaign item for a shopper
+    // without a live retarget_optins row. No pre-ticked consent." — only
+    // written when the (unticked-by-default) checkbox was actually checked.
+    // Re-checking after a prior opt-out un-cancels it (opted_out_at cleared)
+    // rather than creating a duplicate row, per the unique (shopper, merchant)
+    // index already on this table.
+    if (body.retargetOptIn) {
+      await db
+        .insert(retargetOptins)
+        .values({
+          id: newId('optin'),
+          shopperId,
+          merchantId: link.merchantId,
+          email: body.email,
+          source: 'email_gate',
+          ip: req.headers.get('x-forwarded-for'),
+          userAgent: req.headers.get('user-agent'),
+        })
+        .onConflictDoUpdate({
+          target: [retargetOptins.shopperId, retargetOptins.merchantId],
+          set: { email: body.email, optedOutAt: null },
+        });
+    }
 
     return ok({ recorded: true });
   },

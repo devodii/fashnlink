@@ -46,3 +46,4 @@ import '@/app/api/public/quick-link/route';
 import '@/app/api/claims/[storeId]/claim/route';
 import '@/app/api/cron/refresh-catalogs/route';
 import '@/app/api/cron/cleanup/route';
+import '@/app/api/me/retarget-optout/route';
