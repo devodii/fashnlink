@@ -13,7 +13,11 @@ export function Pressable({ children, className, ...props }: PressableProps) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <motion.div whileTap={reduceMotion ? undefined : { scale: 0.98 }} className={className} {...props}>
+    <motion.div
+      whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+      className={className}
+      {...props}
+    >
       {children}
     </motion.div>
   );

@@ -5,8 +5,10 @@ import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone'
 import { FieldLayout } from './field-layout';
 import type { FieldProps } from './types';
 
-export interface FileFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface FileFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   accept?: string;
   maxSizeMb?: number;
   capture?: 'user' | 'environment';
@@ -32,7 +34,13 @@ export function FileField<TValues extends RHF.FieldValues, TName extends RHF.Pat
       render={({ field, fieldState }) => {
         const file = field.value as UploadedFile | undefined;
         return (
-          <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
+          <FieldLayout
+            htmlFor={name}
+            label={label}
+            description={description}
+            error={fieldState.error}
+            className={className}
+          >
             <UploadDropzone
               accept={accept}
               maxSizeMb={maxSizeMb}

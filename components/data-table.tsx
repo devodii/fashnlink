@@ -23,7 +23,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export interface DataTableAction<TData> {
   label: string;
@@ -95,7 +102,14 @@ export function DataTable<TData, TValue>({
   const [internalSorting, setInternalSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
 
-  const { row, checkbox, body, cell, container } = splitProps(mixinProps, 'row', 'checkbox', 'body', 'cell', 'container');
+  const { row, checkbox, body, cell, container } = splitProps(
+    mixinProps,
+    'row',
+    'checkbox',
+    'body',
+    'cell',
+    'container',
+  );
 
   const tableColumns = React.useMemo(() => {
     const cols = [...columns];
@@ -166,10 +180,13 @@ export function DataTable<TData, TValue>({
     state: {
       sorting: sorting?.state ?? internalSorting,
       rowSelection,
-      ...(pagination && { pagination: { pageIndex: pagination.pageIndex, pageSize: pagination.pageSize } }),
+      ...(pagination && {
+        pagination: { pageIndex: pagination.pageIndex, pageSize: pagination.pageSize },
+      }),
     },
     onSortingChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(sorting?.state ?? internalSorting) : updater;
+      const next =
+        typeof updater === 'function' ? updater(sorting?.state ?? internalSorting) : updater;
       if (sorting) sorting.onChange(next);
       else setInternalSorting(next);
     },
@@ -178,7 +195,9 @@ export function DataTable<TData, TValue>({
       setRowSelection(next);
       if (onSelectionChange) {
         const selectedIds = new Set(Object.keys(next).filter((id) => next[id]));
-        onSelectionChange(data.filter((r, i) => selectedIds.has(getRowId ? getRowId(r) : String(i))));
+        onSelectionChange(
+          data.filter((r, i) => selectedIds.has(getRowId ? getRowId(r) : String(i))),
+        );
       }
     },
     getCoreRowModel: getCoreRowModel(),
@@ -195,7 +214,9 @@ export function DataTable<TData, TValue>({
     return <DataTableSkeleton columns={tableColumns.length} rowCount={skeletonRowCount} />;
   }
 
-  const canPrev = pagination ? (pagination.hasPreviousPage ?? pagination.pageIndex > 0) : table.getCanPreviousPage();
+  const canPrev = pagination
+    ? (pagination.hasPreviousPage ?? pagination.pageIndex > 0)
+    : table.getCanPreviousPage();
   const canNext = pagination ? (pagination.hasNextPage ?? true) : table.getCanNextPage();
 
   return (
@@ -209,7 +230,11 @@ export function DataTable<TData, TValue>({
           {mobileCard && (
             <div className="space-y-2 md:hidden">
               {rows.map((r) => (
-                <div key={r.id} onClick={() => onRowClick?.(r.original)} className={cn(onRowClick && 'cursor-pointer')}>
+                <div
+                  key={r.id}
+                  onClick={() => onRowClick?.(r.original)}
+                  className={cn(onRowClick && 'cursor-pointer')}
+                >
                   {mobileCard(r.original)}
                 </div>
               ))}
@@ -229,7 +254,10 @@ export function DataTable<TData, TValue>({
                           className={cn(h.column.id === 'actions' && STICKY_ACTIONS_CLASS)}
                         >
                           <div
-                            className={cn(h.column.getCanSort() && 'flex cursor-pointer items-center gap-1 select-none')}
+                            className={cn(
+                              h.column.getCanSort() &&
+                                'flex cursor-pointer items-center gap-1 select-none',
+                            )}
                             onClick={h.column.getToggleSortingHandler()}
                           >
                             {flexRender(h.column.columnDef.header, h.getContext())}
@@ -248,13 +276,19 @@ export function DataTable<TData, TValue>({
                       key={r.id}
                       data-state={r.getIsSelected() && 'selected'}
                       onClick={() => onRowClick?.(r.original)}
-                      className={cn(row?.className, onRowClick && 'cursor-pointer hover:bg-muted/50')}
+                      className={cn(
+                        row?.className,
+                        onRowClick && 'cursor-pointer hover:bg-muted/50',
+                      )}
                     >
                       {r.getVisibleCells().map((c) => (
                         <TableCell
                           {...cell}
                           key={c.id}
-                          className={cn(cell?.className, c.column.id === 'actions' && STICKY_ACTIONS_CLASS)}
+                          className={cn(
+                            cell?.className,
+                            c.column.id === 'actions' && STICKY_ACTIONS_CLASS,
+                          )}
                         >
                           {flexRender(c.column.columnDef.cell, c.getContext())}
                         </TableCell>
@@ -278,7 +312,11 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="sm"
               className="h-8 text-xs"
-              onClick={() => (pagination ? pagination.onPageChange(pagination.pageIndex - 1) : table.previousPage())}
+              onClick={() =>
+                pagination
+                  ? pagination.onPageChange(pagination.pageIndex - 1)
+                  : table.previousPage()
+              }
               disabled={!canPrev}
             >
               Previous
@@ -287,7 +325,9 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="sm"
               className="h-8 text-xs"
-              onClick={() => (pagination ? pagination.onPageChange(pagination.pageIndex + 1) : table.nextPage())}
+              onClick={() =>
+                pagination ? pagination.onPageChange(pagination.pageIndex + 1) : table.nextPage()
+              }
               disabled={!canNext}
             >
               Next
@@ -309,7 +349,10 @@ function DataTableSkeleton({ columns, rowCount }: { columns: number; rowCount: n
               <TableRow key={rowIndex}>
                 {Array.from({ length: columns }).map((_, colIndex) => (
                   <TableCell key={colIndex}>
-                    <Skeleton className="h-4" style={{ width: `${60 + ((rowIndex * 7 + colIndex * 11) % 40)}%` }} />
+                    <Skeleton
+                      className="h-4"
+                      style={{ width: `${60 + ((rowIndex * 7 + colIndex * 11) % 40)}%` }}
+                    />
                   </TableCell>
                 ))}
               </TableRow>

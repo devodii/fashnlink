@@ -6,8 +6,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { FieldProps } from './types';
 
-export interface CheckboxFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface CheckboxFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   disabled?: boolean;
 }
 
@@ -38,12 +40,16 @@ export function CheckboxField<TValues extends RHF.FieldValues, TName extends RHF
               aria-invalid={!!fieldState.error}
               className="mt-0.5"
             />
-            <Label htmlFor={name} className="font-normal leading-snug">
+            <Label htmlFor={name} className="leading-snug font-normal">
               {label}
             </Label>
           </div>
-          {description && !fieldState.error && <p className="pl-6 text-sm text-muted-foreground">{description}</p>}
-          {fieldState.error && <p className="pl-6 text-sm text-destructive">{fieldState.error.message}</p>}
+          {description && !fieldState.error && (
+            <p className="pl-6 text-sm text-muted-foreground">{description}</p>
+          )}
+          {fieldState.error && (
+            <p className="pl-6 text-sm text-destructive">{fieldState.error.message}</p>
+          )}
         </div>
       )}
     />

@@ -6,8 +6,10 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import type { FieldProps } from './types';
 
-export interface SwitchFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface SwitchFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   disabled?: boolean;
 }
 

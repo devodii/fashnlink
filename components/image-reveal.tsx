@@ -16,7 +16,13 @@ export function ImageReveal({ from, to, alt, aspect = '3/4', className }: ImageR
   return (
     <Reveal
       revealed={!!to}
-      className={cn('rounded-md bg-muted', aspect === '3/4' && 'aspect-[3/4]', aspect === '1/1' && 'aspect-square', aspect === '9/16' && 'aspect-[9/16]', className)}
+      className={cn(
+        'rounded-md bg-muted',
+        aspect === '3/4' && 'aspect-[3/4]',
+        aspect === '1/1' && 'aspect-square',
+        aspect === '9/16' && 'aspect-[9/16]',
+        className,
+      )}
       from={
         // eslint-disable-next-line @next/next/no-img-element
         <img src={from} alt={alt} className="size-full object-cover" />

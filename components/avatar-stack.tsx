@@ -1,5 +1,11 @@
 import * as React from 'react';
-import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from '@/components/ui/avatar';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from '@/components/ui/avatar';
 
 export interface AvatarStackItem {
   src?: string;

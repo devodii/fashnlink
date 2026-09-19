@@ -71,8 +71,12 @@ const schema = isProd
 function loadEnv() {
   const parsed = schema.safeParse(process.env);
   if (!parsed.success) {
-    const missing = parsed.error.issues.map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`).join('\n');
-    console.error(`\nInvalid or missing environment variables:\n${missing}\n\nCheck .env.example for the full list.\n`);
+    const missing = parsed.error.issues
+      .map((issue) => `  - ${issue.path.join('.')}: ${issue.message}`)
+      .join('\n');
+    console.error(
+      `\nInvalid or missing environment variables:\n${missing}\n\nCheck .env.example for the full list.\n`,
+    );
     process.exit(1);
   }
   return parsed.data;

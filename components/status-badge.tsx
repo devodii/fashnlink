@@ -30,7 +30,7 @@ export function StatusBadge({ status, map, className }: StatusBadgeProps) {
       className={cn(
         'inline-flex w-fit shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
         TONE_CLASS[entry?.tone ?? 'neutral'],
-        className
+        className,
       )}
     >
       {entry?.label ?? status}

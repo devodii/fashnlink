@@ -6,7 +6,12 @@ import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/config/languages';
 import { getCurrentLanguageCode, setLanguage } from '@/lib/google-translate';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 
 export interface LanguagePickerProps {
@@ -76,9 +81,16 @@ export function LanguagePicker({ compact, className }: LanguagePickerProps) {
         <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="max-h-80 overflow-y-auto">
           {LANGUAGES.map((lang) => (
-            <DropdownMenuItem key={lang.code} translate="no" dir={lang.rtl ? 'rtl' : undefined} onClick={() => setLanguage(lang.code)}>
+            <DropdownMenuItem
+              key={lang.code}
+              translate="no"
+              dir={lang.rtl ? 'rtl' : undefined}
+              onClick={() => setLanguage(lang.code)}
+            >
               <span className="flex-1">{lang.nativeLabel}</span>
-              {lang.code === currentCode && <span className="text-xs text-muted-foreground">✓</span>}
+              {lang.code === currentCode && (
+                <span className="text-xs text-muted-foreground">✓</span>
+              )}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

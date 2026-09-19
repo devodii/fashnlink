@@ -17,5 +17,10 @@ export interface DotProps extends React.ComponentProps<'span'> {
 /** Section 10.4: small status token — a bare colored dot for the cases too
  * small for a `StatusBadge` (a `DataTable` cell, a list row). */
 export function Dot({ tone = 'neutral', className, ...props }: DotProps) {
-  return <span className={cn('inline-block size-2 shrink-0 rounded-full', TONE_CLASS[tone], className)} {...props} />;
+  return (
+    <span
+      className={cn('inline-block size-2 shrink-0 rounded-full', TONE_CLASS[tone], className)}
+      {...props}
+    />
+  );
 }

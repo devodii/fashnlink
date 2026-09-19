@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { FieldLayout } from './field-layout';
 import type { FieldProps } from './types';
 
-export interface NumberFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface NumberFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   placeholder?: string;
   min?: number;
   max?: number;
@@ -31,7 +33,13 @@ export function NumberField<TValues extends RHF.FieldValues, TName extends RHF.P
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
+        <FieldLayout
+          htmlFor={name}
+          label={label}
+          description={description}
+          error={fieldState.error}
+          className={className}
+        >
           <Input
             id={name}
             type="number"

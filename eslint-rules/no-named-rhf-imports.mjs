@@ -10,12 +10,13 @@ const rule = {
   meta: {
     type: 'problem',
     docs: {
-      description: 'require react-hook-form to be imported as `import * as RHF from "react-hook-form"`',
+      description:
+        'require react-hook-form to be imported as `import * as RHF from "react-hook-form"`',
     },
     schema: [],
     messages: {
       namedImport:
-        'Import react-hook-form as `import * as RHF from \'react-hook-form\'` (section 10.5), not as a named import.',
+        "Import react-hook-form as `import * as RHF from 'react-hook-form'` (section 10.5), not as a named import.",
     },
   },
   create(context) {

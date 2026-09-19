@@ -35,8 +35,12 @@ export default function LoginPage() {
         <Button type="submit" disabled={status === 'sending'}>
           {status === 'sending' ? 'Sending...' : 'Send magic link'}
         </Button>
-        {status === 'sent' && <p className="text-sm text-muted-foreground">Check your email for a sign-in link.</p>}
-        {status === 'error' && <p className="text-sm text-destructive">Something went wrong. Try again.</p>}
+        {status === 'sent' && (
+          <p className="text-sm text-muted-foreground">Check your email for a sign-in link.</p>
+        )}
+        {status === 'error' && (
+          <p className="text-sm text-destructive">Something went wrong. Try again.</p>
+        )}
       </form>
 
       <Button

@@ -14,7 +14,7 @@ export function PhoneFrame({ src, children, className }: PhoneFrameProps) {
     <div
       className={cn(
         'mx-auto aspect-[9/19.5] w-full max-w-70 overflow-hidden rounded-3xl border-4 border-border bg-background',
-        className
+        className,
       )}
     >
       {src ? <iframe src={src} title="Preview" className="size-full border-0" /> : children}

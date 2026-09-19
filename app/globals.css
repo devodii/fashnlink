@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -65,12 +65,24 @@
 
 /* data-brand mapping is wired to --primary on shopper pages starting in M4;
    tokens are defined here so no later milestone introduces new color values. */
-[data-brand="1"] { --primary: var(--brand-1); }
-[data-brand="2"] { --primary: var(--brand-2); }
-[data-brand="3"] { --primary: var(--brand-3); }
-[data-brand="4"] { --primary: var(--brand-4); }
-[data-brand="5"] { --primary: var(--brand-5); }
-[data-brand="6"] { --primary: var(--brand-6); }
+[data-brand='1'] {
+  --primary: var(--brand-1);
+}
+[data-brand='2'] {
+  --primary: var(--brand-2);
+}
+[data-brand='3'] {
+  --primary: var(--brand-3);
+}
+[data-brand='4'] {
+  --primary: var(--brand-4);
+}
+[data-brand='5'] {
+  --primary: var(--brand-5);
+}
+[data-brand='6'] {
+  --primary: var(--brand-6);
+}
 
 @theme inline {
   --color-background: var(--background);

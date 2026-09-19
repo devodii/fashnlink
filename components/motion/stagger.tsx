@@ -21,7 +21,10 @@ export function Stagger({ children, className }: StaggerProps) {
     <motion.div
       initial="hidden"
       animate="visible"
-      variants={{ hidden: {}, visible: { transition: { staggerChildren: reduceMotion ? 0 : STEP_MS } } }}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: reduceMotion ? 0 : STEP_MS } },
+      }}
       className={className}
     >
       {React.Children.map(children, (child, i) => (

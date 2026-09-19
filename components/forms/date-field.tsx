@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { FieldLayout } from './field-layout';
 import type { FieldProps } from './types';
 
-export interface DateFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface DateFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   min?: string;
   max?: string;
   disabled?: boolean;
@@ -33,7 +35,13 @@ export function DateField<TValues extends RHF.FieldValues, TName extends RHF.Pat
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
+        <FieldLayout
+          htmlFor={name}
+          label={label}
+          description={description}
+          error={fieldState.error}
+          className={className}
+        >
           <Input
             id={name}
             type="date"

@@ -39,7 +39,11 @@ export async function drainJobs(ctx: Ctx): Promise<DrainSummary> {
       summary.skipped++;
       await db
         .update(jobs)
-        .set({ status: 'failed', lastError: `No handler registered for job type "${job.type}"`, updatedAt: new Date() })
+        .set({
+          status: 'failed',
+          lastError: `No handler registered for job type "${job.type}"`,
+          updatedAt: new Date(),
+        })
         .where(sql`${jobs.id} = ${job.id}`);
       continue;
     }
@@ -51,7 +55,10 @@ export async function drainJobs(ctx: Ctx): Promise<DrainSummary> {
 
     if (result.ok) {
       summary.succeeded++;
-      await db.update(jobs).set({ status: 'succeeded', updatedAt: new Date() }).where(sql`${jobs.id} = ${job.id}`);
+      await db
+        .update(jobs)
+        .set({ status: 'succeeded', updatedAt: new Date() })
+        .where(sql`${jobs.id} = ${job.id}`);
     } else {
       summary.failed++;
       ctx.log.error({ jobId: job.id, type: job.type, error: result.error }, 'job failed');

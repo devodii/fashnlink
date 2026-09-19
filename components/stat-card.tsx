@@ -16,7 +16,15 @@ export interface StatCardProps {
 
 /** Section 10.4: the atom of every dashboard KPI row. `delta` is a plain
  * percentage number (positive = up); sign/color are derived, not passed in. */
-export function StatCard({ label, value, formatter, delta, hint, loading, className }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  formatter,
+  delta,
+  hint,
+  loading,
+  className,
+}: StatCardProps) {
   if (loading) {
     return (
       <div className={cn('space-y-2 rounded-md border border-border p-4', className)}>
@@ -37,7 +45,7 @@ export function StatCard({ label, value, formatter, delta, hint, loading, classN
           <span
             className={cn(
               'flex items-center gap-0.5 text-xs font-medium',
-              delta >= 0 ? 'text-success' : 'text-destructive'
+              delta >= 0 ? 'text-success' : 'text-destructive',
             )}
           >
             {delta >= 0 ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />}

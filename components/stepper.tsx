@@ -15,7 +15,14 @@ export interface StepperProps {
 }
 
 /** Section 10.4: numeric +/- input — quantity-style pickers. */
-export function Stepper({ value, onChange, min = 0, max = Infinity, step = 1, className }: StepperProps) {
+export function Stepper({
+  value,
+  onChange,
+  min = 0,
+  max = Infinity,
+  step = 1,
+  className,
+}: StepperProps) {
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <Button

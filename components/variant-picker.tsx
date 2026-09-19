@@ -38,7 +38,9 @@ export function VariantPicker({ options, value, onChange, className }: VariantPi
                   onClick={() => onChange(option.name, v.id)}
                   className={cn(
                     'min-h-9 rounded-full border px-3 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40',
-                    active ? 'border-ring bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'
+                    active
+                      ? 'border-ring bg-primary text-primary-foreground'
+                      : 'border-border bg-background text-foreground',
                   )}
                 >
                   {v.label}

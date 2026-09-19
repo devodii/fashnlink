@@ -154,7 +154,12 @@ function FormDemo() {
     >
       <TextField control={form.control} name="title" label="Title" placeholder="Linen shirt" />
       <EmailField control={form.control} name="email" label="Email" />
-      <UrlField control={form.control} name="url" label="Product URL" placeholder="yourshop.com/products/linen-shirt" />
+      <UrlField
+        control={form.control}
+        name="url"
+        label="Product URL"
+        placeholder="yourshop.com/products/linen-shirt"
+      />
       <NumberField control={form.control} name="price" label="Price" placeholder="48" />
       <SelectField
         control={form.control}
@@ -176,7 +181,12 @@ function FormDemo() {
           { value: 'bestseller', label: 'Bestseller' },
         ]}
       />
-      <TextareaField control={form.control} name="description" label="Description" className="md:col-span-2" />
+      <TextareaField
+        control={form.control}
+        name="description"
+        label="Description"
+        className="md:col-span-2"
+      />
       <RadioGroupField
         control={form.control}
         name="size"
@@ -200,8 +210,19 @@ function FormDemo() {
       />
       <TagField control={form.control} name="labels" label="Labels" placeholder="Add a label…" />
       <DateField control={form.control} name="releaseDate" label="Release date" />
-      <CheckboxField control={form.control} name="consent" label="I am 18 or older and this is a photo of me" className="md:col-span-2" />
-      <SwitchField control={form.control} name="notify" label="Send me looks" description="Unsubscribe anytime." className="md:col-span-2" />
+      <CheckboxField
+        control={form.control}
+        name="consent"
+        label="I am 18 or older and this is a photo of me"
+        className="md:col-span-2"
+      />
+      <SwitchField
+        control={form.control}
+        name="notify"
+        label="Send me looks"
+        description="Unsubscribe anytime."
+        className="md:col-span-2"
+      />
       <LoadingButton type="submit" loading={form.formState.isSubmitting} className="md:col-span-2">
         Save
       </LoadingButton>
@@ -221,7 +242,13 @@ function DataTableDemo() {
         data={DEMO_ROWS}
         getRowId={(r) => r.id}
         loading={loading}
-        emptyState={<EmptyState icon={Package} title="No products yet" description="Paste a product URL to get started." />}
+        emptyState={
+          <EmptyState
+            icon={Package}
+            title="No products yet"
+            description="Paste a product URL to get started."
+          />
+        }
         mobileCard={(row) => (
           <div className="rounded-md border border-border p-3">
             <p className="text-sm font-medium text-foreground">{row.title}</p>
@@ -232,7 +259,12 @@ function DataTableDemo() {
           </div>
         )}
       />
-      <DataTable columns={DEMO_COLUMNS} data={[]} getRowId={(r: DemoRow) => r.id} emptyState={<EmptyState icon={Package} title="No rows" />} />
+      <DataTable
+        columns={DEMO_COLUMNS}
+        data={[]}
+        getRowId={(r: DemoRow) => r.id}
+        emptyState={<EmptyState icon={Package} title="No rows" />}
+      />
     </div>
   );
 }
@@ -254,7 +286,15 @@ function FilterBarDemo() {
       value={value}
       onChange={setValue}
       filters={[
-        { type: 'select', key: 'status', label: 'Status', options: [{ value: 'active', label: 'Active' }, { value: 'paused', label: 'Paused' }] },
+        {
+          type: 'select',
+          key: 'status',
+          label: 'Status',
+          options: [
+            { value: 'active', label: 'Active' },
+            { value: 'paused', label: 'Paused' },
+          ],
+        },
         { type: 'toggle', key: 'eligible', label: 'Eligible only' },
       ]}
     />
@@ -286,20 +326,39 @@ function StepWizardDemo() {
     <Suspense fallback={null}>
       <StepWizard
         steps={[
-          { id: 'product', title: 'Product', render: (api) => (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Step 1 of 3 — paste a product link.</p>
-              <Button type="button" onClick={api.next}>Continue</Button>
-            </div>
-          ) },
-          { id: 'brand', title: 'Brand', optional: true, render: (api) => (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">Step 2 of 3 — pick an accent.</p>
-              <SwatchPicker options={BRAND_OPTIONS} value="1" onChange={() => {}} />
-              <Button type="button" onClick={api.next}>Continue</Button>
-            </div>
-          ) },
-          { id: 'done', title: 'Done', render: () => <p className="text-sm text-muted-foreground">Step 3 of 3 — your link is ready.</p> },
+          {
+            id: 'product',
+            title: 'Product',
+            render: (api) => (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">Step 1 of 3 — paste a product link.</p>
+                <Button type="button" onClick={api.next}>
+                  Continue
+                </Button>
+              </div>
+            ),
+          },
+          {
+            id: 'brand',
+            title: 'Brand',
+            optional: true,
+            render: (api) => (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">Step 2 of 3 — pick an accent.</p>
+                <SwatchPicker options={BRAND_OPTIONS} value="1" onChange={() => {}} />
+                <Button type="button" onClick={api.next}>
+                  Continue
+                </Button>
+              </div>
+            ),
+          },
+          {
+            id: 'done',
+            title: 'Done',
+            render: () => (
+              <p className="text-sm text-muted-foreground">Step 3 of 3 — your link is ready.</p>
+            ),
+          },
         ]}
       />
     </Suspense>
@@ -323,13 +382,27 @@ export function DevComponentsGallery() {
   return (
     <AppShell nav={NAV} footer={<LanguagePicker />}>
       <Container size="lg" className="space-y-12 pb-24">
-        <PageHeader title="Component gallery" description="Every reusable component, in its default, loading, empty, error, and mobile states (section 12, M1.5)." />
+        <PageHeader
+          title="Component gallery"
+          description="Every reusable component, in its default, loading, empty, error, and mobile states (section 12, M1.5)."
+        />
 
-        <Section title="Layout" description="AppShell, PageHeader, Container, Section, SplitPane, ResponsiveDialog">
+        <Section
+          title="Layout"
+          description="AppShell, PageHeader, Container, Section, SplitPane, ResponsiveDialog"
+        >
           <SplitPane
             ratio="1:1"
-            start={<div className="rounded-md border border-border p-4 text-sm text-muted-foreground">Start pane</div>}
-            end={<div className="rounded-md border border-border p-4 text-sm text-muted-foreground">End pane</div>}
+            start={
+              <div className="rounded-md border border-border p-4 text-sm text-muted-foreground">
+                Start pane
+              </div>
+            }
+            end={
+              <div className="rounded-md border border-border p-4 text-sm text-muted-foreground">
+                End pane
+              </div>
+            }
           />
           <ResponsiveDialogDemo />
         </Section>
@@ -350,7 +423,12 @@ export function DevComponentsGallery() {
                 items={[
                   { at: '2m ago', title: 'Render succeeded', tone: 'success' },
                   { at: '5m ago', title: 'Render queued', tone: 'neutral' },
-                  { at: '1h ago', title: 'Render failed', description: 'Provider timeout', tone: 'destructive' },
+                  {
+                    at: '1h ago',
+                    title: 'Render failed',
+                    description: 'Provider timeout',
+                    tone: 'destructive',
+                  },
                 ]}
               />
               <div className="flex items-center gap-3">
@@ -369,20 +447,39 @@ export function DevComponentsGallery() {
             ]}
           />
           <div className="grid gap-6 md:grid-cols-3">
-            <ImageReveal from="https://picsum.photos/seed/4/400/533" to={null} alt="Loading render" />
-            <ImageCompare before="https://picsum.photos/seed/5/400/533" after="https://picsum.photos/seed/6/400/533" alt="Before and after" />
+            <ImageReveal
+              from="https://picsum.photos/seed/4/400/533"
+              to={null}
+              alt="Loading render"
+            />
+            <ImageCompare
+              before="https://picsum.photos/seed/5/400/533"
+              after="https://picsum.photos/seed/6/400/533"
+              alt="Before and after"
+            />
             <PhoneFrame>
-              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">Preview</div>
+              <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                Preview
+              </div>
             </PhoneFrame>
           </div>
           <div className="flex flex-wrap items-center gap-6">
-            <AvatarStack items={[{ alt: 'AB' }, { alt: 'CD' }, { alt: 'EF' }, { alt: 'GH' }]} max={3} />
+            <AvatarStack
+              items={[{ alt: 'AB' }, { alt: 'CD' }, { alt: 'EF' }, { alt: 'GH' }]}
+              max={3}
+            />
             <QrCode value="https://example.com/t/abc123" size={96} />
             <CopyField value="https://example.com/t/abc123" label="Link" />
           </div>
           <div className="space-y-2">
-            <EmptyState icon={Package} title="No leads yet" description="Leads appear once shoppers save their looks." />
-            <InlineAlert tone="destructive" title="Something went wrong">That link could not be created.</InlineAlert>
+            <EmptyState
+              icon={Package}
+              title="No leads yet"
+              description="Leads appear once shoppers save their looks."
+            />
+            <InlineAlert tone="destructive" title="Something went wrong">
+              That link could not be created.
+            </InlineAlert>
             <InlineAlert tone="success">Saved.</InlineAlert>
           </div>
         </Section>
@@ -396,7 +493,14 @@ export function DevComponentsGallery() {
               <SwatchPicker options={BRAND_OPTIONS} value="2" onChange={() => {}} />
               <VariantPicker
                 options={[
-                  { name: 'Size', values: [{ id: 's', label: 'S', available: true }, { id: 'm', label: 'M', available: true }, { id: 'l', label: 'L', available: false }] },
+                  {
+                    name: 'Size',
+                    values: [
+                      { id: 's', label: 'S', available: true },
+                      { id: 'm', label: 'M', available: true },
+                      { id: 'l', label: 'L', available: false },
+                    ],
+                  },
                 ]}
                 value={{ Size: 's' }}
                 onChange={() => {}}
@@ -422,14 +526,30 @@ export function DevComponentsGallery() {
               </div>
               <PollOptions
                 options={[
-                  { id: 'a', image: 'https://picsum.photos/seed/7/300/400', label: 'Look A', votes: 6 },
-                  { id: 'b', image: 'https://picsum.photos/seed/8/300/400', label: 'Look B', votes: 4 },
+                  {
+                    id: 'a',
+                    image: 'https://picsum.photos/seed/7/300/400',
+                    label: 'Look A',
+                    votes: 6,
+                  },
+                  {
+                    id: 'b',
+                    image: 'https://picsum.photos/seed/8/300/400',
+                    label: 'Look B',
+                    votes: 4,
+                  },
                 ]}
                 results
                 onVote={() => {}}
               />
               <CreditMeter balance={840} reserved={60} cap={1000} />
-              <PricingCard name="Founder" price="$199" features={['1,000 credits, never expire', 'No watermark']} cta={{ label: 'Buy' }} highlight />
+              <PricingCard
+                name="Founder"
+                price="$199"
+                features={['1,000 credits, never expire', 'No watermark']}
+                cta={{ label: 'Buy' }}
+                highlight
+              />
             </div>
           </div>
           <StepWizardDemo />
@@ -451,10 +571,15 @@ export function DevComponentsGallery() {
             ))}
           </Stagger>
           <SlideSwitchDemo />
-          <Pressable className="w-fit rounded-md border border-border p-3 text-sm">Press me</Pressable>
+          <Pressable className="w-fit rounded-md border border-border p-3 text-sm">
+            Press me
+          </Pressable>
         </Section>
 
-        <Section title="Translation" description="Section 10.7 — cookie-driven Google Translate widget.">
+        <Section
+          title="Translation"
+          description="Section 10.7 — cookie-driven Google Translate widget."
+        >
           <LanguagePicker />
         </Section>
       </Container>
@@ -469,7 +594,12 @@ function ResponsiveDialogDemo() {
       <Button type="button" variant="outline" onClick={() => setOpen(true)}>
         Open dialog
       </Button>
-      <ResponsiveDialog open={open} onOpenChange={setOpen} title="Example dialog" description="Dialog on desktop, drawer on mobile.">
+      <ResponsiveDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Example dialog"
+        description="Dialog on desktop, drawer on mobile."
+      >
         <p className="text-sm text-muted-foreground">Content goes here.</p>
       </ResponsiveDialog>
     </>
@@ -511,11 +641,17 @@ function SlideSwitchDemo() {
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <Button type="button" size="sm" variant="outline" onClick={() => setActive('a')}>A</Button>
-        <Button type="button" size="sm" variant="outline" onClick={() => setActive('b')}>B</Button>
+        <Button type="button" size="sm" variant="outline" onClick={() => setActive('a')}>
+          A
+        </Button>
+        <Button type="button" size="sm" variant="outline" onClick={() => setActive('b')}>
+          B
+        </Button>
       </div>
       <SlideSwitch activeKey={active}>
-        <div className="rounded-md border border-border p-3 text-sm">Panel {active.toUpperCase()}</div>
+        <div className="rounded-md border border-border p-3 text-sm">
+          Panel {active.toUpperCase()}
+        </div>
       </SlideSwitch>
     </div>
   );

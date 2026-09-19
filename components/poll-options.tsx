@@ -31,11 +31,15 @@ export function PollOptions({ options, value, onVote, results, className }: Poll
       {options.map((option) => {
         const pct = results && total > 0 ? Math.round(((option.votes ?? 0) / total) * 100) : null;
         return (
-          <Pressable key={option.id} onClick={() => onVote(option.id)} className="cursor-pointer space-y-2">
+          <Pressable
+            key={option.id}
+            onClick={() => onVote(option.id)}
+            className="cursor-pointer space-y-2"
+          >
             <div
               className={cn(
                 'relative aspect-[3/4] overflow-hidden rounded-md bg-muted ring-2 ring-transparent',
-                value === option.id && 'ring-ring'
+                value === option.id && 'ring-ring',
               )}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

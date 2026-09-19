@@ -15,7 +15,11 @@ export type PutResult = { key: string; url: string };
 // CDN URL on top; the URL is only ever known at upload time, so callers MUST
 // persist the returned `url`, not try to derive it later from `key` the way
 // R2's public-bucket URLs could be (there is no `getPublicUrl(key)` here).
-export async function putObject(key: string, body: Buffer | Uint8Array, contentType: string): Promise<PutResult> {
+export async function putObject(
+  key: string,
+  body: Buffer | Uint8Array,
+  contentType: string,
+): Promise<PutResult> {
   const filename = key.split('/').pop() ?? key;
   const file = new UTFile([body as BlobPart], filename, { type: contentType, customId: key });
   const { data, error } = await utapi.uploadFiles(file);
@@ -30,6 +34,9 @@ export async function deleteObject(key: string): Promise<void> {
 // Signed, expiring URL (section 9.8: campaign images expire after 30 days).
 // Requires the object to have been uploaded with a private ACL.
 export async function getSignedUrl(key: string, expiresInSeconds: number): Promise<string> {
-  const { ufsUrl } = await utapi.getSignedURL(key, { keyType: 'customId', expiresIn: expiresInSeconds });
+  const { ufsUrl } = await utapi.getSignedURL(key, {
+    keyType: 'customId',
+    expiresIn: expiresInSeconds,
+  });
   return ufsUrl;
 }

@@ -12,11 +12,23 @@ export interface MediaTileProps {
   className?: string;
 }
 
-const ASPECT_CLASS = { '3/4': 'aspect-[3/4]', '1/1': 'aspect-square', '9/16': 'aspect-[9/16]' } as const;
+const ASPECT_CLASS = {
+  '3/4': 'aspect-[3/4]',
+  '1/1': 'aspect-square',
+  '9/16': 'aspect-[9/16]',
+} as const;
 
 /** Section 10.4: products, renders, closet, model pack all use this one
  * tile. */
-export function MediaTile({ src, alt, aspect = '3/4', overlay, onClick, loading, className }: MediaTileProps) {
+export function MediaTile({
+  src,
+  alt,
+  aspect = '3/4',
+  overlay,
+  onClick,
+  loading,
+  className,
+}: MediaTileProps) {
   if (loading) {
     return <Skeleton className={cn('rounded-md', ASPECT_CLASS[aspect], className)} />;
   }
@@ -27,7 +39,11 @@ export function MediaTile({ src, alt, aspect = '3/4', overlay, onClick, loading,
     <Comp
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={cn('relative overflow-hidden rounded-md bg-muted', ASPECT_CLASS[aspect], className)}
+      className={cn(
+        'relative overflow-hidden rounded-md bg-muted',
+        ASPECT_CLASS[aspect],
+        className,
+      )}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={alt} className="size-full object-cover" />

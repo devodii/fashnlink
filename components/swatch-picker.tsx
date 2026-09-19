@@ -31,7 +31,7 @@ export function SwatchPicker({ options, value, onChange, className }: SwatchPick
           onClick={() => onChange(option.id)}
           className={cn(
             'flex size-8 items-center justify-center rounded-full border border-border transition-shadow',
-            value === option.id && 'ring-2 ring-ring ring-offset-2 ring-offset-background'
+            value === option.id && 'ring-2 ring-ring ring-offset-2 ring-offset-background',
           )}
           style={{ backgroundColor: `var(--${option.token})` }}
         >

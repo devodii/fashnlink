@@ -29,7 +29,7 @@ export function TagInput({ value, onChange, placeholder, className }: TagInputPr
     <div
       className={cn(
         'flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-2 py-1.5',
-        className
+        className,
       )}
     >
       {value.map((tag) => (

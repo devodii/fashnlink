@@ -5,8 +5,10 @@ import { SegmentedControl, type SegmentedOption } from '@/components/segmented-c
 import { FieldLayout } from './field-layout';
 import type { FieldProps } from './types';
 
-export interface SegmentedFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface SegmentedFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   options: SegmentedOption[];
 }
 
@@ -23,8 +25,18 @@ export function SegmentedField<TValues extends RHF.FieldValues, TName extends RH
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
-          <SegmentedControl options={options} value={(field.value as string) ?? ''} onChange={field.onChange} />
+        <FieldLayout
+          htmlFor={name}
+          label={label}
+          description={description}
+          error={fieldState.error}
+          className={className}
+        >
+          <SegmentedControl
+            options={options}
+            value={(field.value as string) ?? ''}
+            onChange={field.onChange}
+          />
         </FieldLayout>
       )}
     />

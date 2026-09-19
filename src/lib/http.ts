@@ -34,8 +34,16 @@ async function waitForDomainSlot(domain: string, perDomainRps: number) {
 export function createFetch(opts: CreateFetchOptions): typeof fetch {
   const { log, perDomainRps = 2, retries = 2, timeoutMs = 10_000 } = opts;
 
-  return async function rateLimitedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-    const url = typeof input === 'string' ? new URL(input) : input instanceof URL ? input : new URL(input.url);
+  return async function rateLimitedFetch(
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> {
+    const url =
+      typeof input === 'string'
+        ? new URL(input)
+        : input instanceof URL
+          ? input
+          : new URL(input.url);
     await waitForDomainSlot(url.hostname, perDomainRps);
 
     let lastError: unknown;
@@ -56,7 +64,10 @@ export function createFetch(opts: CreateFetchOptions): typeof fetch {
         clearTimeout(timeout);
         if ((response.status === 429 || response.status >= 500) && attempt < retries) {
           const backoff = jitter(300 * 2 ** attempt);
-          log.warn({ url: url.toString(), status: response.status, attempt, backoff }, 'http retry');
+          log.warn(
+            { url: url.toString(), status: response.status, attempt, backoff },
+            'http retry',
+          );
           await new Promise((resolve) => setTimeout(resolve, backoff));
           continue;
         }

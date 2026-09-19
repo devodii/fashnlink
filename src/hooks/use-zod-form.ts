@@ -15,7 +15,7 @@ import type { z } from 'zod';
  */
 export function useZodForm<TFieldValues extends RHF.FieldValues>(
   schema: z.ZodType<TFieldValues, TFieldValues>,
-  options?: Omit<RHF.UseFormProps<TFieldValues>, 'resolver'>
+  options?: Omit<RHF.UseFormProps<TFieldValues>, 'resolver'>,
 ) {
   return RHF.useForm<TFieldValues>({
     ...options,

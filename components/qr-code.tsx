@@ -28,7 +28,15 @@ export function QrCode({ value, size = 160, className }: QrCodeProps) {
       <rect width={moduleCount} height={moduleCount} className="fill-background" />
       <g className="fill-foreground">
         {Array.from(modules).map((dark, i) =>
-          dark ? <rect key={i} x={i % moduleCount} y={Math.floor(i / moduleCount)} width={1} height={1} /> : null
+          dark ? (
+            <rect
+              key={i}
+              x={i % moduleCount}
+              y={Math.floor(i / moduleCount)}
+              width={1}
+              height={1}
+            />
+          ) : null,
         )}
       </g>
     </svg>

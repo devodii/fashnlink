@@ -8,7 +8,14 @@ export interface SectionProps extends React.ComponentProps<'section'> {
 }
 
 /** Vertical rhythm owner (section 10.4): pages are stacks of `Section`. */
-export function Section({ title, description, aside, className, children, ...props }: SectionProps) {
+export function Section({
+  title,
+  description,
+  aside,
+  className,
+  children,
+  ...props
+}: SectionProps) {
   return (
     <section className={cn('space-y-4', className)} {...props}>
       {(title || description || aside) && (

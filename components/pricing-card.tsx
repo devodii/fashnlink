@@ -18,13 +18,22 @@ export interface PricingCardProps {
 /** Section 10.4/13: one card per plan in `src/config/pricing.ts` — the
  * marketing pricing block (section 8.1) and any in-app upgrade prompt share
  * this. */
-export function PricingCard({ name, price, period, features, cta, highlight, note, className }: PricingCardProps) {
+export function PricingCard({
+  name,
+  price,
+  period,
+  features,
+  cta,
+  highlight,
+  note,
+  className,
+}: PricingCardProps) {
   return (
     <div
       className={cn(
         'flex flex-col gap-4 rounded-md border p-6',
         highlight ? 'border-ring bg-secondary' : 'border-border bg-card',
-        className
+        className,
       )}
     >
       <div className="space-y-1">

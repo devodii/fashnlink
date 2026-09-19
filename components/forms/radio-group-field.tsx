@@ -11,8 +11,10 @@ export interface RadioGroupFieldOption {
   label: string;
 }
 
-export interface RadioGroupFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface RadioGroupFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   options: RadioGroupFieldOption[];
   disabled?: boolean;
 }
@@ -31,7 +33,13 @@ export function RadioGroupField<TValues extends RHF.FieldValues, TName extends R
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
+        <FieldLayout
+          htmlFor={name}
+          label={label}
+          description={description}
+          error={fieldState.error}
+          className={className}
+        >
           <RadioGroup
             value={(field.value as string | undefined) ?? ''}
             onValueChange={field.onChange}

@@ -19,7 +19,7 @@ export function useCopy(resetMs = 2000) {
         return false;
       }
     },
-    [resetMs]
+    [resetMs],
   );
 
   return { copied, copy };

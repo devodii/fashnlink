@@ -23,7 +23,9 @@ export function LanguageSuggestBanner() {
     }
 
     const browserCode = navigator.language.split('-')[0];
-    const match = LANGUAGES.find((l) => l.code === browserCode || l.code.startsWith(`${browserCode}-`));
+    const match = LANGUAGES.find(
+      (l) => l.code === browserCode || l.code.startsWith(`${browserCode}-`),
+    );
     if (match && match.code !== SOURCE_LANGUAGE_CODE) setSuggested(match);
   }, []);
 

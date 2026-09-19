@@ -7,7 +7,13 @@ import { useIsDesktop } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 
@@ -19,7 +25,10 @@ export type FilterDef =
   | { type: 'dateRange'; key: string; label: string }
   | { type: 'toggle'; key: string; label: string };
 
-export type FilterValue = Record<string, string | string[] | { from?: string; to?: string } | boolean | undefined>;
+export type FilterValue = Record<
+  string,
+  string | string[] | { from?: string; to?: string } | boolean | undefined
+>;
 
 export interface FilterBarProps {
   filters: FilterDef[];
@@ -28,7 +37,15 @@ export interface FilterBarProps {
   className?: string;
 }
 
-function FilterControl({ filter, value, onChange }: { filter: FilterDef; value: FilterValue; onChange: (v: FilterValue) => void }) {
+function FilterControl({
+  filter,
+  value,
+  onChange,
+}: {
+  filter: FilterDef;
+  value: FilterValue;
+  onChange: (v: FilterValue) => void;
+}) {
   const set = (v: unknown) => onChange({ ...value, [filter.key]: v as FilterValue[string] });
 
   if (filter.type === 'select') {
@@ -37,10 +54,14 @@ function FilterControl({ filter, value, onChange }: { filter: FilterDef; value: 
       <div className="space-y-1.5">
         <Label>{filter.label}</Label>
         <Select value={current} onValueChange={set}>
-          <SelectTrigger className="w-full"><SelectValue placeholder="All" /></SelectTrigger>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
           <SelectContent>
             {filter.options.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -60,10 +81,14 @@ function FilterControl({ filter, value, onChange }: { filter: FilterDef; value: 
               <button
                 key={o.value}
                 type="button"
-                onClick={() => set(active ? current.filter((v) => v !== o.value) : [...current, o.value])}
+                onClick={() =>
+                  set(active ? current.filter((v) => v !== o.value) : [...current, o.value])
+                }
                 className={cn(
                   'rounded-full border px-2.5 py-1 text-xs font-medium',
-                  active ? 'border-ring bg-secondary text-secondary-foreground' : 'border-border text-muted-foreground'
+                  active
+                    ? 'border-ring bg-secondary text-secondary-foreground'
+                    : 'border-border text-muted-foreground',
                 )}
               >
                 {o.label}
@@ -81,9 +106,17 @@ function FilterControl({ filter, value, onChange }: { filter: FilterDef; value: 
       <div className="space-y-1.5">
         <Label>{filter.label}</Label>
         <div className="flex items-center gap-2">
-          <Input type="date" value={current.from ?? ''} onChange={(e) => set({ ...current, from: e.target.value })} />
+          <Input
+            type="date"
+            value={current.from ?? ''}
+            onChange={(e) => set({ ...current, from: e.target.value })}
+          />
           <span className="text-muted-foreground">–</span>
-          <Input type="date" value={current.to ?? ''} onChange={(e) => set({ ...current, to: e.target.value })} />
+          <Input
+            type="date"
+            value={current.to ?? ''}
+            onChange={(e) => set({ ...current, to: e.target.value })}
+          />
         </div>
       </div>
     );
@@ -101,7 +134,9 @@ function FilterControl({ filter, value, onChange }: { filter: FilterDef; value: 
 export function FilterBar({ filters, value, onChange, className }: FilterBarProps) {
   const isDesktop = useIsDesktop();
   const [open, setOpen] = React.useState(false);
-  const activeCount = Object.values(value).filter((v) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)).length;
+  const activeCount = Object.values(value).filter(
+    (v) => v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0),
+  ).length;
 
   if (isDesktop) {
     return (

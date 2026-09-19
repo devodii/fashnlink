@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { FieldLayout } from './field-layout';
 import type { FieldProps } from './types';
 
-export interface UrlFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface UrlFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   placeholder?: string;
   disabled?: boolean;
   autoFocus?: boolean;
@@ -37,7 +39,13 @@ export function UrlField<TValues extends RHF.FieldValues, TName extends RHF.Path
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
+        <FieldLayout
+          htmlFor={name}
+          label={label}
+          description={description}
+          error={fieldState.error}
+          className={className}
+        >
           <Input
             id={name}
             type="text"

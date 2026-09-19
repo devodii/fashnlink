@@ -34,7 +34,13 @@ export function CopyField({ value, label, truncate, className }: CopyFieldProps)
           className={cn('notranslate font-mono text-sm', truncate && 'truncate')}
           onFocus={(e) => e.currentTarget.select()}
         />
-        <Button type="button" variant="outline" size="icon" onClick={() => copy(value)} aria-label="Copy">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => copy(value)}
+          aria-label="Copy"
+        >
           {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         </Button>
       </div>

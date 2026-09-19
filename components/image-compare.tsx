@@ -28,7 +28,10 @@ export function ImageCompare({ before, after, alt, className }: ImageCompareProp
   return (
     <div
       ref={containerRef}
-      className={cn('relative aspect-[3/4] w-full select-none overflow-hidden rounded-md bg-muted', className)}
+      className={cn(
+        'relative aspect-[3/4] w-full overflow-hidden rounded-md bg-muted select-none',
+        className,
+      )}
       onPointerDown={(e) => {
         draggingRef.current = true;
         updateFromClientX(e.clientX);
@@ -49,7 +52,10 @@ export function ImageCompare({ before, after, alt, className }: ImageCompareProp
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={before} alt={alt} className="absolute inset-0 size-full object-cover" />
       </div>
-      <div className="absolute inset-y-0 w-0.5 bg-background shadow-sm" style={{ left: `${position}%` }}>
+      <div
+        className="absolute inset-y-0 w-0.5 bg-background shadow-sm"
+        style={{ left: `${position}%` }}
+      >
         <div className="absolute top-1/2 left-1/2 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background shadow-sm">
           <div className="h-3 w-0.5 rounded-full bg-muted-foreground" />
         </div>

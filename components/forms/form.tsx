@@ -20,7 +20,12 @@ export interface FormProps<TValues extends RHF.FieldValues> {
 // Record<string, string>` — a server action that wants a field-level message
 // (e.g. "email already in use") sets that key; anything else surfaces as one
 // root `InlineAlert`.
-export function Form<TValues extends RHF.FieldValues>({ form, onSubmit, children, className }: FormProps<TValues>) {
+export function Form<TValues extends RHF.FieldValues>({
+  form,
+  onSubmit,
+  children,
+  className,
+}: FormProps<TValues>) {
   const rootError = form.formState.errors.root?.message;
 
   async function handle(values: TValues) {
@@ -42,7 +47,10 @@ export function Form<TValues extends RHF.FieldValues>({ form, onSubmit, children
 
   return (
     <form onSubmit={form.handleSubmit(handle)} noValidate className={cn('space-y-4', className)}>
-      <fieldset disabled={form.formState.isSubmitting} className="space-y-4 border-0 p-0 m-0 min-w-0">
+      <fieldset
+        disabled={form.formState.isSubmitting}
+        className="m-0 min-w-0 space-y-4 border-0 p-0"
+      >
         {rootError && <InlineAlert tone="destructive">{rootError}</InlineAlert>}
         {children}
       </fieldset>

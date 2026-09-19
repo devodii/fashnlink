@@ -18,7 +18,15 @@ export interface ConfirmDialogProps {
 /** Section 10.4: async-aware — the confirm button shows a loading state and
  * the dialog doesn't close until the action settles. Used for every
  * destructive/irreversible action (pause a link, delete a twin, opt out). */
-export function ConfirmDialog({ open, onOpenChange, title, description, confirmLabel = 'Confirm', tone = 'default', onConfirm }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  confirmLabel = 'Confirm',
+  tone = 'default',
+  onConfirm,
+}: ConfirmDialogProps) {
   const [pending, setPending] = React.useState(false);
 
   async function handleConfirm() {
@@ -42,7 +50,11 @@ export function ConfirmDialog({ open, onOpenChange, title, description, confirmL
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
             Cancel
           </Button>
-          <LoadingButton variant={tone === 'destructive' ? 'destructive' : 'default'} loading={pending} onClick={handleConfirm}>
+          <LoadingButton
+            variant={tone === 'destructive' ? 'destructive' : 'default'}
+            loading={pending}
+            onClick={handleConfirm}
+          >
             {confirmLabel}
           </LoadingButton>
         </>

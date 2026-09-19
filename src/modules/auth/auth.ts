@@ -36,9 +36,10 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: 'pg', schema: authSchema }),
   emailAndPassword: { enabled: false },
-  socialProviders: env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
-    ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET } }
-    : undefined,
+  socialProviders:
+    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET } }
+      : undefined,
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {
@@ -55,7 +56,11 @@ export const auth = betterAuth({
           // Better Auth's own bookkeeping (src/db/auth-schema.ts). Upsert by
           // email so a Google sign-in and a magic-link sign-in for the same
           // address converge on one merchant.
-          const [existing] = await db.select({ id: merchants.id }).from(merchants).where(eq(merchants.email, user.email)).limit(1);
+          const [existing] = await db
+            .select({ id: merchants.id })
+            .from(merchants)
+            .where(eq(merchants.email, user.email))
+            .limit(1);
           if (existing) return;
           await db.insert(merchants).values({
             id: newId('merch'),

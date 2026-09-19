@@ -16,7 +16,14 @@ export interface FieldLayoutProps {
  * description, and error rendered in one consistent order (section 10.5). Not
  * itself one of the spec's named field components — it's the shared shell
  * they're all built on, to avoid duplicating this layout in every field. */
-export function FieldLayout({ htmlFor, label, description, error, className, children }: FieldLayoutProps) {
+export function FieldLayout({
+  htmlFor,
+  label,
+  description,
+  error,
+  className,
+  children,
+}: FieldLayoutProps) {
   return (
     <div className={cn('space-y-1.5', className)}>
       {label && <Label htmlFor={htmlFor}>{label}</Label>}

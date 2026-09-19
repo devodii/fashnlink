@@ -5,8 +5,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { FieldLayout } from './field-layout';
 import type { FieldProps } from './types';
 
-export interface TextareaFieldProps<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>
-  extends FieldProps<TValues, TName> {
+export interface TextareaFieldProps<
+  TValues extends RHF.FieldValues,
+  TName extends RHF.Path<TValues>,
+> extends FieldProps<TValues, TName> {
   placeholder?: string;
   rows?: number;
   disabled?: boolean;
@@ -27,7 +29,13 @@ export function TextareaField<TValues extends RHF.FieldValues, TName extends RHF
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <FieldLayout htmlFor={name} label={label} description={description} error={fieldState.error} className={className}>
+        <FieldLayout
+          htmlFor={name}
+          label={label}
+          description={description}
+          error={fieldState.error}
+          className={className}
+        >
           <Textarea
             id={name}
             placeholder={placeholder}

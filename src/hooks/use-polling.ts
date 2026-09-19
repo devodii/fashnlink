@@ -6,7 +6,11 @@ import { useEffect, useRef } from 'react';
  * polling (`GET /api/twins/[id]/status`, `GET /api/renders/[id]/status`).
  * `fn` decides when to stop by returning `false`; polling stops immediately
  * on unmount so a navigated-away shopper page never leaks a timer. */
-export function usePolling(fn: () => void | Promise<boolean | void>, intervalMs: number, enabled = true) {
+export function usePolling(
+  fn: () => void | Promise<boolean | void>,
+  intervalMs: number,
+  enabled = true,
+) {
   const fnRef = useRef(fn);
   fnRef.current = fn;
 

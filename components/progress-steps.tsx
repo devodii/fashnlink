@@ -32,18 +32,37 @@ const CIRCLE_CLASS: Record<ProgressStepState, string> = {
 /** Section 10.4: horizontal on desktop, vertical on mobile by default via
  * `orientation` — the scraper pipeline (section 6.2) and twin/render
  * progress (section 8.3) both drive this. */
-export function ProgressSteps({ steps, orientation = 'horizontal', className }: ProgressStepsProps) {
+export function ProgressSteps({
+  steps,
+  orientation = 'horizontal',
+  className,
+}: ProgressStepsProps) {
   const vertical = orientation === 'vertical';
 
   return (
     <div className={cn('flex', vertical ? 'flex-col gap-3' : 'items-start gap-2', className)}>
       {steps.map((step, i) => (
         <React.Fragment key={step.label}>
-          <div className={cn('flex items-center gap-2', vertical ? 'flex-row' : 'flex-col text-center')}>
-            <span className={cn('flex size-6 shrink-0 items-center justify-center rounded-full border', CIRCLE_CLASS[step.state])}>
+          <div
+            className={cn(
+              'flex items-center gap-2',
+              vertical ? 'flex-row' : 'flex-col text-center',
+            )}
+          >
+            <span
+              className={cn(
+                'flex size-6 shrink-0 items-center justify-center rounded-full border',
+                CIRCLE_CLASS[step.state],
+              )}
+            >
               {ICON[step.state]}
             </span>
-            <span className={cn('text-xs font-medium', step.state === 'pending' ? 'text-muted-foreground' : 'text-foreground')}>
+            <span
+              className={cn(
+                'text-xs font-medium',
+                step.state === 'pending' ? 'text-muted-foreground' : 'text-foreground',
+              )}
+            >
               {step.label}
             </span>
           </div>

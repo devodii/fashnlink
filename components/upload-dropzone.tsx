@@ -74,9 +74,12 @@ export function UploadDropzone({
     void startUpload(files);
   }
 
-  React.useEffect(() => () => {
-    if (localPreview) URL.revokeObjectURL(localPreview);
-  }, [localPreview]);
+  React.useEffect(
+    () => () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    },
+    [localPreview],
+  );
 
   const displayPreview = preview ?? localPreview;
   const displayError = errorProp ?? localError;
@@ -100,7 +103,7 @@ export function UploadDropzone({
         }}
         className={cn(
           'relative flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted text-muted-foreground transition-colors',
-          dragActive && 'border-ring bg-accent'
+          dragActive && 'border-ring bg-accent',
         )}
       >
         {displayPreview ? (
@@ -108,7 +111,11 @@ export function UploadDropzone({
           <img src={displayPreview} alt="" className="absolute inset-0 size-full object-cover" />
         ) : (
           <>
-            {isLoading ? <Loader2 className="size-6 animate-spin" /> : <UploadCloud className="size-6" />}
+            {isLoading ? (
+              <Loader2 className="size-6 animate-spin" />
+            ) : (
+              <UploadCloud className="size-6" />
+            )}
             <span className="px-4 text-center text-sm">Tap to upload, or drag a photo here</span>
           </>
         )}
@@ -126,7 +133,7 @@ export function UploadDropzone({
               setLocalPreview(null);
               onFiles([]);
             }}
-            className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm"
+            className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm"
           >
             <X className="size-4" />
           </span>

@@ -32,7 +32,7 @@ export function AppShell({ nav, user, actions, footer, children }: AppShellProps
               href={item.href}
               className={cn(
                 'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground',
-                item.active && 'bg-secondary text-secondary-foreground'
+                item.active && 'bg-secondary text-secondary-foreground',
               )}
             >
               <item.icon className="size-4" />
@@ -60,7 +60,7 @@ export function AppShell({ nav, user, actions, footer, children }: AppShellProps
             href={item.href}
             className={cn(
               'flex min-w-11 flex-col items-center gap-0.5 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground',
-              item.active && 'text-foreground'
+              item.active && 'text-foreground',
             )}
           >
             <item.icon className="size-5" />

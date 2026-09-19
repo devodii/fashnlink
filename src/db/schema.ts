@@ -97,7 +97,14 @@ export const renderStatusEnum = pgEnum('render_status', [
 ]);
 
 // 'campaign' added per section 9.8 ("add to the enum") for retargeting drops.
-export const renderViaEnum = pgEnum('render_via', ['direct', 'share', 'poll', 'group', 'claim', 'campaign']);
+export const renderViaEnum = pgEnum('render_via', [
+  'direct',
+  'share',
+  'poll',
+  'group',
+  'claim',
+  'campaign',
+]);
 
 export const leadSourceEnum = pgEnum('lead_source', ['email_gate', 'share', 'poll', 'group']);
 
@@ -136,7 +143,11 @@ export const campaignItemStatusEnum = pgEnum('campaign_item_status', [
   'skipped',
 ]);
 
-export const cartEventKindEnum = pgEnum('cart_event_kind', ['tryon_no_buy', 'add_to_cart', 'purchase']);
+export const cartEventKindEnum = pgEnum('cart_event_kind', [
+  'tryon_no_buy',
+  'add_to_cart',
+  'purchase',
+]);
 
 export const platformRequestStatusEnum = pgEnum('platform_request_status', [
   'open',
@@ -145,7 +156,12 @@ export const platformRequestStatusEnum = pgEnum('platform_request_status', [
   'wontfix',
 ]);
 
-export const auditActorTypeEnum = pgEnum('audit_actor_type', ['merchant', 'shopper', 'system', 'admin']);
+export const auditActorTypeEnum = pgEnum('audit_actor_type', [
+  'merchant',
+  'shopper',
+  'system',
+  'admin',
+]);
 
 // ---------- Tables ----------
 
@@ -211,7 +227,7 @@ export const products = pgTable(
     contentHash: text('content_hash'),
     ...timestamps,
   },
-  (table) => [uniqueIndex('products_store_external_idx').on(table.storeId, table.externalId)]
+  (table) => [uniqueIndex('products_store_external_idx').on(table.storeId, table.externalId)],
 );
 
 export const productImages = pgTable(
@@ -233,7 +249,7 @@ export const productImages = pgTable(
     variantIds: text('variant_ids').array().notNull().default([]),
     ...timestamps,
   },
-  (table) => [index('product_images_phash_idx').on(table.phash)]
+  (table) => [index('product_images_phash_idx').on(table.phash)],
 );
 
 export const productVariants = pgTable('product_variants', {
@@ -333,7 +349,7 @@ export const renders = pgTable(
   (table) => [
     index('renders_shopper_idx').on(table.shopperId),
     index('renders_link_status_idx').on(table.linkId, table.status),
-  ]
+  ],
 );
 
 export const pollVotes = pgTable(
@@ -351,7 +367,7 @@ export const pollVotes = pgTable(
       .references(() => shoppers.id),
     createdAt: timestamps.createdAt,
   },
-  (table) => [uniqueIndex('poll_votes_link_voter_idx').on(table.linkId, table.voterShopperId)]
+  (table) => [uniqueIndex('poll_votes_link_voter_idx').on(table.linkId, table.voterShopperId)],
 );
 
 export const groupMembers = pgTable('group_members', {
@@ -388,7 +404,13 @@ export const leads = pgTable(
     source: leadSourceEnum('source').notNull(),
     ...timestamps,
   },
-  (table) => [uniqueIndex('leads_merchant_shopper_product_idx').on(table.merchantId, table.shopperId, table.productId)]
+  (table) => [
+    uniqueIndex('leads_merchant_shopper_product_idx').on(
+      table.merchantId,
+      table.shopperId,
+      table.productId,
+    ),
+  ],
 );
 
 export const creditLedger = pgTable(
@@ -409,7 +431,7 @@ export const creditLedger = pgTable(
     refAfter: integer('ref_after').notNull(),
     createdAt: timestamps.createdAt,
   },
-  (table) => [index('credit_ledger_merchant_created_idx').on(table.merchantId, table.createdAt)]
+  (table) => [index('credit_ledger_merchant_created_idx').on(table.merchantId, table.createdAt)],
 );
 
 export const stripeEvents = pgTable('stripe_events', {
@@ -475,7 +497,9 @@ export const retargetOptins = pgTable(
     ip: text('ip'),
     userAgent: text('user_agent'),
   },
-  (table) => [uniqueIndex('retarget_optins_shopper_merchant_idx').on(table.shopperId, table.merchantId)]
+  (table) => [
+    uniqueIndex('retarget_optins_shopper_merchant_idx').on(table.shopperId, table.merchantId),
+  ],
 );
 
 export const espConnections = pgTable('esp_connections', {
@@ -573,5 +597,5 @@ export const idempotencyKeys = pgTable(
     responseBody: jsonb('response_body'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [primaryKey({ columns: [table.key, table.actorId] })]
+  (table) => [primaryKey({ columns: [table.key, table.actorId] })],
 );

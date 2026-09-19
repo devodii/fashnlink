@@ -12,12 +12,20 @@ export interface CreditMeterProps {
 
 /** Section 10.4/13: merchant render-credit balance — `reserved` covers a
  * pending campaign (section 9.8) not yet settled against `balance`. */
-export function CreditMeter({ balance, reserved = 0, cap, variant = 'full', className }: CreditMeterProps) {
+export function CreditMeter({
+  balance,
+  reserved = 0,
+  cap,
+  variant = 'full',
+  className,
+}: CreditMeterProps) {
   if (variant === 'compact') {
     return (
       <span className={cn('text-sm font-medium text-foreground', className)}>
         {balance.toLocaleString()} credits
-        {reserved > 0 && <span className="text-muted-foreground"> ({reserved.toLocaleString()} reserved)</span>}
+        {reserved > 0 && (
+          <span className="text-muted-foreground"> ({reserved.toLocaleString()} reserved)</span>
+        )}
       </span>
     );
   }
@@ -28,10 +36,16 @@ export function CreditMeter({ balance, reserved = 0, cap, variant = 'full', clas
     <div className={cn('space-y-1.5', className)}>
       <div className="flex items-baseline justify-between">
         <p className="text-sm font-medium text-foreground">{balance.toLocaleString()} credits</p>
-        {cap !== undefined && <p className="text-xs text-muted-foreground">of {cap.toLocaleString()}</p>}
+        {cap !== undefined && (
+          <p className="text-xs text-muted-foreground">of {cap.toLocaleString()}</p>
+        )}
       </div>
       {pct !== undefined && <Progress value={pct} />}
-      {reserved > 0 && <p className="text-xs text-muted-foreground">{reserved.toLocaleString()} reserved for pending campaigns</p>}
+      {reserved > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {reserved.toLocaleString()} reserved for pending campaigns
+        </p>
+      )}
     </div>
   );
 }

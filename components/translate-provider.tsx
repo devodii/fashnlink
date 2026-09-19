@@ -10,7 +10,10 @@ declare global {
     google?: {
       translate?: {
         TranslateElement: {
-          new (options: { pageLanguage: string; autoDisplay: boolean; layout: unknown }, mountId: string): unknown;
+          new (
+            options: { pageLanguage: string; autoDisplay: boolean; layout: unknown },
+            mountId: string,
+          ): unknown;
           InlineLayout: { SIMPLE: unknown };
         };
       };
@@ -29,7 +32,10 @@ interface TranslateErrorBoundaryState {
 // error it clears the cookie once and reloads instead of white-screening;
 // any other error is not our concern and rethrows for a real error boundary
 // higher up (or the framework's default) to handle.
-class TranslateErrorBoundary extends React.Component<{ children: React.ReactNode }, TranslateErrorBoundaryState> {
+class TranslateErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  TranslateErrorBoundaryState
+> {
   state: TranslateErrorBoundaryState = { hasError: false };
 
   static getDerivedStateFromError(error: Error): TranslateErrorBoundaryState | null {
@@ -66,8 +72,12 @@ export function TranslateProvider({ children }: { children: React.ReactNode }) {
     window.__gtInit = () => {
       if (!window.google?.translate) return;
       new window.google.translate.TranslateElement(
-        { pageLanguage: 'en', autoDisplay: false, layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE },
-        'gt-mount'
+        {
+          pageLanguage: 'en',
+          autoDisplay: false,
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+        },
+        'gt-mount',
       );
     };
   }, []);
@@ -75,7 +85,10 @@ export function TranslateProvider({ children }: { children: React.ReactNode }) {
   return (
     <TranslateErrorBoundary>
       {shouldLoad && (
-        <Script src="https://translate.google.com/translate_a/element.js?cb=__gtInit" strategy="afterInteractive" />
+        <Script
+          src="https://translate.google.com/translate_a/element.js?cb=__gtInit"
+          strategy="afterInteractive"
+        />
       )}
       <div id="gt-mount" className="hidden" aria-hidden />
       {children}

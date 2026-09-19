@@ -110,7 +110,11 @@ function toAppError(error: unknown): AppError {
 // handlers to Next.js's Response-based routing, so throw-and-catch here is
 // the mechanism, not a violation of section 1.4's "never throw across module
 // boundaries" (which is about application code, not this framework glue).
-function appError(code: AppError['code'], message: string, meta?: Record<string, unknown>): AppError {
+function appError(
+  code: AppError['code'],
+  message: string,
+  meta?: Record<string, unknown>,
+): AppError {
   return { code, message, meta };
 }
 
@@ -147,7 +151,7 @@ async function resolveMerchantSession(req: NextRequest): Promise<ResolvedAuth | 
 async function resolveAuth<TBody, TParams, TQuery>(
   scopes: AuthScope[],
   req: NextRequest,
-  webhookVerify: HandlerConfig<TBody, TParams, TQuery>['webhookVerify']
+  webhookVerify: HandlerConfig<TBody, TParams, TQuery>['webhookVerify'],
 ): Promise<ResolvedAuth> {
   if (scopes.length === 0 || scopes.includes('public')) return { type: 'public' };
 
@@ -159,7 +163,10 @@ async function resolveAuth<TBody, TParams, TQuery>(
       // exist until M4. Fail loudly here rather than silently treating a
       // shopper route as unauthenticated — a route that declares this scope
       // today has a bug, not a missing shopper.
-      throw appError('INTERNAL', "shopper_session auth is not implemented until M4 — don't use it yet");
+      throw appError(
+        'INTERNAL',
+        "shopper_session auth is not implemented until M4 — don't use it yet",
+      );
     }
 
     if (scope === 'cron') {
@@ -170,7 +177,10 @@ async function resolveAuth<TBody, TParams, TQuery>(
 
     if (scope === 'webhook') {
       if (!webhookVerify) {
-        throw appError('INTERNAL', "route declares 'webhook' auth but supplied no webhookVerify callback");
+        throw appError(
+          'INTERNAL',
+          "route declares 'webhook' auth but supplied no webhookVerify callback",
+        );
       }
       const verified = await webhookVerify(req);
       if (verified.ok) return { type: 'webhook' };
@@ -209,9 +219,15 @@ function actorIdFor(resolvedAuth: ResolvedAuth): string {
 async function consumeRateLimit(
   key: string,
   limit: number,
-  windowSeconds: number
+  windowSeconds: number,
 ): Promise<{ allowed: boolean; limit: number; remaining: number; reset: Date }> {
-  if (!redis) return { allowed: true, limit, remaining: limit, reset: new Date(Date.now() + windowSeconds * 1000) };
+  if (!redis)
+    return {
+      allowed: true,
+      limit,
+      remaining: limit,
+      reset: new Date(Date.now() + windowSeconds * 1000),
+    };
 
   const bucket = `ratelimit:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
   const count = await redis.incr(bucket);
@@ -223,25 +239,35 @@ async function consumeRateLimit(
 
 type IdempotencyLookup = { done: true; status: number; body: unknown } | { done: false } | null;
 
-async function getStoredIdempotentResponse(key: string, actorId: string): Promise<IdempotencyLookup> {
+async function getStoredIdempotentResponse(
+  key: string,
+  actorId: string,
+): Promise<IdempotencyLookup> {
   const [row] = await db
     .select()
     .from(idempotencyKeys)
     .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)))
     .limit(1);
   if (!row) return null;
-  if (row.responseStatus !== null) return { done: true, status: row.responseStatus, body: row.responseBody };
+  if (row.responseStatus !== null)
+    return { done: true, status: row.responseStatus, body: row.responseBody };
 
   const lockAgeMs = Date.now() - row.lockedAt.getTime();
   if (lockAgeMs > 60_000) {
     // Stale lock (handler crashed mid-request) — clear it so the retry can proceed.
-    await db.delete(idempotencyKeys).where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
+    await db
+      .delete(idempotencyKeys)
+      .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
     return null;
   }
   return { done: false };
 }
 
-async function tryAcquireIdempotencyLock(key: string, actorId: string, route: string): Promise<boolean> {
+async function tryAcquireIdempotencyLock(
+  key: string,
+  actorId: string,
+  route: string,
+): Promise<boolean> {
   const inserted = await db
     .insert(idempotencyKeys)
     .values({ key, actorId, route })
@@ -250,7 +276,12 @@ async function tryAcquireIdempotencyLock(key: string, actorId: string, route: st
   return inserted.length > 0;
 }
 
-async function saveIdempotentResult(key: string, actorId: string, status: number, body: unknown): Promise<void> {
+async function saveIdempotentResult(
+  key: string,
+  actorId: string,
+  status: number,
+  body: unknown,
+): Promise<void> {
   await db
     .update(idempotencyKeys)
     .set({ responseStatus: status, responseBody: body as object })
@@ -258,7 +289,9 @@ async function saveIdempotentResult(key: string, actorId: string, status: number
 }
 
 async function releaseIdempotencyLock(key: string, actorId: string): Promise<void> {
-  await db.delete(idempotencyKeys).where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
+  await db
+    .delete(idempotencyKeys)
+    .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
 }
 
 function toSnakeCase(value: unknown): unknown {
@@ -269,20 +302,24 @@ function toSnakeCase(value: unknown): unknown {
     Object.entries(value as Record<string, unknown>).map(([k, v]) => [
       k.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`),
       toSnakeCase(v),
-    ])
+    ]),
   );
 }
 
 export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>(
-  config: HandlerConfig<TBody, TParams, TQuery>
+  config: HandlerConfig<TBody, TParams, TQuery>,
 ) => {
   if (routeRegistry.has(config.name)) {
     throw new Error(`Route "${config.name}" is already registered — route names must be unique`);
   }
   routeRegistry.set(config.name, config as HandlerConfig<unknown, unknown, unknown>);
-  if (config.mcp) mcpToolsRegistry.set(config.mcp.name, config as HandlerConfig<unknown, unknown, unknown>);
+  if (config.mcp)
+    mcpToolsRegistry.set(config.mcp.name, config as HandlerConfig<unknown, unknown, unknown>);
 
-  return async (req: NextRequest, context: { params: Promise<Record<string, string | string[]>> }) => {
+  return async (
+    req: NextRequest,
+    context: { params: Promise<Record<string, string | string[]>> },
+  ) => {
     const requestId = crypto.randomUUID();
     const log = childLogger(requestId, { route: config.name });
     const corsHeaders = config.cors ? getCorsHeaders(req.headers.get('origin')) : {};
@@ -298,7 +335,11 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
 
       if (config.rateLimit) {
         const rateLimitKey = config.rateLimit.key({ auth: resolvedAuth, req });
-        const rl = await consumeRateLimit(rateLimitKey, config.rateLimit.limit, config.rateLimit.windowSeconds);
+        const rl = await consumeRateLimit(
+          rateLimitKey,
+          config.rateLimit.limit,
+          config.rateLimit.windowSeconds,
+        );
         rateHeaders = {
           'X-RateLimit-Limit': rl.limit.toString(),
           'X-RateLimit-Remaining': rl.remaining.toString(),
@@ -322,8 +363,13 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
         const parsed = config.schema.body.safeParse(json);
         if (!parsed.success) {
           return NextResponse.json(
-            { error: { code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message ?? 'Invalid body' } },
-            { status: 400, headers: corsHeaders }
+            {
+              error: {
+                code: 'INVALID_INPUT',
+                message: parsed.error.issues[0]?.message ?? 'Invalid body',
+              },
+            },
+            { status: 400, headers: corsHeaders },
           );
         }
         body = parsed.data;
@@ -334,8 +380,13 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
         const parsed = config.schema.params.safeParse(rawParams);
         if (!parsed.success) {
           return NextResponse.json(
-            { error: { code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message ?? 'Invalid params' } },
-            { status: 400, headers: corsHeaders }
+            {
+              error: {
+                code: 'INVALID_INPUT',
+                message: parsed.error.issues[0]?.message ?? 'Invalid params',
+              },
+            },
+            { status: 400, headers: corsHeaders },
           );
         }
         params = parsed.data;
@@ -346,8 +397,13 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
         const parsed = config.schema.query.safeParse(rawQuery);
         if (!parsed.success) {
           return NextResponse.json(
-            { error: { code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message ?? 'Invalid query' } },
-            { status: 400, headers: corsHeaders }
+            {
+              error: {
+                code: 'INVALID_INPUT',
+                message: parsed.error.issues[0]?.message ?? 'Invalid query',
+              },
+            },
+            { status: 400, headers: corsHeaders },
           );
         }
         query = parsed.data;
@@ -363,11 +419,19 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
           throw appError('CONFLICT', 'Request with this idempotency key is already in progress');
         }
         const locked = await tryAcquireIdempotencyLock(idempotencyKey, idemActorId, config.name);
-        if (!locked) throw appError('CONFLICT', 'Request with this idempotency key is already in progress');
+        if (!locked)
+          throw appError('CONFLICT', 'Request with this idempotency key is already in progress');
         idemLocked = true;
       }
 
-      const result = await config.handler({ body, params, query, auth: resolvedAuth, req, requestId });
+      const result = await config.handler({
+        body,
+        params,
+        query,
+        auth: resolvedAuth,
+        req,
+        requestId,
+      });
 
       if (result instanceof Response) return result;
       if (!result.ok) throw result.error;
@@ -389,13 +453,19 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
 
       const appErr = toAppError(error);
       const status = STATUS_BY_CODE[appErr.code];
-      const message = status >= 500 ? 'An internal error occurred. Our engineers have been notified.' : appErr.message;
+      const message =
+        status >= 500
+          ? 'An internal error occurred. Our engineers have been notified.'
+          : appErr.message;
 
-      log.error({ error: appErr, method: req.method, path: req.nextUrl.pathname }, 'api handler failure');
+      log.error(
+        { error: appErr, method: req.method, path: req.nextUrl.pathname },
+        'api handler failure',
+      );
 
       return NextResponse.json(
         { error: { code: appErr.code, message } },
-        { status, headers: { ...corsHeaders, ...rateHeaders } }
+        { status, headers: { ...corsHeaders, ...rateHeaders } },
       );
     }
   };

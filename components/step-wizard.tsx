@@ -39,7 +39,7 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
   const stepParam = searchParams.get('step');
   const currentIndex = Math.max(
     0,
-    steps.findIndex((s) => s.id === (stepParam ?? initialStepId ?? steps[0]?.id))
+    steps.findIndex((s) => s.id === (stepParam ?? initialStepId ?? steps[0]?.id)),
   );
   const currentStep = steps[currentIndex];
   const prevIndexRef = React.useRef(currentIndex);
@@ -66,7 +66,7 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
       goTo: setStep,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentIndex, steps]
+    [currentIndex, steps],
   );
 
   if (!currentStep) return null;
@@ -75,7 +75,10 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
     <div className={cn('flex flex-col gap-4', className)}>
       <div className="flex items-center gap-1.5">
         {steps.map((step, i) => (
-          <span key={step.id} className={cn('h-1 flex-1 rounded-full', i <= currentIndex ? 'bg-primary' : 'bg-muted')} />
+          <span
+            key={step.id}
+            className={cn('h-1 flex-1 rounded-full', i <= currentIndex ? 'bg-primary' : 'bg-muted')}
+          />
         ))}
       </div>
 
@@ -88,7 +91,11 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
           Back
         </Button>
         {currentIndex < steps.length - 1 && (
-          <Button type="button" variant={currentStep.optional ? 'ghost' : 'default'} onClick={api.next}>
+          <Button
+            type="button"
+            variant={currentStep.optional ? 'ghost' : 'default'}
+            onClick={api.next}
+          >
             {currentStep.optional ? 'Skip' : 'Next'}
           </Button>
         )}
