@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { requireMerchant } from '@/modules/auth/require-merchant';
 import { db } from '@/db';
@@ -39,6 +40,11 @@ export default async function RetargetingPage() {
       <PageHeader
         title="Retargeting"
         description="Show shoppers wearing your products in the emails your ESP already sends."
+        actions={
+          <Button asChild variant="outline">
+            <Link href="/dashboard/drops/new">New drop</Link>
+          </Button>
+        }
       />
 
       <Section title="Metrics">

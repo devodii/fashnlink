@@ -1,0 +1,78 @@
+import { notFound } from 'next/navigation';
+import { requireMerchant } from '@/modules/auth/require-merchant';
+import { countCampaignItemsByStatus, findCampaignForMerchant } from '@/db/repos/campaigns';
+import { db } from '@/db';
+import { campaignItems, products } from '@/db/schema';
+import { and, eq } from 'drizzle-orm';
+import { PageHeader } from '@/components/page-header';
+import { Section } from '@/components/section';
+import { KpiRow } from '@/components/kpi-row';
+import { StatusBadge } from '@/components/status-badge';
+
+export default async function DropStatusPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const merchant = await requireMerchant();
+  const campaign = await findCampaignForMerchant(id, merchant.id);
+  if (!campaign) notFound();
+
+  const counts = await countCampaignItemsByStatus(id);
+
+  // Section 9.8: "3 anonymized preview examples (faces blurred, since
+  // merchant may not view shopper renders in full)" — same approach as
+  // /claim/[storeId]'s blurred thumbnails (M6): no image URL is ever sent to
+  // the client at all, not just CSS-blurred, since section 14 bans
+  // merchant-visible shopper renders outright. This is product titles only.
+  const previewRows = await db
+    .select({ productTitle: products.title })
+    .from(campaignItems)
+    .innerJoin(products, eq(products.id, campaignItems.productId))
+    .where(and(eq(campaignItems.campaignId, id), eq(campaignItems.status, 'rendered')))
+    .limit(3);
+
+  return (
+    <div className="space-y-8 p-4 md:p-8">
+      <PageHeader
+        title="Drop status"
+        description={`Started ${campaign.createdAt.toLocaleDateString()}`}
+        actions={
+          <StatusBadge
+            status={campaign.status}
+            map={{
+              estimating: { label: 'Estimating', tone: 'neutral' },
+              rendering: { label: 'Rendering', tone: 'warning' },
+              ready: { label: 'Ready', tone: 'success' },
+              synced: { label: 'Synced', tone: 'success' },
+              cancelled: { label: 'Cancelled', tone: 'destructive' },
+            }}
+          />
+        }
+      />
+
+      <Section title="Progress">
+        <KpiRow
+          stats={[
+            { label: 'Pending', value: counts.pending },
+            { label: 'Rendered', value: counts.rendered },
+            { label: 'Failed', value: counts.failed },
+            { label: 'Skipped', value: counts.skipped },
+          ]}
+        />
+      </Section>
+
+      {previewRows.length > 0 && (
+        <Section title="Preview" description="A sample of what shoppers are seeing.">
+          <div className="grid grid-cols-3 gap-3">
+            {previewRows.map((row, i) => (
+              <div
+                key={i}
+                className="flex aspect-[3/4] items-center justify-center rounded-md bg-muted p-2 text-center text-xs text-muted-foreground"
+              >
+                {row.productTitle}
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+    </div>
+  );
+}

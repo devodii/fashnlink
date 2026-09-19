@@ -48,6 +48,8 @@ import '@/app/api/cron/refresh-catalogs/route';
 import '@/app/api/cron/cleanup/route';
 import '@/app/api/me/retarget-optout/route';
 import '@/app/api/cron/abandoned/route';
+import '@/app/api/campaigns/route';
+import '@/app/api/campaigns/estimate/route';
 import '@/app/api/merchants/me/esp-connection/route';
 import '@/app/api/merchants/me/esp-connection/test/route';
 // NOTE: app/api/esp-templates/klaviyo-abandoned/route.ts is intentionally
