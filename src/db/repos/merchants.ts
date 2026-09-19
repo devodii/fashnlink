@@ -1,6 +1,15 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { merchants } from '@/db/schema';
+
+// Section 8.1: marketing pricing block shows founding-pass seats remaining.
+export async function countFounderMerchants(): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(merchants)
+    .where(eq(merchants.plan, 'founder'));
+  return row?.count ?? 0;
+}
 
 export type MerchantSettings = {
   contactChannel?: { type: 'whatsapp' | 'instagram' | 'email'; value: string };
