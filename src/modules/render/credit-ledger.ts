@@ -1,8 +1,10 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
-import { creditLedger, renders, renderViaEnum } from '@/db/schema';
+import { creditLedger, ledgerReasonEnum, renders, renderViaEnum } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { err, ok, type Result } from '@/lib/result';
+
+export type LedgerReason = (typeof ledgerReasonEnum.enumValues)[number];
 
 export type CreateRenderInput = {
   merchantId: string;
@@ -115,4 +117,40 @@ export async function currentBalance(merchantId: string): Promise<number> {
     .from(creditLedger)
     .where(eq(creditLedger.merchantId, merchantId));
   return row?.balance ?? 0;
+}
+
+// M5: any positive-delta grant that isn't a render refund — founding-pass
+// purchase (section 8.4/13), the free signup grant, the model-pack's
+// separate one-time allotment (section 8.2/13). Same `SELECT ... FOR UPDATE`
+// race-free pattern as `reserveRenderCredit`/`refundFailedRender` above, so
+// `refAfter` is never computed outside a lock that guarantees it's correct.
+export async function grantCredits(
+  merchantId: string,
+  amount: number,
+  reason: LedgerReason,
+): Promise<Result<{ balance: number }>> {
+  try {
+    const balance = await db.transaction(async (tx) => {
+      const [latest] = await tx
+        .select({ refAfter: creditLedger.refAfter })
+        .from(creditLedger)
+        .where(eq(creditLedger.merchantId, merchantId))
+        .orderBy(desc(creditLedger.createdAt))
+        .limit(1)
+        .for('update');
+
+      const newBalance = (latest?.refAfter ?? 0) + amount;
+      await tx.insert(creditLedger).values({
+        id: newId('ledger'),
+        merchantId,
+        delta: amount,
+        reason,
+        refAfter: newBalance,
+      });
+      return newBalance;
+    });
+    return ok({ balance });
+  } catch (cause) {
+    return err({ code: 'INTERNAL', message: 'failed to grant credits', cause });
+  }
 }
