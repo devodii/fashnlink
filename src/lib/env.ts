@@ -14,11 +14,11 @@ const devRequired = z.object({
   BETTER_AUTH_SECRET: z.string().min(32, 'BETTER_AUTH_SECRET must be at least 32 characters'),
   FAL_KEY: z.string().min(1, 'FAL_KEY is required'),
   OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required'),
-  R2_ACCOUNT_ID: z.string().min(1, 'R2_ACCOUNT_ID is required'),
-  R2_ACCESS_KEY_ID: z.string().min(1, 'R2_ACCESS_KEY_ID is required'),
-  R2_SECRET_ACCESS_KEY: z.string().min(1, 'R2_SECRET_ACCESS_KEY is required'),
-  R2_BUCKET: z.string().min(1, 'R2_BUCKET is required'),
-  R2_PUBLIC_BASE_URL: z.string().min(1, 'R2_PUBLIC_BASE_URL is required'),
+  // DECISION: storage backend switched from Cloudflare R2 (spec section 2/3)
+  // to UploadThing per user request mid-build — one token replaces the whole
+  // R2 credential block. UploadThing's v7 SDK reads a single UPLOADTHING_TOKEN
+  // (dashboard → API Keys), not separate secret/app-id vars.
+  UPLOADTHING_TOKEN: z.string().min(1, 'UPLOADTHING_TOKEN is required'),
 });
 
 // Required in production only (section 3: "Required in production: everything
