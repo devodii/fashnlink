@@ -36,6 +36,13 @@
       "when": 1789821420660,
       "tag": "0004_tidy_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789823042301,
+      "tag": "0005_rare_harrier",
+      "breakpoints": true
     }
   ]
 }

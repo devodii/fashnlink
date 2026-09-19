@@ -368,6 +368,9 @@ export const renders = pgTable(
     // Set when the shopper clicks "Buy" (section 8.3); read by the abandoned
     // try-on cron (section 9.8 Kind A).
     buyClickedAt: timestamp('buy_clicked_at', { withTimezone: true }),
+    // Section 8.3: "the shopper who owns the render can toggle it private
+    // from /me" — /r/[renderId] 404s once this is false, added with M4.
+    isPublic: boolean('is_public').notNull().default(true),
     ...timestamps,
   },
   (table) => [
