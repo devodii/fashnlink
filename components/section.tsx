@@ -7,7 +7,6 @@ export interface SectionProps extends React.ComponentProps<'section'> {
   aside?: React.ReactNode;
 }
 
-/** Vertical rhythm owner: pages are stacks of `Section`. */
 export function Section({
   title,
   description,

@@ -7,9 +7,8 @@ export interface QrCodeProps {
   className?: string;
 }
 
-/** SVG, token colors only; `fill="currentColor"` on a
- * `text-foreground` root instead of the library's default black modules, so
- * it themes with the page (light/dark, section 10.1). */
+// fill="currentColor" on a text-foreground root overrides the library's
+// default black modules so it themes with the page.
 export function QrCode({ value, size = 160, className }: QrCodeProps) {
   const { modules, moduleCount } = React.useMemo(() => {
     const qr = QRCode.create(value, { errorCorrectionLevel: 'M' });

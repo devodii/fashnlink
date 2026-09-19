@@ -14,8 +14,6 @@ export interface TimelineProps {
   className?: string;
 }
 
-/** audit-log style history; render status changes, job
- * retries, campaign events. */
 export function Timeline({ items, className }: TimelineProps) {
   return (
     <ol className={cn('space-y-4', className)}>

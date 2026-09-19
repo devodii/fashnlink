@@ -29,9 +29,6 @@ const CIRCLE_CLASS: Record<ProgressStepState, string> = {
   error: 'border-destructive bg-destructive/15 text-destructive',
 };
 
-/** horizontal on desktop, vertical on mobile by default via
- * `orientation`; the scraper pipeline and twin/render
- * progress both drive this. */
 export function ProgressSteps({
   steps,
   orientation = 'horizontal',

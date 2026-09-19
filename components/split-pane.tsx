@@ -13,7 +13,6 @@ export interface SplitPaneProps extends React.ComponentProps<'div'> {
   end: React.ReactNode;
 }
 
-/** Two-column layout that stacks on mobile. */
 export function SplitPane({ ratio = '1:1', start, end, className, ...props }: SplitPaneProps) {
   return (
     <div className={cn('grid grid-cols-1 gap-6', RATIO_CLASS[ratio], className)} {...props}>

@@ -19,8 +19,7 @@ export interface VariantPickerProps {
   className?: string;
 }
 
-/** size/color pills on the shopper product page.
- * `value` is keyed by option name (`{ Size: "m", Color: "black" }`). */
+// `value` is keyed by option name, e.g. { Size: "m", Color: "black" }.
 export function VariantPicker({ options, value, onChange, className }: VariantPickerProps) {
   return (
     <div className={cn('space-y-3', className)}>

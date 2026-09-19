@@ -31,9 +31,6 @@ export interface ResponsiveDialogProps {
   className?: string;
 }
 
-/** `Dialog` on >= md, `Drawer` on mobile. Used for every modal
- * in the app so the interaction pattern (center dialog vs. bottom sheet)
- * stays consistent instead of decided per feature. */
 export function ResponsiveDialog({
   open,
   onOpenChange,
