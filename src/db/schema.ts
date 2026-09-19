@@ -285,6 +285,12 @@ export const productVariants = pgTable('product_variants', {
 export const links = pgTable('links', {
   id: text('id').primaryKey(),
   slug: text('slug').notNull().unique(),
+  // DECISION (M6): stays notNull, unlike `stores.merchantId` — the marketing
+  // quick-demo (section 8.1) needs a real owning merchant for its link so the
+  // existing (tested) credit-ledger/leads/fal-webhook pipelines don't all
+  // need a parallel null-merchant code path. It's owned by a seeded "system"
+  // merchant instead (`src/config/system-merchant.ts`), watermarked, and
+  // rate-limited by IP rather than by that merchant's own credit balance.
   merchantId: text('merchant_id')
     .notNull()
     .references(() => merchants.id),
