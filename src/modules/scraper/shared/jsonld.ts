@@ -1,12 +1,8 @@
 import { parsePriceStringToCents } from './price';
 
-/**
- * parse every `<script type="application/ld+json">`
- * block, walk `@graph`, find a `Product` or `ProductGroup` (`hasVariant[]`).
- * Regex-extracted rather than a full DOM parse; no HTML parser is in the
- * dependency list, and JSON-LD blocks are trivially isolated by
- * their own script tag.
- */
+// Regex-extracted rather than a full DOM parse: no HTML parser is in the
+// dependency list, and JSON-LD blocks are trivially isolated by their own
+// script tag.
 export type JsonLdOffer = {
   price?: string | number;
   priceCurrency?: string;

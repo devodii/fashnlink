@@ -14,11 +14,6 @@ export type ThinAdapterConfig = {
   sitemapNameFilter?: RegExp;
 };
 
-/**
- * scraper, `listProducts` via the shared sitemap crawler. One factory, one
- * line per platform in each adapter file; no new abstraction beyond what
- * `generic.ts` already proved works.
- */
 export function createThinJsonLdAdapter(config: ThinAdapterConfig): ScraperAdapter {
   return {
     key: config.key,

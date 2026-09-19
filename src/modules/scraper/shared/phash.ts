@@ -1,14 +1,9 @@
 import sharp from 'sharp';
 
-/**
- * DECISION: section 6.6 calls for "phash with sharp + a small dct
- * implementation." A full DCT-based perceptual hash is a meaningfully bigger
- * build than time allows here; an 8x8 average hash (aHash) via sharp; same
- * purpose (near-duplicate detection via Hamming distance on a fixed-length
- * bit string), same shape of API (hash in, Hamming distance out); is used
- * instead. Swapping in a real DCT phash later is a drop-in replacement of
- * this one function; nothing else needs to change.
- */
+// An 8x8 average hash (aHash), not a full DCT-based perceptual hash: same
+// purpose (near-duplicate detection via Hamming distance on a fixed-length
+// bit string). Swapping in a real DCT phash later is a drop-in replacement
+// of this one function.
 const HASH_SIZE = 8;
 
 export async function computeAverageHash(imageBytes: Buffer): Promise<string> {

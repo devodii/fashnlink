@@ -1,8 +1,3 @@
-/**
- * srcset largest-candidate selection + absolute-URL resolution,
- * shared by every adapter.
- */
-
 export function toAbsoluteUrl(url: string, base: string): string {
   try {
     return new URL(url, base).toString();
@@ -11,10 +6,7 @@ export function toAbsoluteUrl(url: string, base: string): string {
   }
 }
 
-/**
- * "a.jpg 480w, b.jpg 800w, c.jpg 1200w" -> "c.jpg" (widest descriptor wins;
- * falls back to the last candidate if none have a width descriptor).
- */
+// "a.jpg 480w, b.jpg 800w, c.jpg 1200w" -> "c.jpg"
 export function largestFromSrcset(srcset: string, base: string): string | null {
   const candidates = srcset
     .split(',')
