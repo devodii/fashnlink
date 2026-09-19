@@ -41,7 +41,7 @@ export function PricingCard({
           <p className="text-sm font-medium text-foreground">{name}</p>
           {highlight && <Badge>Popular</Badge>}
         </div>
-        <p className="text-2xl font-medium text-foreground">
+        <p className="text-2xl font-medium text-foreground" translate="no">
           {price}
           {period && <span className="text-sm font-normal text-muted-foreground"> /{period}</span>}
         </p>
