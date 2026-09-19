@@ -2,15 +2,8 @@ import { desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { leads, products } from '@/db/schema';
 
-/**
- * `/dashboard/leads`: email, product, first render date,
- * renders count, source. `count`/`first render date` are per (merchant,
- * email); a shopper can re-render the same product multiple times before
- * or after leaving an email, and `leads` gets one row per (merchant,
- * shopper, product) already (schema's unique constraint), so counting here
- * is just "how many lead rows share this email," a reasonable proxy for
- * engagement without a second join into `renders`.
- */
+// `count` is how many lead rows share this email, a proxy for engagement,
+// not an exact count of renders.
 export async function findLeadsForMerchant(merchantId: string) {
   const rows = await db
     .select({

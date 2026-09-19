@@ -1,13 +1,5 @@
 import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
-/**
- * Better Auth's own state tables (session/account/verification tokens). Kept
- * separate from schema.ts: these are the auth library's internals, not part
- * of the domain model in section 5. `user.email` is the join key to our
- * `merchants` table; a merchant row is upserted by email on first sign-in
- * (src/modules/auth/auth.ts databaseHooks), so `merchants` stays exactly the
- * shape section 5 defines, with no auth-specific columns bolted on.
- */
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),

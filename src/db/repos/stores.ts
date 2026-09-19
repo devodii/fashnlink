@@ -14,10 +14,6 @@ export async function findStoreById(id: string) {
   return store ?? null;
 }
 
-/**
- * `refresh-catalogs` cron: stores whose adapter can list a
- * catalog, not crawled in the last `staleAfterHours` (or never).
- */
 export async function findStoresDueForRefresh(staleAfterHours: number) {
   const cutoff = new Date(Date.now() - staleAfterHours * 60 * 60 * 1000);
   return db
