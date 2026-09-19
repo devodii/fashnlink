@@ -25,14 +25,11 @@ const CAP_DAYS = 7;
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 /**
- * Kind A, "Abandoned Cart Printer". DECISION: `cart_events` isn't
- * fed by real storefront cart/checkout webhooks yet (that's explicitly
- * Phase 2, section 12; "Shopify theme app extension + order webhooks").
- * `renders.buyClickedAt IS NULL` (already built by M4) is the actual
- * tryon-no-buy SIGNAL; this cron's own writes into `cart_events` (kind
- * `tryon_no_buy`) are the AUDIT TRAIL of what's already been pushed, and
- * double as the per-shopper-per-merchant 7-day dedupe key. One table, one
- * job; not two parallel tracking mechanisms.
+ * `cart_events` isn't fed by real storefront cart/checkout webhooks;
+ * `renders.buyClickedAt IS NULL` is the actual tryon-no-buy signal, and this
+ * cron's own writes into `cart_events` (kind `tryon_no_buy`) are the audit
+ * trail of what's already been pushed, doubling as the per-shopper-per-
+ * merchant 7-day dedupe key.
  */
 export const GET = apiHandler({
   name: 'cron.abandoned',

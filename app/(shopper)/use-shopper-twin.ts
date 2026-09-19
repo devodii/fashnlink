@@ -7,14 +7,11 @@ import type { UploadedFile } from '@/components/upload-dropzone';
 export type ShopperTwin = { id: string; status: string; twinUrl: string | null };
 
 /**
- * DECISION: `TryOnFlow` (single-link mode, M4) already has an inline
- * consent -> upload -> twin-creation -> poll sequence, but it's tightly
- * woven into that component's single-render state machine. Poll/group mode
- * need the SAME twin once, then reuse it across several renders; rather
- * than risk regressing M4's already-shipped, tested single-link flow by
- * extracting from it under time pressure, this is a small independent copy
- * of just the twin half. Some duplication with `TryOnFlow` as a result;
- * worth unifying later, not worth the regression risk now.
+ * `TryOnFlow` has its own inline consent -> upload -> twin-creation -> poll
+ * sequence, tightly woven into that component's single-render state
+ * machine. This is a deliberate independent copy of just the twin half, not
+ * a shared extraction, so poll/group mode don't risk regressing that
+ * already-shipped flow.
  */
 export function useShopperTwin(defaultTwin: ShopperTwin | null) {
   const [twin, setTwin] = React.useState<ShopperTwin | null>(defaultTwin);

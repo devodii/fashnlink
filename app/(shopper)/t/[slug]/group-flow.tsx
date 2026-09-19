@@ -26,11 +26,6 @@ export interface GroupFlowProps {
   defaultTwin: ShopperTwin | null;
 }
 
-/**
- * group mode; a shared style, a roster of opted-in member
- * avatars, "Try it on you" (same twin flow as single mode), then
- * "I'm in: size/color" with an explicit show-my-face toggle.
- */
 export function GroupFlow({
   linkId,
   merchantName,
@@ -102,13 +97,9 @@ export function GroupFlow({
   );
 
   /**
-   * DECISION: `VariantPicker`'s selection is keyed by option name -> value
-   * label (e.g. `{ Size: 'M' }`), but `group_members.chosenVariantId`
-   * references a `product_variants` row id; there's no size+color -> exact
-   * variant-row lookup wired up on this page yet (it would need the full
-   * variant list, not just the derived Size/Color option lists `/t/[slug]`
-   * already builds). The picks still reach the merchant, just as free text
-   * in `note`, rather than being silently dropped.
+   * `chosenVariantId` has no size+color -> variant-row lookup wired up yet,
+   * so it's always null; the picks still reach the merchant as free text in
+   * `note` instead of being silently dropped.
    */
   async function handleJoin() {
     if (!renderId) return;
