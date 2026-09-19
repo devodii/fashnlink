@@ -12,6 +12,9 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Must stay last among the extended configs: turns off any ESLint
+  // stylistic rule that would conflict with Prettier's own formatting.
+  ...compat.extends("prettier"),
   {
     plugins: {
       "local-design-tokens": designTokens,
