@@ -1,7 +1,7 @@
 import { AdapterRegistry } from '@/lib/adapter';
-import { r2Adapter, type StorageInput, type StorageKey, type StorageOutput } from './adapter';
+import { uploadthingAdapter, type StorageInput, type StorageKey, type StorageOutput } from './adapter';
 
-export const storageRegistry = new AdapterRegistry<StorageInput, StorageOutput, StorageKey>([r2Adapter]);
+export const storageRegistry = new AdapterRegistry<StorageInput, StorageOutput, StorageKey>([uploadthingAdapter]);
 
-export { putObject, deleteObject, getPublicUrl, presignGetUrl, presignPutUrl } from './r2';
+export { putObject, deleteObject, getSignedUrl } from './uploadthing';
 export type { StorageInput, StorageOutput, StorageKey } from './adapter';
