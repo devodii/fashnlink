@@ -22,11 +22,8 @@ import {
 
 /**
  * Integration test against the REAL local Postgres (docker-compose,
- * `pnpm db:up`), proving section 7.3's transaction/balance logic end to end
- * ; no fal/OpenAI calls involved, so nothing here needs a real FAL_KEY.
- * Adapter/Result philosophy applies to the DB boundary too: this
- * is the one thing worth proving against a real transactional database
- * rather than a mock.
+ * `pnpm db:up`), proving the transaction/balance logic end to end; no
+ * fal/OpenAI calls involved, so nothing here needs a real FAL_KEY.
  */
 
 const TEST_SUFFIX = `m3-ledger-test-${Date.now()}`;
@@ -103,7 +100,7 @@ describe('M3 credit ledger transaction against a real local Postgres', () => {
       status: 'ready',
     });
 
-    // Grant 2 credits (append-only, matches section 5's `grant_free` reason).
+    // Grant 2 credits (append-only, `grant_free` reason).
     await db
       .insert(creditLedger)
       .values({ id: newId('ledger'), merchantId, delta: 2, reason: 'grant_free', refAfter: 2 });

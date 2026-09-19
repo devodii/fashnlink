@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-// Dynamic imports, deliberately — static imports are hoisted above the
+// Dynamic imports, deliberately: static imports are hoisted above the
 // `config()` call above regardless of source order, so anything importing
 // `env.ts` (which validates at module-load time) would run before .env.local
 // is actually loaded.

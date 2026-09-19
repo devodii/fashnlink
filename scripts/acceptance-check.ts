@@ -1,12 +1,11 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-// M2 acceptance check (section 12): "paste 20 real product URLs across
-// platforms, >= 18 produce a product with a usable image." This is that
-// check, spread across all 11 platforms this repo now supports (3 deep + 8
-// thin), kept as a real script rather than a scratch one so future
-// milestones can re-run it. Real, currently-live URLs — verified during
-// M2's own fixture collection.
+// Acceptance check: paste 20 real product URLs across platforms, at least
+// 18 must produce a product with a usable image. Spread across all 11
+// platforms this repo supports (3 deep + 8 thin), kept as a real script
+// rather than a scratch one so it can be re-run later. Real, currently-live
+// URLs, verified during fixture collection.
 const URLS: { platform: string; url: string }[] = [
   { platform: 'shopify', url: 'https://www.allbirds.com/products/mens-strider-explore' },
   {

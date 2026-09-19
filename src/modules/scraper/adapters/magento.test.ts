@@ -8,11 +8,10 @@ import { fakeCtxWithHtml } from '../shared/test-fetch';
 const FIXTURE_DIR = path.resolve(__dirname, '../../../../tests/fixtures/scraper/magento');
 
 /**
- * 2 real fixture products; both from Forever New
- * (forevernew.com.au), the only real, live Magento store found during
- * fixture collection with individually scrapable product pages (several
- * other confirmed-Magento sites are headless PWA storefronts with no
- * server-rendered OG/JSON-LD data at all; documented in the M2 report).
+ * Both fixtures are from Forever New (forevernew.com.au), the only real,
+ * live Magento store found during fixture collection with individually
+ * scrapable product pages; several other confirmed-Magento sites are
+ * headless PWA storefronts with no server-rendered OG/JSON-LD data at all.
  */
 const FIXTURE_STORES = [
   {

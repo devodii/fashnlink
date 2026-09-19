@@ -1,9 +1,11 @@
-// Section 10.5: react-hook-form is always imported as `import * as RHF from
-// 'react-hook-form'`, never a named import. Built on top of ESLint core's
-// `no-restricted-imports` this also flags the namespace import itself (it
-// can't statically prove which named exports are accessed through it), which
-// would ban the exact pattern the spec requires — so this is a small purpose
-// -built rule instead: only named/default specifiers are disallowed.
+/**
+ * react-hook-form must always be imported as `import * as RHF from
+ * 'react-hook-form'`, never a named import. ESLint core's own
+ * `no-restricted-imports` can't express this: it can't statically prove
+ * which named exports are accessed through a namespace import, so it would
+ * end up flagging the namespace import itself too. This purpose-built rule
+ * only disallows named/default specifiers instead.
+ */
 
 /** @type {import('eslint').Rule.RuleModule} */
 const rule = {
@@ -16,7 +18,7 @@ const rule = {
     schema: [],
     messages: {
       namedImport:
-        "Import react-hook-form as `import * as RHF from 'react-hook-form'` (section 10.5), not as a named import.",
+        "Import react-hook-form as `import * as RHF from 'react-hook-form'`, not as a named import.",
     },
   },
   create(context) {

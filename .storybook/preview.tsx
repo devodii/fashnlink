@@ -21,7 +21,7 @@ const preview: Preview = {
     },
     backgrounds: { disable: true },
     // StepWizard reads next/navigation's useRouter/useSearchParams for its
-    // `?step=` URL persistence — needs the App Router context mocked.
+    // `?step=` URL persistence, so the App Router context needs mocking.
     nextjs: { appDirectory: true },
   },
   globalTypes: {

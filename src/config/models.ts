@@ -9,13 +9,12 @@ import type { GarmentCategory } from '@/modules/scraper/types';
  * https://fal.ai/models/fal-ai/nano-banana-2/edit/api
  * https://developers.openai.com/api/docs/models/gpt-image-2
  *
- * Kling Kolors Virtual Try-On v1.5 (the model section 7.1 originally named)
- * was checked against its live fal.ai page and is deprecated there
- * ("This model is no longer supported"), with no direct multi-garment
- * replacement in fal's current try-on catalog, so it has been dropped
- * entirely rather than routed to a dead endpoint. Nano Banana 2 accepts up
- * to 14 reference images per edit, which covers the multi-garment `set`
- * case Kling used to handle.
+ * Kling Kolors Virtual Try-On v1.5 was checked against its live fal.ai page
+ * and is deprecated there ("This model is no longer supported"), with no
+ * direct multi-garment replacement in fal's current try-on catalog, so it
+ * has been dropped entirely rather than routed to a dead endpoint. Nano
+ * Banana 2 accepts up to 14 reference images per edit, which covers the
+ * multi-garment `set` case Kling used to handle.
  */
 export type ProviderKey = 'fashn' | 'nano_banana' | 'openai_image';
 
@@ -25,11 +24,7 @@ export const MODEL_IDS: Record<ProviderKey, string> = {
   openai_image: 'gpt-image-2',
 };
 
-/**
- * Cost basis for section 13's pricing config comments; updated here when a
- * provider's per-call pricing changes, nowhere else references these
- * numbers.
- */
+/** Updated here when a provider's per-call pricing changes; nowhere else references these numbers. */
 export const PROVIDER_COST_CENTS: Record<ProviderKey, number> = {
   fashn: 8, // ~$0.075/render
   nano_banana: 8, // ~$0.08/render

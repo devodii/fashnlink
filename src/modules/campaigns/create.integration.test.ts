@@ -19,13 +19,12 @@ import { checkCampaignHealth } from './finalize';
 import { currentBalance } from '@/modules/render/credit-ledger';
 
 /**
- * Integration test against the REAL local Postgres, proving section 9.8's
- * new-drop lifecycle end to end: audience estimation -> credit reservation
- * -> campaign_items fan-out -> (simulated) resolution -> unused-credit
- * release. No fal/OpenAI/ESP calls; `checkCampaignHealth`'s ESP push is
- * exercised with no `esp_connections` row for this merchant, so it correctly
- * no-ops on that step (proven in the abandoned-cron integration work) while
- * everything DB-side still runs for real.
+ * Integration test against the REAL local Postgres, proving the new-drop
+ * lifecycle end to end: audience estimation -> credit reservation ->
+ * campaign_items fan-out -> (simulated) resolution -> unused-credit release.
+ * No fal/OpenAI/ESP calls; `checkCampaignHealth`'s ESP push is exercised
+ * with no `esp_connections` row for this merchant, so it correctly no-ops
+ * on that step while everything DB-side still runs for real.
  */
 
 const SUFFIX = `m7-drop-test-${Date.now()}`;

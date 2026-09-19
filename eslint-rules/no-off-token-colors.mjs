@@ -1,7 +1,9 @@
-// Custom ESLint rule (section 10.2): every color must come from the design tokens
-// in app/globals.css. Flags Tailwind arbitrary hex/rgb/hsl colors, gradient
-// utilities, and Tailwind's built-in palette color classes wherever they appear
-// in a string — className attributes, template literals (cva/cn calls), etc.
+/**
+ * Every color must come from the design tokens in app/globals.css. Flags
+ * Tailwind arbitrary hex/rgb/hsl colors, gradient utilities, and Tailwind's
+ * built-in palette color classes wherever they appear in a string, whether
+ * className attributes, template literals (cva/cn calls), etc.
+ */
 
 const ARBITRARY_COLOR =
   /\b(?:bg|text|border|ring|from|via|to|fill|stroke|outline|decoration|caret|accent|shadow)-\[(#|rgb|hsl)/;

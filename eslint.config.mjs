@@ -24,10 +24,7 @@ const eslintConfig = [
       'local-rhf-imports': rhfImports,
     },
     rules: {
-      // section 10.2: every color comes from app/globals.css design tokens.
       'local-design-tokens/no-off-token-colors': 'error',
-      // section 10.5: react-hook-form is always used via `import * as RHF`,
-      // fields are Controller-based, never register().
       'local-rhf-imports/no-named-rhf-imports': 'error',
     },
   },
