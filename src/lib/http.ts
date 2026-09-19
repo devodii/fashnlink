@@ -62,7 +62,12 @@ export function createFetch(opts: CreateFetchOptions): typeof fetch {
           },
         });
         clearTimeout(timeout);
-        if ((response.status === 429 || response.status >= 500) && attempt < retries) {
+        // 430 is Shopify's own throttle status (section 6.5) — treated the
+        // same as a generic 429.
+        if (
+          (response.status === 429 || response.status === 430 || response.status >= 500) &&
+          attempt < retries
+        ) {
           const backoff = jitter(300 * 2 ** attempt);
           log.warn(
             { url: url.toString(), status: response.status, attempt, backoff },

@@ -1,0 +1,359 @@
+{
+  "products": [
+    {
+      "id": 8161528414308,
+      "title": "PACT Gift Card",
+      "handle": "pact-gift-card",
+      "body_html": "\u003cp\u003eNot sure what to get for a friend or loved one? This is your perfect bet. Let them sort it out! \u003c\/p\u003e",
+      "published_at": "2025-08-26T11:18:13-05:00",
+      "created_at": "2025-08-26T11:18:11-05:00",
+      "updated_at": "2026-09-19T06:24:32-05:00",
+      "vendor": "PACT Inc.",
+      "product_type": "Uncategorized",
+      "tags": [],
+      "variants": [
+        {
+          "id": 46768757375076,
+          "title": "$10.00",
+          "option1": "$10.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "10.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 1,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        },
+        {
+          "id": 46768757407844,
+          "title": "$25.00",
+          "option1": "$25.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "25.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 2,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        },
+        {
+          "id": 46768757440612,
+          "title": "$50.00",
+          "option1": "$50.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "50.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 3,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        },
+        {
+          "id": 46768757473380,
+          "title": "$100.00",
+          "option1": "$100.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "100.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 4,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        },
+        {
+          "id": 46768757506148,
+          "title": "$150.00",
+          "option1": "$150.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "150.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 5,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        },
+        {
+          "id": 46768757538916,
+          "title": "$200.00",
+          "option1": "$200.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "200.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 6,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        },
+        {
+          "id": 46768757571684,
+          "title": "$300.00",
+          "option1": "$300.00",
+          "option2": null,
+          "option3": null,
+          "sku": null,
+          "requires_shipping": false,
+          "taxable": false,
+          "featured_image": null,
+          "available": true,
+          "price": "300.00",
+          "grams": 0,
+          "compare_at_price": null,
+          "position": 7,
+          "product_id": 8161528414308,
+          "created_at": "2025-08-26T11:18:11-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        }
+      ],
+      "images": [
+        {
+          "id": 39852544229476,
+          "created_at": "2025-09-11T13:31:50-05:00",
+          "position": 1,
+          "updated_at": "2025-09-11T13:31:52-05:00",
+          "product_id": 8161528414308,
+          "variant_ids": [],
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/pact-giftcard.png?v=1757615512",
+          "width": 1013,
+          "height": 638
+        }
+      ],
+      "options": [
+        {
+          "name": "Denominations",
+          "position": 1,
+          "values": ["$10.00", "$25.00", "$50.00", "$100.00", "$150.00", "$200.00", "$300.00"]
+        }
+      ]
+    },
+    {
+      "id": 8125408772196,
+      "title": "One Trigger To Rule Them All - Gollum Patch",
+      "handle": "one-trigger-to-rule-them-all-gollum-patch",
+      "body_html": "American Trigger Corp. AR Gold - Gollum Morale Patch\u003cbr\u003e\u003cbr\u003eMy PRECIOUS!!!",
+      "published_at": "2025-07-25T19:16:43-05:00",
+      "created_at": "2025-07-25T19:16:43-05:00",
+      "updated_at": "2026-09-19T06:24:32-05:00",
+      "vendor": "American Trigger Corp.",
+      "product_type": "Merch",
+      "tags": ["Merch"],
+      "variants": [
+        {
+          "id": 46279373815908,
+          "title": "Default Title",
+          "option1": "Default Title",
+          "option2": null,
+          "option3": null,
+          "sku": "PATCH-GOLLUM",
+          "requires_shipping": true,
+          "taxable": true,
+          "featured_image": null,
+          "available": true,
+          "price": "5.95",
+          "grams": 45,
+          "compare_at_price": "0.00",
+          "position": 1,
+          "product_id": 8125408772196,
+          "created_at": "2025-07-25T19:16:44-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        }
+      ],
+      "images": [
+        {
+          "id": 38316607766628,
+          "created_at": "2025-07-25T19:18:54-05:00",
+          "position": 1,
+          "updated_at": "2025-07-25T19:18:57-05:00",
+          "product_id": 8125408772196,
+          "variant_ids": [],
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/gollum-patch.png?v=1753489137",
+          "width": 2268,
+          "height": 2268
+        }
+      ],
+      "options": [{ "name": "Title", "position": 1, "values": ["Default Title"] }]
+    },
+    {
+      "id": 8125408739428,
+      "title": "ATC Logo Sticker Long",
+      "handle": "atc-logo-sticker-long",
+      "body_html": "\u003cp\u003eAmerican Trigger Corp. AR Gold Logo Sticker\u003c\/p\u003e\n\u003cp\u003e\u003cspan\u003eAkuafoil vinyl sticker measures approx 6\" x 1.25\".\u003c\/span\u003e\u003c\/p\u003e",
+      "published_at": "2025-07-25T19:16:41-05:00",
+      "created_at": "2025-07-25T19:16:41-05:00",
+      "updated_at": "2026-09-19T06:24:32-05:00",
+      "vendor": "American Trigger Corp.",
+      "product_type": "Merch",
+      "tags": ["Merch"],
+      "variants": [
+        {
+          "id": 46279373684836,
+          "title": "Default Title",
+          "option1": "Default Title",
+          "option2": null,
+          "option3": null,
+          "sku": "STCKR-ATC2",
+          "requires_shipping": true,
+          "taxable": true,
+          "featured_image": null,
+          "available": true,
+          "price": "1.00",
+          "grams": 0,
+          "compare_at_price": "0.00",
+          "position": 1,
+          "product_id": 8125408739428,
+          "created_at": "2025-07-25T19:16:42-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        }
+      ],
+      "images": [
+        {
+          "id": 38316605014116,
+          "created_at": "2025-07-25T19:18:47-05:00",
+          "position": 1,
+          "updated_at": "2025-07-25T19:18:49-05:00",
+          "product_id": 8125408739428,
+          "variant_ids": [],
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/ATC_STICKER_LONG.png?v=1753489129",
+          "width": 2598,
+          "height": 2597
+        }
+      ],
+      "options": [{ "name": "Title", "position": 1, "values": ["Default Title"] }]
+    },
+    {
+      "id": 8125408706660,
+      "title": "ATC Logo Sticker Stacked",
+      "handle": "atc-logo-sticker-stacked",
+      "body_html": "\u003cp\u003eAmerican Trigger Corp. Logo Sticker\u003c\/p\u003e\n\u003cp\u003e \u003c\/p\u003e\n\u003cp\u003e\u003cspan\u003eAkuafoil vinyl sticker measures approx 4.25\" x 2.5\".\u003c\/span\u003e\u003c\/p\u003e",
+      "published_at": "2025-07-25T19:16:39-05:00",
+      "created_at": "2025-07-25T19:16:39-05:00",
+      "updated_at": "2026-09-19T06:24:32-05:00",
+      "vendor": "American Trigger Corp.",
+      "product_type": "Merch",
+      "tags": ["Merch"],
+      "variants": [
+        {
+          "id": 46279373586532,
+          "title": "Default Title",
+          "option1": "Default Title",
+          "option2": null,
+          "option3": null,
+          "sku": "STCKR-ATC1",
+          "requires_shipping": true,
+          "taxable": true,
+          "featured_image": null,
+          "available": true,
+          "price": "1.00",
+          "grams": 0,
+          "compare_at_price": "0.00",
+          "position": 1,
+          "product_id": 8125408706660,
+          "created_at": "2025-07-25T19:16:40-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        }
+      ],
+      "images": [
+        {
+          "id": 38316603867236,
+          "created_at": "2025-07-25T19:18:41-05:00",
+          "position": 1,
+          "updated_at": "2025-07-25T19:18:43-05:00",
+          "product_id": 8125408706660,
+          "variant_ids": [],
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/ATC_STICKER.png?v=1753489123",
+          "width": 2598,
+          "height": 2597
+        }
+      ],
+      "options": [{ "name": "Title", "position": 1, "values": ["Default Title"] }]
+    },
+    {
+      "id": 8125408673892,
+      "title": "PACT Logo Sticker",
+      "handle": "pact-logo-sticker",
+      "body_html": "\u003cp\u003ePerfect for representing our brand on your coolest stickerable surface! Yes, stickerable is definitely a word ;)\u003cbr\u003e\u003cbr\u003eAll orders come with one (1) PACT sticker, but if you'd like extra, this is for you!\u003cbr\u003e\u003cbr\u003eAkuafoil vinyl sticker measures approx. 4\" x 1\".\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e\u003c\/p\u003e",
+      "published_at": "2025-07-25T19:16:37-05:00",
+      "created_at": "2025-07-25T19:16:38-05:00",
+      "updated_at": "2026-09-19T06:24:32-05:00",
+      "vendor": "PACT Inc.",
+      "product_type": "Merch",
+      "tags": ["Merch"],
+      "variants": [
+        {
+          "id": 46279373520996,
+          "title": "Default Title",
+          "option1": "Default Title",
+          "option2": null,
+          "option3": null,
+          "sku": "STCKR-LOGO",
+          "requires_shipping": true,
+          "taxable": true,
+          "featured_image": null,
+          "available": true,
+          "price": "0.50",
+          "grams": 0,
+          "compare_at_price": "0.00",
+          "position": 1,
+          "product_id": 8125408673892,
+          "created_at": "2025-07-25T19:16:38-05:00",
+          "updated_at": "2026-09-19T06:24:32-05:00"
+        }
+      ],
+      "images": [
+        {
+          "id": 38316601966692,
+          "created_at": "2025-07-25T19:18:34-05:00",
+          "position": 1,
+          "updated_at": "2025-07-25T19:18:37-05:00",
+          "product_id": 8125408673892,
+          "variant_ids": [],
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT_LOGO_STICKER.png?v=1753489117",
+          "width": 2598,
+          "height": 2597
+        }
+      ],
+      "options": [{ "name": "Title", "position": 1, "values": ["Default Title"] }]
+    }
+  ]
+}

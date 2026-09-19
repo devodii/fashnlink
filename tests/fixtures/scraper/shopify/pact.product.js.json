@@ -1,0 +1,342 @@
+{
+  "id": 8125408215140,
+  "title": "PACT Logo Shirt",
+  "handle": "pact-logo-shirt",
+  "description": "Next Level TriBlend Black T-Shirt with our PACT logo screen printed on it. It's a great fitting shirt, durable and comfortable. We are snobby about our shirts, and we tried doing a rough wash on a few of our own to see if any issues came up. They maintained size and feel very well.",
+  "published_at": "2025-07-25T19:16:17-05:00",
+  "created_at": "2025-07-25T19:16:17-05:00",
+  "vendor": "PACT Inc.",
+  "type": "Merch",
+  "tags": ["Merch"],
+  "price": 3000,
+  "price_min": 3000,
+  "price_max": 3500,
+  "available": true,
+  "price_varies": true,
+  "compare_at_price": 0,
+  "compare_at_price_min": 0,
+  "compare_at_price_max": 0,
+  "compare_at_price_varies": false,
+  "variants": [
+    {
+      "id": 46279370932324,
+      "title": "XS",
+      "option1": "XS",
+      "option2": null,
+      "option3": null,
+      "sku": "TVERT-XS",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38316595183716,
+        "product_id": 8125408215140,
+        "position": 1,
+        "created_at": "2025-07-25T19:18:21-05:00",
+        "updated_at": "2025-07-25T19:18:23-05:00",
+        "alt": "PACT-shirt",
+        "width": 1000,
+        "height": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+        "variant_ids": [
+          46279370932324, 46279370965092, 46279370997860, 46279371030628, 46279371063396,
+          46279371096164
+        ]
+      },
+      "available": true,
+      "name": "PACT Logo Shirt - XS",
+      "public_title": "XS",
+      "options": ["XS"],
+      "price": 3000,
+      "weight": 170,
+      "compare_at_price": 0,
+      "inventory_management": "shopify",
+      "barcode": "",
+      "featured_media": {
+        "alt": "PACT-shirt",
+        "id": 29356271009892,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 1000,
+          "width": 1000,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    },
+    {
+      "id": 46279370965092,
+      "title": "SM",
+      "option1": "SM",
+      "option2": null,
+      "option3": null,
+      "sku": "TVERT-SM",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38316595183716,
+        "product_id": 8125408215140,
+        "position": 1,
+        "created_at": "2025-07-25T19:18:21-05:00",
+        "updated_at": "2025-07-25T19:18:23-05:00",
+        "alt": "PACT-shirt",
+        "width": 1000,
+        "height": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+        "variant_ids": [
+          46279370932324, 46279370965092, 46279370997860, 46279371030628, 46279371063396,
+          46279371096164
+        ]
+      },
+      "available": true,
+      "name": "PACT Logo Shirt - SM",
+      "public_title": "SM",
+      "options": ["SM"],
+      "price": 3000,
+      "weight": 170,
+      "compare_at_price": 0,
+      "inventory_management": "shopify",
+      "barcode": "",
+      "featured_media": {
+        "alt": "PACT-shirt",
+        "id": 29356271009892,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 1000,
+          "width": 1000,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    },
+    {
+      "id": 46279370997860,
+      "title": "MD",
+      "option1": "MD",
+      "option2": null,
+      "option3": null,
+      "sku": "TVERT-MD",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38316595183716,
+        "product_id": 8125408215140,
+        "position": 1,
+        "created_at": "2025-07-25T19:18:21-05:00",
+        "updated_at": "2025-07-25T19:18:23-05:00",
+        "alt": "PACT-shirt",
+        "width": 1000,
+        "height": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+        "variant_ids": [
+          46279370932324, 46279370965092, 46279370997860, 46279371030628, 46279371063396,
+          46279371096164
+        ]
+      },
+      "available": true,
+      "name": "PACT Logo Shirt - MD",
+      "public_title": "MD",
+      "options": ["MD"],
+      "price": 3000,
+      "weight": 170,
+      "compare_at_price": 0,
+      "inventory_management": "shopify",
+      "barcode": "",
+      "featured_media": {
+        "alt": "PACT-shirt",
+        "id": 29356271009892,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 1000,
+          "width": 1000,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    },
+    {
+      "id": 46279371030628,
+      "title": "L",
+      "option1": "L",
+      "option2": null,
+      "option3": null,
+      "sku": "TVERT-L",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38316595183716,
+        "product_id": 8125408215140,
+        "position": 1,
+        "created_at": "2025-07-25T19:18:21-05:00",
+        "updated_at": "2025-07-25T19:18:23-05:00",
+        "alt": "PACT-shirt",
+        "width": 1000,
+        "height": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+        "variant_ids": [
+          46279370932324, 46279370965092, 46279370997860, 46279371030628, 46279371063396,
+          46279371096164
+        ]
+      },
+      "available": true,
+      "name": "PACT Logo Shirt - L",
+      "public_title": "L",
+      "options": ["L"],
+      "price": 3000,
+      "weight": 170,
+      "compare_at_price": 0,
+      "inventory_management": "shopify",
+      "barcode": "",
+      "featured_media": {
+        "alt": "PACT-shirt",
+        "id": 29356271009892,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 1000,
+          "width": 1000,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    },
+    {
+      "id": 46279371063396,
+      "title": "XL",
+      "option1": "XL",
+      "option2": null,
+      "option3": null,
+      "sku": "TVERT-XL",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38316595183716,
+        "product_id": 8125408215140,
+        "position": 1,
+        "created_at": "2025-07-25T19:18:21-05:00",
+        "updated_at": "2025-07-25T19:18:23-05:00",
+        "alt": "PACT-shirt",
+        "width": 1000,
+        "height": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+        "variant_ids": [
+          46279370932324, 46279370965092, 46279370997860, 46279371030628, 46279371063396,
+          46279371096164
+        ]
+      },
+      "available": true,
+      "name": "PACT Logo Shirt - XL",
+      "public_title": "XL",
+      "options": ["XL"],
+      "price": 3000,
+      "weight": 163,
+      "compare_at_price": 0,
+      "inventory_management": "shopify",
+      "barcode": "",
+      "featured_media": {
+        "alt": "PACT-shirt",
+        "id": 29356271009892,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 1000,
+          "width": 1000,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    },
+    {
+      "id": 46279371096164,
+      "title": "2XL",
+      "option1": "2XL",
+      "option2": null,
+      "option3": null,
+      "sku": "TVERT-XXL",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38316595183716,
+        "product_id": 8125408215140,
+        "position": 1,
+        "created_at": "2025-07-25T19:18:21-05:00",
+        "updated_at": "2025-07-25T19:18:23-05:00",
+        "alt": "PACT-shirt",
+        "width": 1000,
+        "height": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+        "variant_ids": [
+          46279370932324, 46279370965092, 46279370997860, 46279371030628, 46279371063396,
+          46279371096164
+        ]
+      },
+      "available": false,
+      "name": "PACT Logo Shirt - 2XL",
+      "public_title": "2XL",
+      "options": ["2XL"],
+      "price": 3500,
+      "weight": 170,
+      "compare_at_price": 0,
+      "inventory_management": "shopify",
+      "barcode": "",
+      "featured_media": {
+        "alt": "PACT-shirt",
+        "id": 29356271009892,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 1000,
+          "width": 1000,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    }
+  ],
+  "images": [
+    "\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+  ],
+  "featured_image": "\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+  "options": [{ "name": "Size", "position": 1, "values": ["XS", "SM", "MD", "L", "XL", "2XL"] }],
+  "url": "\/products\/pact-logo-shirt",
+  "media": [
+    {
+      "alt": "PACT-shirt",
+      "id": 29356271009892,
+      "position": 1,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 1000,
+        "width": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103"
+      },
+      "aspect_ratio": 1.0,
+      "height": 1000,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0713\/7869\/8340\/files\/PACT-shirt.png?v=1753489103",
+      "width": 1000
+    }
+  ],
+  "requires_selling_plan": false,
+  "selling_plan_groups": []
+}

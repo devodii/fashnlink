@@ -1,0 +1,800 @@
+{
+  "id": 6578170331226,
+  "title": "Super-Plush Turkish Cotton Hand Towels Set of 2 - Last Call",
+  "handle": "super-plush-hand-towels-last-call",
+  "description": "",
+  "published_at": "2026-09-15T12:50:38-04:00",
+  "created_at": "2021-06-22T15:30:49-04:00",
+  "vendor": "Brooklinen",
+  "type": "Towels",
+  "tags": [
+    "Active Last Call",
+    "Compare Module Slider",
+    "Discount Amount: 40",
+    "Discount Codes: Allow",
+    "feedonomics-lastcall",
+    "Final Sale",
+    "Hide Option Value: Eucalyptus",
+    "Hide Option Value: Fresh Moss",
+    "Hide Option Value: Ocean",
+    "Hide Option Value: Striped Lemon",
+    "Hide Option Value: Vanilla",
+    "Last Call Assortment",
+    "PDP Gallery Option: Color",
+    "PDP Modal Option: oeko",
+    "PDP Modal Option: Size",
+    "Related 1: super-plush-towel-move-in-bundle",
+    "Related 2: super-plush-bath-sheet-bundle",
+    "Related 3: super-plush-bath-mat",
+    "Related 4: candle",
+    "Review Product: super-plush-hand-towels",
+    "Review ProductID: 305532305429",
+    "Slashouts: Default",
+    "Towels",
+    "Warranty Claim: Deny",
+    "Yotpo Points"
+  ],
+  "price": 3300,
+  "price_min": 3300,
+  "price_max": 3300,
+  "available": true,
+  "price_varies": false,
+  "compare_at_price": 5500,
+  "compare_at_price_min": 5500,
+  "compare_at_price_max": 5500,
+  "compare_at_price_varies": false,
+  "variants": [
+    {
+      "id": 42950127452250,
+      "title": "Aloe",
+      "option1": "Aloe",
+      "option2": null,
+      "option3": null,
+      "sku": "HT-103P",
+      "requires_shipping": true,
+      "taxable": true,
+      "featured_image": {
+        "id": 38747028324442,
+        "product_id": 6578170331226,
+        "position": 1,
+        "created_at": "2026-02-11T10:46:21-05:00",
+        "updated_at": "2026-04-10T10:53:06-04:00",
+        "alt": "PDP2 Option[Aloe] MAIN",
+        "width": 2048,
+        "height": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_HandTowel_1x_WOgrey_02f979d2-ccf1-4299-9856-725a534ca9ff.jpg?v=1775832786",
+        "variant_ids": [42950127452250]
+      },
+      "available": true,
+      "name": "Super-Plush Turkish Cotton Hand Towels Set of 2 - Last Call - Aloe",
+      "public_title": "Aloe",
+      "options": ["Aloe"],
+      "price": 3300,
+      "weight": 634,
+      "compare_at_price": 5500,
+      "inventory_management": "shopify",
+      "barcode": "HT-103P",
+      "featured_media": {
+        "alt": "PDP2 Option[Aloe] MAIN",
+        "id": 29256411676762,
+        "position": 1,
+        "preview_image": {
+          "aspect_ratio": 1.0,
+          "height": 2048,
+          "width": 2048,
+          "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_HandTowel_1x_WOgrey_02f979d2-ccf1-4299-9856-725a534ca9ff.jpg?v=1775832786"
+        }
+      },
+      "quantity_rule": { "min": 1, "max": null, "increment": 1 },
+      "quantity_price_breaks": [],
+      "requires_selling_plan": false,
+      "selling_plan_allocations": []
+    }
+  ],
+  "images": [
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_HandTowel_1x_WOgrey_02f979d2-ccf1-4299-9856-725a534ca9ff.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-12_Bath_SP_StripedLemon_HandTowel_1_x_PDP_WO_5ab17422-736e-4284-94ae-9895b86a07cc.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_HandTowel_Vanilla_1x_WOgrey_20a3b029-c3d5-46f6-8986-e3894823ba25.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/super-plush_graphite_hand-towel_silo_e12a1bb8-195d-4745-a825-f2e6ffab113d.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-11_Bath_SP_HandTowel_BlueMist_1x_WOgrey_6510e612-0b1e-4214-b10b-323eede38033.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-01_Bath_SP_HandTowel_StripedOcean_1x_WOgrey_a5c9cc9f-1018-40af-aa7e-d0d381fe4398.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_21-07_Bath_SuperPlush_HandTowel_InkBlue_1x_WOgrey_4a854e42-95ad-486b-af75-025e215451c2.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-02_Bath_SP_Texture_StripedOcean_1x_WOgrey_c596781f-ad00-422f-8814-6e56cb51a16b.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot5_0649x_PDP_WO_c665b03a-7097-48e0-ba75-56d129f7a3c9.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_22-03_Q2EvergreenBathroomRefresh_Lifestyle_Look13_0642x_c1212296-2ff0-443d-a726-ad893f158aca.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_22-03_Q2EvergreenBathroomRefresh_Lifestyle_Look9_0723x_d1f1027e-a477-454f-a2e6-9ef40e89fcde.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-05_Bath_SuperPlush_Texture_Graphite_1x_WOgrey_d38e90b1-2b04-4773-ba76-d7a1e7a4108a.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot2_0608x_PDP_WO_66ec817c-d193-4907-bb19-e768e81a86ec.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-02_Bath_SP_Texture_BlueMist_1x_WOgrey_83766f86-6ba0-4fdb-bf06-39b9a20113b6.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot3_0620x_PDP_WO_8d1e4d42-900f-4367-86c9-f8927885c54a.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-07_Bath_Classic_HandTowel_WildMoss_1x_WOgrey_1.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_23-07_Bath_SuperPlush_Texture_WildMoss_1x_WOgrey_c55275be-49bf-49ba-8516-29a0704a84c2.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_23-09_FallCollection_Bath_Shot12_0325_mainx_PDP_WO_9edf4dcc-ce74-448f-86d6-03fefbe0c6f1.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-04_Bath_SP_RoseClay_HandTowel_1x_WOgrey_4f868a05-13ed-4986-9aab-fe03e250e746.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-04_Bath_SP_RoseClay_Texture_1x_WOgrey_226b77a0-cf59-41aa-a9ee-6bd71b05e7ff.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-06_JulyMidAugCampaign_July_LookSP_Shot1_1387x_PDP_WO_38673b87-d28e-42a4-ace1-94de73322251.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_SP_StripedCoastalTide_HandTowel_1x_WOgrey_2cab1326-9464-4740-8153-313f9a4e014e.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_SP_StripedCoastalTide_Texture_1x_WOgrey_b89ae9ef-7cfa-47eb-9424-09f0fa9af347.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_Towels_SuperPlush_StripedCoastalTide_1x_PDP_WO_5e46b7d2-9803-4d26-8167-d711ce718eac.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/1_BKL_20_SP_MarledBlack_HT_1d69759e-86f0-4f7b-99bd-4c6a168dedb0.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/2_BKL_20_SP_MarledBlack_Detailcopy_7eeb4fd7-7e97-46f8-8da3-c94a0c088256.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/3_BKL_20_LS_MarledTowels_SP_MarledBlack_MIBcopy_47567af9-9fbc-4513-80cc-ed0f4af008ef.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/4_BKL_20_LS_MarledTowels_SP_2_627fb1ff-2563-4fe4-91bf-e8fb51a7422b.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/5_BKL_20_LS_MarledTowels_SP_HT_c090ab92-4b8d-48c1-9d09-3fc08a77a47c.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_Texture_Vanilla_1x_WOgrey_82013f6d-cff8-4378-ba0b-6ad3bb167e58.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/221213-Brooklinen-2023-Q1-Bath-Towels2415_V1x_PDP_WO_82efe9ba-3c4f-4e03-9bc0-259494d6e375.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_20-09_Bath_SPTowels_HandTowel_Ocean_27xWOgrey_9d354bfb-dfcf-4708-a93b-746dba5f3a8f.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_20-09_Bath_SPTowels_Texture_Ocean_8xWOgrey_a18c2f26-2048-4dec-a1d0-76ef249052a2.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/221213-Brooklinen-2023-Q1-Bath-Towels2346x_PDP_WO_016866be-31c3-4b40-83d6-add2dfbacbd9.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_HandTowel_Eucalyptus_1x_WOgrey_34059a9e-8e98-442c-9b68-5c4821f2958c.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_Texture_Eucalyptus_1x_WOgrey_186df30a-bfae-43c7-a709-207d14e49220.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-06_Bath_SP_FreshMoss_HandTowel_1x_WOgrey_eae5f74b-e9e4-4fbc-a3c0-d0be016ef9ce.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_Texture_1x_WOgrey_1c96aca4-d25d-45dc-8f02-ce19e4a545e2.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_StoneStripe_HandTowel_1x_WOgrey_35cf0b5c-f89d-4ef6-a84c-8cecaf1f8a4d.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-06_Bath_SP_Umber_HandTowel_1x_WOgrey_a30704ba-fd8e-4d02-9be7-ef49543c8b46.jpg?v=1775832786",
+    "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-12_Bath_SP_StripedLemon_Texture_1_x_PDP_WO_21a6a705-8cc5-4f03-9bdb-202778a1b6a9.jpg?v=1775672868"
+  ],
+  "featured_image": "\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_HandTowel_1x_WOgrey_02f979d2-ccf1-4299-9856-725a534ca9ff.jpg?v=1775832786",
+  "options": [{ "name": "Color", "position": 1, "values": ["Aloe"] }],
+  "url": "\/products\/super-plush-hand-towels-last-call",
+  "media": [
+    {
+      "alt": "PDP2 Option[Aloe] MAIN",
+      "id": 29256411676762,
+      "position": 1,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_HandTowel_1x_WOgrey_02f979d2-ccf1-4299-9856-725a534ca9ff.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_HandTowel_1x_WOgrey_02f979d2-ccf1-4299-9856-725a534ca9ff.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Lemon] MAIN",
+      "id": 29670953680986,
+      "position": 2,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-12_Bath_SP_StripedLemon_HandTowel_1_x_PDP_WO_5ab17422-736e-4284-94ae-9895b86a07cc.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-12_Bath_SP_StripedLemon_HandTowel_1_x_PDP_WO_5ab17422-736e-4284-94ae-9895b86a07cc.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Vanilla] MAIN",
+      "id": 26310957826138,
+      "position": 3,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_HandTowel_Vanilla_1x_WOgrey_20a3b029-c3d5-46f6-8986-e3894823ba25.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_HandTowel_Vanilla_1x_WOgrey_20a3b029-c3d5-46f6-8986-e3894823ba25.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Graphite] MAIN",
+      "id": 25361824448602,
+      "position": 4,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/super-plush_graphite_hand-towel_silo_e12a1bb8-195d-4745-a825-f2e6ffab113d.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/super-plush_graphite_hand-towel_silo_e12a1bb8-195d-4745-a825-f2e6ffab113d.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Blue Mist] MAIN",
+      "id": 25361824350298,
+      "position": 5,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-11_Bath_SP_HandTowel_BlueMist_1x_WOgrey_6510e612-0b1e-4214-b10b-323eede38033.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-11_Bath_SP_HandTowel_BlueMist_1x_WOgrey_6510e612-0b1e-4214-b10b-323eede38033.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Ocean] MAIN",
+      "id": 25361824383066,
+      "position": 6,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-01_Bath_SP_HandTowel_StripedOcean_1x_WOgrey_a5c9cc9f-1018-40af-aa7e-d0d381fe4398.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-01_Bath_SP_HandTowel_StripedOcean_1x_WOgrey_a5c9cc9f-1018-40af-aa7e-d0d381fe4398.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Ink Blue] MAIN",
+      "id": 25361824579674,
+      "position": 7,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_21-07_Bath_SuperPlush_HandTowel_InkBlue_1x_WOgrey_4a854e42-95ad-486b-af75-025e215451c2.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_21-07_Bath_SuperPlush_HandTowel_InkBlue_1x_WOgrey_4a854e42-95ad-486b-af75-025e215451c2.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Ocean] DETAIL",
+      "id": 24353619673178,
+      "position": 8,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-02_Bath_SP_Texture_StripedOcean_1x_WOgrey_c596781f-ad00-422f-8814-6e56cb51a16b.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-02_Bath_SP_Texture_StripedOcean_1x_WOgrey_c596781f-ad00-422f-8814-6e56cb51a16b.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Ocean] LIFESTYLE",
+      "id": 24353621901402,
+      "position": 9,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot5_0649x_PDP_WO_c665b03a-7097-48e0-ba75-56d129f7a3c9.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot5_0649x_PDP_WO_c665b03a-7097-48e0-ba75-56d129f7a3c9.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Graphite] LIFESTYLE",
+      "id": 23762250596442,
+      "position": 10,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_22-03_Q2EvergreenBathroomRefresh_Lifestyle_Look13_0642x_c1212296-2ff0-443d-a726-ad893f158aca.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_22-03_Q2EvergreenBathroomRefresh_Lifestyle_Look13_0642x_c1212296-2ff0-443d-a726-ad893f158aca.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Graphite] LIFESTYLE",
+      "id": 23762250530906,
+      "position": 11,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_22-03_Q2EvergreenBathroomRefresh_Lifestyle_Look9_0723x_d1f1027e-a477-454f-a2e6-9ef40e89fcde.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_22-03_Q2EvergreenBathroomRefresh_Lifestyle_Look9_0723x_d1f1027e-a477-454f-a2e6-9ef40e89fcde.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Graphite] DETAIL",
+      "id": 24165687001178,
+      "position": 12,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-05_Bath_SuperPlush_Texture_Graphite_1x_WOgrey_d38e90b1-2b04-4773-ba76-d7a1e7a4108a.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-05_Bath_SuperPlush_Texture_Graphite_1x_WOgrey_d38e90b1-2b04-4773-ba76-d7a1e7a4108a.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Desert Yellow] LIFESTYLE",
+      "id": 24353621868634,
+      "position": 13,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot2_0608x_PDP_WO_66ec817c-d193-4907-bb19-e768e81a86ec.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot2_0608x_PDP_WO_66ec817c-d193-4907-bb19-e768e81a86ec.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Blue Mist] DETAIL",
+      "id": 24329208823898,
+      "position": 14,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-02_Bath_SP_Texture_BlueMist_1x_WOgrey_83766f86-6ba0-4fdb-bf06-39b9a20113b6.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-02_Bath_SP_Texture_BlueMist_1x_WOgrey_83766f86-6ba0-4fdb-bf06-39b9a20113b6.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Blue Mist] LIFESTYLE",
+      "id": 24335933571162,
+      "position": 15,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot3_0620x_PDP_WO_8d1e4d42-900f-4367-86c9-f8927885c54a.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-12_SpringCollection_Bath_Shot3_0620x_PDP_WO_8d1e4d42-900f-4367-86c9-f8927885c54a.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Wild Moss] MAIN",
+      "id": 25365212692570,
+      "position": 16,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-07_Bath_Classic_HandTowel_WildMoss_1x_WOgrey_1.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_23-07_Bath_Classic_HandTowel_WildMoss_1x_WOgrey_1.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Wild Moss] DETAIL",
+      "id": 24286769315930,
+      "position": 17,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_23-07_Bath_SuperPlush_Texture_WildMoss_1x_WOgrey_c55275be-49bf-49ba-8516-29a0704a84c2.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_23-07_Bath_SuperPlush_Texture_WildMoss_1x_WOgrey_c55275be-49bf-49ba-8516-29a0704a84c2.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Wild Moss] LIFESTYLE",
+      "id": 24286769348698,
+      "position": 18,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_23-09_FallCollection_Bath_Shot12_0325_mainx_PDP_WO_9edf4dcc-ce74-448f-86d6-03fefbe0c6f1.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/products\/BKL_23-09_FallCollection_Bath_Shot12_0325_mainx_PDP_WO_9edf4dcc-ce74-448f-86d6-03fefbe0c6f1.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Rose Clay] MAIN",
+      "id": 25462793437274,
+      "position": 19,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-04_Bath_SP_RoseClay_HandTowel_1x_WOgrey_4f868a05-13ed-4986-9aab-fe03e250e746.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-04_Bath_SP_RoseClay_HandTowel_1x_WOgrey_4f868a05-13ed-4986-9aab-fe03e250e746.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Rose Clay] DETAIL",
+      "id": 25462793502810,
+      "position": 20,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-04_Bath_SP_RoseClay_Texture_1x_WOgrey_226b77a0-cf59-41aa-a9ee-6bd71b05e7ff.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-04_Bath_SP_RoseClay_Texture_1x_WOgrey_226b77a0-cf59-41aa-a9ee-6bd71b05e7ff.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Rose Clay] LIFESTYLE",
+      "id": 25462793535578,
+      "position": 21,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-06_JulyMidAugCampaign_July_LookSP_Shot1_1387x_PDP_WO_38673b87-d28e-42a4-ace1-94de73322251.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-06_JulyMidAugCampaign_July_LookSP_Shot1_1387x_PDP_WO_38673b87-d28e-42a4-ace1-94de73322251.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Coastal Tide] MAIN",
+      "id": 25462793568346,
+      "position": 22,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_SP_StripedCoastalTide_HandTowel_1x_WOgrey_2cab1326-9464-4740-8153-313f9a4e014e.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_SP_StripedCoastalTide_HandTowel_1x_WOgrey_2cab1326-9464-4740-8153-313f9a4e014e.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Coastal Tide] DETAIL",
+      "id": 25462793601114,
+      "position": 23,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_SP_StripedCoastalTide_Texture_1x_WOgrey_b89ae9ef-7cfa-47eb-9424-09f0fa9af347.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_SP_StripedCoastalTide_Texture_1x_WOgrey_b89ae9ef-7cfa-47eb-9424-09f0fa9af347.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Coastal Tide] LIFESTYLE",
+      "id": 25462793633882,
+      "position": 24,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_Towels_SuperPlush_StripedCoastalTide_1x_PDP_WO_5e46b7d2-9803-4d26-8167-d711ce718eac.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_24-07_Bath_Towels_SuperPlush_StripedCoastalTide_1x_PDP_WO_5e46b7d2-9803-4d26-8167-d711ce718eac.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Marled Black] MAIN",
+      "id": 26310957531226,
+      "position": 25,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/1_BKL_20_SP_MarledBlack_HT_1d69759e-86f0-4f7b-99bd-4c6a168dedb0.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/1_BKL_20_SP_MarledBlack_HT_1d69759e-86f0-4f7b-99bd-4c6a168dedb0.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Marled Black] DETAIL",
+      "id": 26310957563994,
+      "position": 26,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/2_BKL_20_SP_MarledBlack_Detailcopy_7eeb4fd7-7e97-46f8-8da3-c94a0c088256.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/2_BKL_20_SP_MarledBlack_Detailcopy_7eeb4fd7-7e97-46f8-8da3-c94a0c088256.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Marled Black] LIFESTYLE",
+      "id": 26310957662298,
+      "position": 27,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2000,
+        "width": 2000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/3_BKL_20_LS_MarledTowels_SP_MarledBlack_MIBcopy_47567af9-9fbc-4513-80cc-ed0f4af008ef.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2000,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/3_BKL_20_LS_MarledTowels_SP_MarledBlack_MIBcopy_47567af9-9fbc-4513-80cc-ed0f4af008ef.jpg?v=1775832786",
+      "width": 2000
+    },
+    {
+      "alt": "PDP2 Option[Marled Black] LIFESTYLE",
+      "id": 26310957695066,
+      "position": 28,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 1000,
+        "width": 1000,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/4_BKL_20_LS_MarledTowels_SP_2_627fb1ff-2563-4fe4-91bf-e8fb51a7422b.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 1000,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/4_BKL_20_LS_MarledTowels_SP_2_627fb1ff-2563-4fe4-91bf-e8fb51a7422b.jpg?v=1775832786",
+      "width": 1000
+    },
+    {
+      "alt": "PDP2 Option[Marled Black] LIFESTYLE",
+      "id": 26310957760602,
+      "position": 29,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2187,
+        "width": 2187,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/5_BKL_20_LS_MarledTowels_SP_HT_c090ab92-4b8d-48c1-9d09-3fc08a77a47c.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2187,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/5_BKL_20_LS_MarledTowels_SP_HT_c090ab92-4b8d-48c1-9d09-3fc08a77a47c.jpg?v=1775832786",
+      "width": 2187
+    },
+    {
+      "alt": "PDP2 Option[Vanilla] DETAIL",
+      "id": 26310957858906,
+      "position": 30,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_Texture_Vanilla_1x_WOgrey_82013f6d-cff8-4378-ba0b-6ad3bb167e58.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_Texture_Vanilla_1x_WOgrey_82013f6d-cff8-4378-ba0b-6ad3bb167e58.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Eucalyptus] LIFESTYLE",
+      "id": 26310957924442,
+      "position": 31,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/221213-Brooklinen-2023-Q1-Bath-Towels2415_V1x_PDP_WO_82efe9ba-3c4f-4e03-9bc0-259494d6e375.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/221213-Brooklinen-2023-Q1-Bath-Towels2415_V1x_PDP_WO_82efe9ba-3c4f-4e03-9bc0-259494d6e375.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Ocean] MAIN",
+      "id": 27735188111450,
+      "position": 32,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_20-09_Bath_SPTowels_HandTowel_Ocean_27xWOgrey_9d354bfb-dfcf-4708-a93b-746dba5f3a8f.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_20-09_Bath_SPTowels_HandTowel_Ocean_27xWOgrey_9d354bfb-dfcf-4708-a93b-746dba5f3a8f.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Ocean] DETAIL",
+      "id": 27735188144218,
+      "position": 33,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_20-09_Bath_SPTowels_Texture_Ocean_8xWOgrey_a18c2f26-2048-4dec-a1d0-76ef249052a2.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_20-09_Bath_SPTowels_Texture_Ocean_8xWOgrey_a18c2f26-2048-4dec-a1d0-76ef249052a2.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Ocean] LIFESTYLE",
+      "id": 27735188176986,
+      "position": 34,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/221213-Brooklinen-2023-Q1-Bath-Towels2346x_PDP_WO_016866be-31c3-4b40-83d6-add2dfbacbd9.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/221213-Brooklinen-2023-Q1-Bath-Towels2346x_PDP_WO_016866be-31c3-4b40-83d6-add2dfbacbd9.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Eucalyptus] MAIN",
+      "id": 27735187980378,
+      "position": 35,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_HandTowel_Eucalyptus_1x_WOgrey_34059a9e-8e98-442c-9b68-5c4821f2958c.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_HandTowel_Eucalyptus_1x_WOgrey_34059a9e-8e98-442c-9b68-5c4821f2958c.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Eucalyptus] DETAIL",
+      "id": 27735188013146,
+      "position": 36,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_Texture_Eucalyptus_1x_WOgrey_186df30a-bfae-43c7-a709-207d14e49220.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_22-10_Bath_SuperPlush_Texture_Eucalyptus_1x_WOgrey_186df30a-bfae-43c7-a709-207d14e49220.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Fresh Moss] MAIN",
+      "id": 29256411643994,
+      "position": 37,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-06_Bath_SP_FreshMoss_HandTowel_1x_WOgrey_eae5f74b-e9e4-4fbc-a3c0-d0be016ef9ce.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-06_Bath_SP_FreshMoss_HandTowel_1x_WOgrey_eae5f74b-e9e4-4fbc-a3c0-d0be016ef9ce.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Aloe] DETAIL",
+      "id": 29256411709530,
+      "position": 38,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_Texture_1x_WOgrey_1c96aca4-d25d-45dc-8f02-ce19e4a545e2.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_Aloe_Texture_1x_WOgrey_1c96aca4-d25d-45dc-8f02-ce19e4a545e2.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Stone] MAIN",
+      "id": 29256411742298,
+      "position": 39,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_StoneStripe_HandTowel_1x_WOgrey_35cf0b5c-f89d-4ef6-a84c-8cecaf1f8a4d.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-01_Bath_SP_StoneStripe_HandTowel_1x_WOgrey_35cf0b5c-f89d-4ef6-a84c-8cecaf1f8a4d.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Umber] MAIN",
+      "id": 29256411775066,
+      "position": 40,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-06_Bath_SP_Umber_HandTowel_1x_WOgrey_a30704ba-fd8e-4d02-9be7-ef49543c8b46.jpg?v=1775832786"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-06_Bath_SP_Umber_HandTowel_1x_WOgrey_a30704ba-fd8e-4d02-9be7-ef49543c8b46.jpg?v=1775832786",
+      "width": 2048
+    },
+    {
+      "alt": "PDP2 Option[Striped Lemon] DETAIL",
+      "id": 29670953713754,
+      "position": 41,
+      "preview_image": {
+        "aspect_ratio": 1.0,
+        "height": 2048,
+        "width": 2048,
+        "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-12_Bath_SP_StripedLemon_Texture_1_x_PDP_WO_21a6a705-8cc5-4f03-9bdb-202778a1b6a9.jpg?v=1775672868"
+      },
+      "aspect_ratio": 1.0,
+      "height": 2048,
+      "media_type": "image",
+      "src": "https:\/\/cdn.shopify.com\/s\/files\/1\/0951\/7126\/files\/BKL_25-12_Bath_SP_StripedLemon_Texture_1_x_PDP_WO_21a6a705-8cc5-4f03-9bdb-202778a1b6a9.jpg?v=1775672868",
+      "width": 2048
+    }
+  ],
+  "requires_selling_plan": false,
+  "selling_plan_groups": []
+}
