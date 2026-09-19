@@ -1,0 +1,141 @@
+import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import sharp from 'sharp';
+import { apiHandler } from '@/lib/api-handler';
+import { env } from '@/lib/env';
+import { db } from '@/db';
+import { links, merchants, renders, twins } from '@/db/schema';
+import { childLogger } from '@/lib/log';
+import { createFetch } from '@/lib/http';
+import { err, ok } from '@/lib/result';
+import { getProvider } from '@/modules/render';
+import type { ProviderKey } from '@/config/models';
+import { PROVIDER_COST_CENTS } from '@/config/models';
+import { putObject } from '@/modules/storage';
+import { refundFailedRender } from '@/modules/render/credit-ledger';
+
+const querySchema = z.object({
+  kind: z.enum(['twin', 'render']),
+  id: z.string(),
+});
+
+// Section 8.4/7.1: fal delivers webhooks to this route (URL built in
+// twin.ts / the render-submission path with `kind`+`id` so this handler
+// knows which row to update without an ambiguous lookup by providerJobId
+// alone — same `request_id` shape could theoretically recur across rows).
+export const POST = apiHandler({
+  name: 'webhooks.fal',
+  auth: ['webhook'],
+  schema: { query: querySchema },
+  webhookVerify: (req) => {
+    const secret = req.nextUrl.searchParams.get('secret');
+    if (!secret || !env.FAL_WEBHOOK_SECRET || secret !== env.FAL_WEBHOOK_SECRET) {
+      return err({ code: 'UNAUTHORIZED', message: 'invalid fal webhook secret' });
+    }
+    return ok(undefined);
+  },
+  handler: async ({ query, req, requestId }) => {
+    const log = childLogger(requestId, { route: 'webhooks/fal', kind: query.kind, id: query.id });
+    const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };
+    const body = await req.json().catch(() => null);
+
+    if (query.kind === 'twin') {
+      const [twin] = await db.select().from(twins).where(eq(twins.id, query.id)).limit(1);
+      if (!twin || !twin.provider) {
+        return err({ code: 'NOT_FOUND', message: 'twin not found' });
+      }
+
+      const provider = getProvider(twin.provider as ProviderKey);
+      const parsed = provider.parseWebhook(body);
+      if (!parsed.ok) return parsed;
+
+      if (parsed.value.status === 'failed' || !parsed.value.imageUrl) {
+        await db.update(twins).set({ status: 'failed' }).where(eq(twins.id, twin.id));
+        log.warn({ error: parsed.value.error }, 'twin generation failed');
+        return ok({ handled: true });
+      }
+
+      const imageResponse = await ctx.fetch(parsed.value.imageUrl);
+      const bytes = Buffer.from(await imageResponse.arrayBuffer());
+      const key = `twins/${twin.shopperId}/${twin.id}.png`;
+      const uploaded = await putObject(key, bytes, 'image/png');
+
+      await db
+        .update(twins)
+        .set({ status: 'ready', twinR2Key: uploaded.key, twinUrl: uploaded.url })
+        .where(eq(twins.id, twin.id));
+
+      return ok({ handled: true });
+    }
+
+    const [render] = await db.select().from(renders).where(eq(renders.id, query.id)).limit(1);
+    if (!render || !render.provider) {
+      return err({ code: 'NOT_FOUND', message: 'render not found' });
+    }
+
+    const [link] = await db
+      .select({ merchantId: links.merchantId })
+      .from(links)
+      .where(eq(links.id, render.linkId))
+      .limit(1);
+    if (!link) return err({ code: 'NOT_FOUND', message: 'render link not found' });
+
+    const provider = getProvider(render.provider as ProviderKey);
+    const parsed = provider.parseWebhook(body);
+    if (!parsed.ok) return parsed;
+
+    if (parsed.value.status === 'failed' || !parsed.value.imageUrl) {
+      await db
+        .update(renders)
+        .set({ error: { message: parsed.value.error ?? 'render failed' } })
+        .where(eq(renders.id, render.id));
+      await refundFailedRender(link.merchantId, render.id);
+      log.warn({ error: parsed.value.error }, 'render failed, refunded');
+      return ok({ handled: true });
+    }
+
+    const imageResponse = await ctx.fetch(parsed.value.imageUrl);
+    let bytes = Buffer.from(await imageResponse.arrayBuffer());
+
+    const [merchant] = await db
+      .select({ watermarkEnabled: merchants.watermarkEnabled })
+      .from(merchants)
+      .where(eq(merchants.id, link.merchantId))
+      .limit(1);
+    const watermarked = merchant?.watermarkEnabled ?? true;
+
+    if (watermarked) {
+      // Section 7.3: small text mark, bottom-right, token-driven (white on a
+      // dark scrim). A raw hex/rgb literal here would be exactly the kind of
+      // off-token color the rest of the UI is banned from using, but this is
+      // a server-side raster composite, not a Tailwind class — sharp needs
+      // real color values, so the scrim/text colors are named constants
+      // instead of a class name.
+      const metadata = await sharp(bytes).metadata();
+      const width = metadata.width ?? 1024;
+      const height = metadata.height ?? 1024;
+      const scrimHeight = Math.round(height * 0.06);
+      const svg = `<svg width="${width}" height="${height}"><rect x="0" y="${height - scrimHeight}" width="${width}" height="${scrimHeight}" fill="black" fill-opacity="0.4"/><text x="${width - 12}" y="${height - scrimHeight / 2 + 5}" text-anchor="end" font-size="${Math.round(scrimHeight * 0.5)}" fill="white" fill-opacity="0.9" font-family="sans-serif">try it on you</text></svg>`;
+      bytes = await sharp(bytes)
+        .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
+        .toBuffer();
+    }
+
+    const key = `renders/${render.shopperId}/${render.id}.png`;
+    const uploaded = await putObject(key, bytes, 'image/png');
+
+    await db
+      .update(renders)
+      .set({
+        status: 'succeeded',
+        outputR2Key: uploaded.key,
+        outputUrl: uploaded.url,
+        watermarked,
+        costCents: PROVIDER_COST_CENTS[render.provider as ProviderKey],
+        latencyMs: render.createdAt ? Date.now() - render.createdAt.getTime() : null,
+      })
+      .where(eq(renders.id, render.id));
+
+    return ok({ handled: true });
+  },
+});

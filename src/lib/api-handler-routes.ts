@@ -15,3 +15,4 @@
 import '@/app/api/cron/jobs/route';
 import '@/app/api/docs/route';
 import '@/app/api/mcp/tools/route';
+import '@/app/api/webhooks/fal/route';
