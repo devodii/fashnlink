@@ -1,24 +1,21 @@
 import type { z } from 'zod';
 import type { Ctx } from '@/lib/adapter';
 import type { Result } from '@/lib/result';
+import type {
+  eligibilityEnum,
+  garmentCategoryEnum,
+  imageRoleEnum,
+  platformEnum,
+  wearableTypeEnum,
+} from '@/db/schema';
 import type { NormalizedProduct, RawProduct } from './schema';
 
-// Matches db/schema.ts `platformEnum` — one source of truth for platform
-// identifiers shared by merchants.platform/stores.platform and adapter keys.
-export type PlatformKey =
-  | 'shopify'
-  | 'woocommerce'
-  | 'squarespace'
-  | 'wix'
-  | 'bigcommerce'
-  | 'magento'
-  | 'prestashop'
-  | 'salesforce'
-  | 'lemonsqueezy'
-  | 'gumroad'
-  | 'bigcartel'
-  | 'generic'
-  | 'manual';
+// Derived from db/schema.ts `platformEnum` — the ONE place platform
+// identifiers are listed (shared by merchants.platform/stores.platform and
+// adapter keys). Adding a platform is: add it to `platformEnum`, generate +
+// run the migration, add the adapter file, register it — `PlatformKey`
+// itself needs no edit.
+export type PlatformKey = (typeof platformEnum.enumValues)[number];
 
 export type ScraperCapability =
   | 'detect'
@@ -52,25 +49,15 @@ export type StoreRef = {
 // its own shape (a page number, a `next_page_info` token, a sitemap index).
 export type Cursor = unknown;
 
-// Matches db/schema.ts `garmentCategoryEnum` / `wearableTypeEnum` / `eligibilityEnum` /
-// `imageRoleEnum`. Shared by the wearable gate (section 6.7) and enrichment
-// (section 6.6) since one vision call's output (garment_category) feeds both.
-export type GarmentCategory =
-  'top' | 'bottom' | 'one_piece' | 'outerwear' | 'shoes' | 'accessory' | 'set' | 'unknown';
-
-export type WearableType =
-  'garment' | 'footwear' | 'headwear' | 'eyewear' | 'jewelry' | 'bag' | 'accessory' | 'none';
-
-export type Eligibility = 'eligible' | 'not_wearable' | 'no_usable_image' | 'kids' | 'pending';
-
-export type ImageRole =
-  | 'flat_lay'
-  | 'ghost_mannequin'
-  | 'on_model_front'
-  | 'on_model_back'
-  | 'detail'
-  | 'lifestyle'
-  | 'unknown';
+// Derived from db/schema.ts `garmentCategoryEnum` / `wearableTypeEnum` /
+// `eligibilityEnum` / `imageRoleEnum` — same "one source of truth" pattern as
+// `PlatformKey` above. Shared by the wearable gate (section 6.7) and
+// enrichment (section 6.6) since one vision call's output (garment_category)
+// feeds both.
+export type GarmentCategory = (typeof garmentCategoryEnum.enumValues)[number];
+export type WearableType = (typeof wearableTypeEnum.enumValues)[number];
+export type Eligibility = (typeof eligibilityEnum.enumValues)[number];
+export type ImageRole = (typeof imageRoleEnum.enumValues)[number];
 
 // Section 6.5. Optional methods ARE the capability declaration: `capabilities`
 // must list exactly the optional methods actually implemented, and

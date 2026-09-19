@@ -5,6 +5,7 @@ import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { openai } from '@/lib/openai';
 import { redis } from '@/lib/redis';
+import { garmentCategoryEnum, wearableTypeEnum } from '@/db/schema';
 import { WEARABLE_GATE } from '@/config/prompts';
 import { KIDS_KEYWORDS, WEARABLE_NEGATIVE, WEARABLE_POSITIVE } from '@/config/wearable-keywords';
 import {
@@ -50,26 +51,11 @@ const visionResponseSchema = z.object({
   images: z.array(
     z.object({
       is_wearable: z.boolean(),
-      wearable_type: z.enum([
-        'garment',
-        'footwear',
-        'headwear',
-        'eyewear',
-        'jewelry',
-        'bag',
-        'accessory',
-        'none',
-      ]),
-      garment_category: z.enum([
-        'top',
-        'bottom',
-        'one_piece',
-        'outerwear',
-        'shoes',
-        'accessory',
-        'set',
-        'unknown',
-      ]),
+      // Runtime-derived from db/schema.ts's enums (not just the TS type) so
+      // the values OpenAI is asked to return and the values the DB will
+      // accept can never drift apart.
+      wearable_type: z.enum(wearableTypeEnum.enumValues),
+      garment_category: z.enum(garmentCategoryEnum.enumValues),
       subject_count: z.number().int(),
       image_kind: z.enum([
         'flat_lay',
