@@ -17,6 +17,58 @@ export async function createSingleLink(input: { merchantId: string; productId: s
   return created ?? null;
 }
 
+// Section 8.2/9.3/9.4 (M6): poll (2-3 productIds) and group (1 productId,
+// `settings.groupName`/`settings.groupNote`) links. `settings` is untyped
+// jsonb at the schema level (same as `merchants.settings`) — callers pass
+// the shape `/p/[slug]` and the group `/t/[slug]` variant expect.
+export async function createMultiProductLink(input: {
+  merchantId: string;
+  productIds: string[];
+  kind: 'poll' | 'group';
+  title?: string | null;
+  settings?: Record<string, unknown>;
+}) {
+  const [created] = await db
+    .insert(links)
+    .values({
+      id: newId('link'),
+      slug: newSlug(),
+      merchantId: input.merchantId,
+      kind: input.kind,
+      title: input.title ?? null,
+      productIds: input.productIds,
+      settings: input.settings ?? {},
+    })
+    .returning();
+  return created ?? null;
+}
+
+// Section 9.3: "Poll closes after 48h or when the creator taps 'decide'."
+// DECISION: closing a poll sets `settings.closedAt`/`settings.decidedBy`
+// rather than archiving the link — `/p/[slug]` still needs to render the
+// final results page after close, which an archived (404'd) link couldn't.
+// The 48h auto-close is a read-time check (`isPollClosed` below) against
+// `createdAt`, not a cron job — cheap and always correct, no schedule to miss.
+export async function closePoll(id: string, decidedBy: 'creator' | 'timeout') {
+  const [link] = await db.select().from(links).where(eq(links.id, id)).limit(1);
+  if (!link) return null;
+  const settings = {
+    ...(link.settings as Record<string, unknown>),
+    closedAt: new Date().toISOString(),
+    decidedBy,
+  };
+  const [updated] = await db.update(links).set({ settings }).where(eq(links.id, id)).returning();
+  return updated ?? null;
+}
+
+const POLL_AUTO_CLOSE_MS = 48 * 60 * 60 * 1000;
+
+export function isPollClosed(link: { createdAt: Date; settings: unknown }): boolean {
+  const settings = (link.settings ?? {}) as Record<string, unknown>;
+  if (settings.closedAt) return true;
+  return Date.now() - link.createdAt.getTime() >= POLL_AUTO_CLOSE_MS;
+}
+
 export async function findLinkById(id: string) {
   const [link] = await db.select().from(links).where(eq(links.id, id)).limit(1);
   return link ?? null;
