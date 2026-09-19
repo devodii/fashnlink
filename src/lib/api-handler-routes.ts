@@ -33,4 +33,4 @@ import '@/app/api/links/route';
 import '@/app/api/links/[id]/route';
 import '@/app/api/merchants/me/route';
 import '@/app/api/platform-requests/route';
-import '@/app/api/webhooks/stripe/route';
+import '@/app/api/webhooks/polar/route';
