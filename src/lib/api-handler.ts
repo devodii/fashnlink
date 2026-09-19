@@ -7,6 +7,7 @@ import type { z } from 'zod';
 import { db } from '@/db';
 import { idempotencyKeys, merchants } from '@/db/schema';
 import { auth } from '@/modules/auth';
+import { getOrCreateShopperId } from '@/modules/shoppers';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';
 import { consumeRateLimit } from '@/lib/rate-limit';
@@ -19,11 +20,9 @@ import type { AppError, Result } from '@/lib/result';
 
 export type AuthScope = 'merchant_session' | 'shopper_session' | 'cron' | 'webhook' | 'public';
 
-// Only what resolveAuth can actually return. `shopper_session` is in
-// AuthScope (forward-compatible for routes to reference) but never appears
-// here — see the DECISION comment on resolveAuth below.
 export type ResolvedAuth =
   | { type: 'merchant_session'; merchantId: string; email: string }
+  | { type: 'shopper_session'; shopperId: string }
   | { type: 'cron' }
   | { type: 'webhook' }
   | { type: 'public' };
@@ -159,14 +158,12 @@ async function resolveAuth<TBody, TParams, TQuery>(
     if (scope === 'public') return { type: 'public' };
 
     if (scope === 'shopper_session') {
-      // DECISION: the signed shopper_id cookie system (section 3/8.3) doesn't
-      // exist until M4. Fail loudly here rather than silently treating a
-      // shopper route as unauthenticated — a route that declares this scope
-      // today has a bug, not a missing shopper.
-      throw appError(
-        'INTERNAL',
-        "shopper_session auth is not implemented until M4 — don't use it yet",
-      );
+      // M4: creates a `shoppers` row + signs the cookie on first visit, per
+      // section 3/8.3 — always "succeeds" (there's no such thing as an
+      // unauthenticated shopper request, only a not-yet-identified one), so
+      // this never falls through to the next scope.
+      const shopperId = await getOrCreateShopperId();
+      return { type: 'shopper_session', shopperId };
     }
 
     if (scope === 'cron') {
@@ -201,6 +198,8 @@ function actorIdFor(resolvedAuth: ResolvedAuth): string {
   switch (resolvedAuth.type) {
     case 'merchant_session':
       return resolvedAuth.merchantId;
+    case 'shopper_session':
+      return resolvedAuth.shopperId;
     case 'cron':
       return 'cron';
     case 'webhook':
