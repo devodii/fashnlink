@@ -19,10 +19,10 @@ env:
   UPLOADTHING_TOKEN: ci-dummy-uploadthing-token
   RESEND_API_KEY: ci-dummy-resend-key
   EMAIL_FROM: 'CI <ci@example.com>'
-  STRIPE_SECRET_KEY: ci-dummy-stripe-secret
-  STRIPE_WEBHOOK_SECRET: ci-dummy-stripe-webhook-secret
-  STRIPE_FOUNDING_PASS_PAYMENT_LINK: https://buy.stripe.com/ci-dummy
-  STRIPE_FOUNDING_PASS_PRICE_ID: price_ci_dummy
+  POLAR_ACCESS_TOKEN: ci-dummy-polar-access-token
+  POLAR_WEBHOOK_SECRET: ci-dummy-polar-webhook-secret
+  POLAR_FOUNDING_PASS_CHECKOUT_LINK: https://buy.polar.sh/ci-dummy
+  POLAR_FOUNDING_PASS_PRODUCT_ID: prod_ci_dummy
   ENCRYPTION_KEY: Y2ktZHVtbXktMzItYnl0ZS1lbmNyeXB0aW9uLWtleSE=
   UPSTASH_REDIS_REST_URL: https://ci-dummy.upstash.io
   UPSTASH_REDIS_REST_TOKEN: ci-dummy-upstash-token
