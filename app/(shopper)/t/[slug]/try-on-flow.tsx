@@ -82,10 +82,6 @@ export function TryOnFlow({
   const [emailSkippedOnce, setEmailSkippedOnce] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [hasEmail, setHasEmail] = React.useState(false);
-  /**
-   * a second, unticked checkbox; never combined with the email
-   * gate's own submit into one implied consent. Default false always.
-   */
   const [retargetOptIn, setRetargetOptIn] = React.useState(false);
 
   const attributedRef = React.useRef(false);
@@ -155,7 +151,6 @@ export function TryOnFlow({
     const json = await res.json();
     if (!res.ok) {
       if (json.error?.code === 'MODERATION_BLOCKED') {
-        // generic message, never the actual moderation reason.
         setErrorMessage("This photo can't be used. Please try a different one.");
       } else {
         setErrorMessage(json.error?.message ?? 'Something went wrong. Please try again.');
@@ -167,7 +162,6 @@ export function TryOnFlow({
     setTwin({ id: json.twinId, status: 'pending', twinUrl: null });
   }
 
-  // Poll twin status while pending.
   usePolling(
     async () => {
       if (!twin || twin.status !== 'pending') return false;
@@ -190,7 +184,6 @@ export function TryOnFlow({
     stage === 'twin-pending' && twin?.status === 'pending',
   );
 
-  // Poll render status while pending.
   usePolling(
     async () => {
       if (!renderId) return false;

@@ -6,13 +6,6 @@ import { isPollClosed } from '@/db/repos/links';
 import { readShopperId } from '@/modules/shoppers';
 import { PollVoteView } from './poll-vote-view';
 
-/**
- * `/p/[slug]?s=<shopperId>`; the friend-facing poll voting
- * page. `s` identifies which shopper's render set to show (a merchant poll
- * link can be tried on by many different shoppers independently; each one's
- * completed set is its own shareable "poll session"). No `s` (or that
- * shopper has no renders for this link yet) -> nothing to vote on yet.
- */
 export default async function PollPage({
   params,
   searchParams,
@@ -51,7 +44,6 @@ export default async function PollPage({
         .orderBy(desc(renders.createdAt))
     : [];
 
-  // One render per product; most recent if the creator re-rendered.
   const renderByProduct = new Map<string, (typeof creatorRenders)[number]>();
   for (const r of creatorRenders) {
     if (!renderByProduct.has(r.productId)) renderByProduct.set(r.productId, r);

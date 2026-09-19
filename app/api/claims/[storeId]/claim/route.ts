@@ -7,11 +7,10 @@ import { err, ok } from '@/lib/result';
 import { SYSTEM_MERCHANT_ID } from '@/config/system-merchant';
 
 /**
- * only way a link exists against an unowned store, per M6's quick-demo
- * design); a `leads` row created against those same demo links keeps its
- * original `merchantId`, since re-attributing leads retroactively risks
- * crediting the claiming merchant with contacts collected before they owned
- * the store; flagged here rather than silently done.
+ * Only `links` get reassigned to the claiming merchant here; `leads` rows
+ * created against those same demo links keep their original merchantId,
+ * since retroactively re-attributing leads would credit the claiming
+ * merchant with contacts collected before they owned the store.
  */
 export const POST = apiHandler({
   name: 'claims.claim',

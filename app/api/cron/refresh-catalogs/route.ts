@@ -9,11 +9,9 @@ export const dynamic = 'force-dynamic';
 const STALE_AFTER_HOURS = 24;
 
 /**
- * daily; for every store whose adapter can list a catalog and
- * hasn't been crawled in 24h, enqueue a `store.crawled` job (the actual
- * crawl runs in `GET /api/cron/jobs`'s drain loop, not inline here; a
- * catalog crawl per store can be slow, and this route just seeds the queue
- * so one slow store can't blow the function's own timeout budget).
+ * The actual crawl runs in `GET /api/cron/jobs`'s drain loop, not inline
+ * here; a catalog crawl per store can be slow, and this route just seeds the
+ * queue so one slow store can't blow the function's own timeout budget.
  */
 export const GET = apiHandler({
   name: 'cron.refreshCatalogs',
