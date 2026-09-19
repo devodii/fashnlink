@@ -5,6 +5,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   real,
   text,
   timestamp,
@@ -555,3 +556,22 @@ export const platformRequests = pgTable('platform_requests', {
   notes: text('notes'),
   ...timestamps,
 });
+
+// Backs src/lib/api-handler.ts's Idempotency-Key handling. Not in section 5 of
+// the spec (written before API routes existed) — key is scoped per actor
+// (merchant id, or the literal 'cron'/'webhook'/'public' for non-merchant
+// callers) rather than a generated ulid, since the pair (key, actor) IS the
+// identity being deduplicated.
+export const idempotencyKeys = pgTable(
+  'idempotency_keys',
+  {
+    key: text('key').notNull(),
+    actorId: text('actor_id').notNull(),
+    route: text('route').notNull(),
+    lockedAt: timestamp('locked_at', { withTimezone: true }).notNull().defaultNow(),
+    responseStatus: integer('response_status'),
+    responseBody: jsonb('response_body'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [primaryKey({ columns: [table.key, table.actorId] })]
+);
