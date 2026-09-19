@@ -11,6 +11,10 @@ import type {
 import type { NormalizedProduct } from '@/modules/scraper/schema';
 
 export type UpsertProductInput = {
+  // Caller-supplied (section 6.6's image storage keys are built from this id
+  // *before* the row exists, so the pipeline must know it up front rather
+  // than receiving one back from an insert that happens after enrichment).
+  id: string;
   storeId: string;
   normalized: NormalizedProduct;
   garmentCategory: GarmentCategory;
@@ -70,7 +74,7 @@ export async function upsertProduct(input: UpsertProductInput) {
 
   const [created] = await db
     .insert(products)
-    .values({ id: newId('prod'), ...values })
+    .values({ id: input.id, ...values })
     .returning();
   return created;
 }
