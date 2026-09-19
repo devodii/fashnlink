@@ -26,6 +26,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@uploadthing/react": "^7.3.3",
     "@upstash/redis": "^1.38.4",
+    "ai": "^7.0.106",
     "better-auth": "^1.7.5",
     "class-variance-authority": "^0.7.1",
     "cmdk": "^1.1.1",
