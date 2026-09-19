@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
-import { productImages, productVariants, products } from '@/db/schema';
+import { productImages, productVariants, products, stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import type {
   Eligibility,
@@ -121,4 +121,25 @@ export async function replaceProductVariants(
     .insert(productVariants)
     .values(variants.map((variant) => ({ id: newId('variant'), productId, ...variant })))
     .returning();
+}
+
+// `/dashboard/products` (section 8.2) — every product scraped into any store
+// this merchant owns, with a flag for "no usable try-on image" so the page
+// can surface it per spec ("shows which products have no usable try-on
+// image ... with a hint").
+export async function findProductsForMerchant(merchantId: string) {
+  const rows = await db
+    .select({
+      product: products,
+      hasTryonImage: sql<boolean>`exists (
+        select 1 from ${productImages}
+        where ${productImages.productId} = ${products.id}
+        and ${productImages.isTryonSource} = true
+      )`,
+    })
+    .from(products)
+    .innerJoin(stores, eq(stores.id, products.storeId))
+    .where(eq(stores.merchantId, merchantId))
+    .orderBy(products.title);
+  return rows;
 }
