@@ -11,9 +11,6 @@ export interface StaggerProps {
   className?: string;
 }
 
-/** list entrances, 40ms step, capped at 8 children (the rest
- * appear instantly instead of queuing a long stagger). Wrap each item in
- * `StaggerItem`. */
 export function Stagger({ children, className }: StaggerProps) {
   const reduceMotion = useReducedMotion();
 

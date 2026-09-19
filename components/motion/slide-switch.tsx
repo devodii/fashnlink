@@ -10,9 +10,6 @@ export interface SlideSwitchProps {
   className?: string;
 }
 
-/** horizontal slide between keyed children; `StepWizard`
- * steps, segmented panels. `direction` picks which way the incoming child
- * enters from (1 = forward/right, -1 = back/left). */
 export function SlideSwitch({ activeKey, direction = 1, children, className }: SlideSwitchProps) {
   const reduceMotion = useReducedMotion();
 

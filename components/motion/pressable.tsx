@@ -7,8 +7,6 @@ export interface PressableProps extends HTMLMotionProps<'div'> {
   children: React.ReactNode;
 }
 
-/** `whileTap: scale 0.98` for cards and primary buttons on
- * touch. */
 export function Pressable({ children, className, ...props }: PressableProps) {
   const reduceMotion = useReducedMotion();
 
