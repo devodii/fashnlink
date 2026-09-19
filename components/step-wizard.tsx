@@ -26,13 +26,9 @@ export interface StepWizardProps {
   className?: string;
 }
 
-/**
- * DECISION: persisting the step in `?step=` (section 8.1/12's M1.5
- * acceptance check) means this component reads `useSearchParams`, which
- * Next.js requires a `<Suspense>` boundary around on a statically-rendered
- * route; callers on a static page should wrap `<StepWizard>` in `Suspense`
- * themselves; nothing in this component's own contract changes either way.
- */
+// Reads useSearchParams to persist the step in ?step=, which Next.js
+// requires a <Suspense> boundary around on a statically-rendered route:
+// callers on a static page should wrap <StepWizard> in Suspense themselves.
 export function StepWizard({ steps, initialStepId, onStepChange, className }: StepWizardProps) {
   const router = useRouter();
   const pathname = usePathname();

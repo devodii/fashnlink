@@ -25,9 +25,6 @@ const CHANNEL_LABEL: Record<ShareChannel, string> = {
   x: 'X',
 };
 
-/** Web Share API first (with `files` when available), else
- * a channel grid in a `ResponsiveDialog`. Every share increments
- * `renders.share_count` server-side; `onShare` is the hook for that. */
 export function ShareSheet({
   title,
   url,

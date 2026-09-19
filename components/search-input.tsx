@@ -13,9 +13,6 @@ export interface SearchInputProps {
   className?: string;
 }
 
-/** debounced, clearable. `value`/`onChange` are the committed
- * (debounced) value; the input keeps its own draft internally so keystrokes
- * never feel throttled. */
 export function SearchInput({
   value,
   onChange,
