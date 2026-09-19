@@ -17,8 +17,11 @@ import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone'
 import { MediaTile } from '@/components/media-tile';
 import { CopyField } from '@/components/copy-field';
 import { PhoneFrame } from '@/components/phone-frame';
+import { ChipSelect } from '@/components/chip-select';
 
-const PLATFORM_CHIPS = ['Shopify', 'WooCommerce', 'Squarespace', 'Wix', 'Something else'];
+const PLATFORM_CHIPS = ['Shopify', 'WooCommerce', 'Squarespace', 'Wix', 'Something else'].map(
+  (label) => ({ value: label, label }),
+);
 
 const urlSchema = z.object({ url: z.string().url('Paste a full product URL') });
 const brandSchema = z.object({
@@ -72,6 +75,7 @@ function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) 
   const [preview, setPreview] = React.useState<CreatedLink | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [somethingElse, setSomethingElse] = React.useState(false);
+  const [selectedChip, setSelectedChip] = React.useState<string | null>(null);
   const [notes, setNotes] = React.useState('');
 
   async function onSubmit(values: z.infer<typeof urlSchema>) {
@@ -131,23 +135,19 @@ function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) 
       </Form>
       {error && (
         <InlineAlert tone="destructive">
-          {error} You can still add products by uploading photos — head to the dashboard when
+          {error} You can still add products by uploading photos, head to the dashboard when
           you&apos;re ready, or tell us what you use below.
         </InlineAlert>
       )}
 
-      <div className="flex flex-wrap gap-2">
-        {PLATFORM_CHIPS.map((chip) => (
-          <button
-            key={chip}
-            type="button"
-            onClick={() => (chip === 'Something else' ? setSomethingElse(true) : undefined)}
-            className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-accent"
-          >
-            {chip}
-          </button>
-        ))}
-      </div>
+      <ChipSelect
+        options={PLATFORM_CHIPS}
+        value={selectedChip}
+        onChange={(value) => {
+          setSelectedChip(value);
+          if (value === 'Something else') setSomethingElse(true);
+        }}
+      />
 
       {somethingElse && (
         <div className="space-y-2">
