@@ -13,6 +13,7 @@ import type { ProviderKey } from '@/config/models';
 import { PROVIDER_COST_CENTS } from '@/config/models';
 import { putObject } from '@/modules/storage';
 import { refundFailedRender } from '@/modules/render/credit-ledger';
+import { checkCampaignHealth } from '@/modules/campaigns';
 
 const querySchema = z.object({
   kind: z.enum(['twin', 'render']),
@@ -117,6 +118,12 @@ export const POST = apiHandler({
           .update(campaignItems)
           .set({ status: 'failed', skipReason: parsed.value.error ?? 'render failed' })
           .where(eq(campaignItems.renderId, render.id));
+        const [item] = await db
+          .select({ campaignId: campaignItems.campaignId })
+          .from(campaignItems)
+          .where(eq(campaignItems.renderId, render.id))
+          .limit(1);
+        if (item) await checkCampaignHealth(item.campaignId);
       }
       log.warn({ error: parsed.value.error }, 'render failed, refunded');
       return ok({ handled: true });
@@ -172,6 +179,12 @@ export const POST = apiHandler({
         .update(campaignItems)
         .set({ status: 'rendered' })
         .where(eq(campaignItems.renderId, render.id));
+      const [item] = await db
+        .select({ campaignId: campaignItems.campaignId })
+        .from(campaignItems)
+        .where(eq(campaignItems.renderId, render.id))
+        .limit(1);
+      if (item) await checkCampaignHealth(item.campaignId);
     }
 
     return ok({ handled: true });
