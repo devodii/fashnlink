@@ -42,3 +42,4 @@ import '@/app/api/polls/[linkId]/vote/route';
 import '@/app/api/polls/[linkId]/close/route';
 import '@/app/api/groups/[linkId]/join/route';
 import '@/app/api/groups/[linkId]/route';
+import '@/app/api/public/quick-link/route';
