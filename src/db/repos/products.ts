@@ -123,6 +123,28 @@ export async function replaceProductVariants(
     .returning();
 }
 
+// Section 8.4/6.2's `refresh-catalogs` cron: a lighter update for a product
+// that already exists (found again in a catalog re-crawl) — live fields only
+// (price, availability, freshness), never touching garment/eligibility
+// classification, which came from a real vision/Jev call the refresh isn't
+// re-running. `content_hash` still detects when nothing actually changed.
+export async function refreshProductLiveFields(
+  productId: string,
+  patch: {
+    title: string;
+    priceCents: number | null;
+    currency: string | null;
+    available: boolean;
+    externalUpdatedAt: Date | null;
+    contentHash: string;
+  },
+) {
+  await db
+    .update(products)
+    .set({ ...patch, updatedAt: new Date() })
+    .where(eq(products.id, productId));
+}
+
 // `/dashboard/products` (section 8.2) — every product scraped into any store
 // this merchant owns, with a flag for "no usable try-on image" so the page
 // can surface it per spec ("shows which products have no usable try-on

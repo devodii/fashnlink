@@ -44,3 +44,5 @@ import '@/app/api/groups/[linkId]/join/route';
 import '@/app/api/groups/[linkId]/route';
 import '@/app/api/public/quick-link/route';
 import '@/app/api/claims/[storeId]/claim/route';
+import '@/app/api/cron/refresh-catalogs/route';
+import '@/app/api/cron/cleanup/route';

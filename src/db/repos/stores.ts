@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
@@ -7,6 +7,21 @@ import type { PlatformKey } from '@/modules/scraper/types';
 export async function findStoreByDomain(domain: string) {
   const [store] = await db.select().from(stores).where(eq(stores.domain, domain)).limit(1);
   return store ?? null;
+}
+
+export async function findStoreById(id: string) {
+  const [store] = await db.select().from(stores).where(eq(stores.id, id)).limit(1);
+  return store ?? null;
+}
+
+// Section 8.4's `refresh-catalogs` cron: stores whose adapter can list a
+// catalog, not crawled in the last `staleAfterHours` (or never).
+export async function findStoresDueForRefresh(staleAfterHours: number) {
+  const cutoff = new Date(Date.now() - staleAfterHours * 60 * 60 * 1000);
+  return db
+    .select()
+    .from(stores)
+    .where(sql`${stores.lastCrawledAt} is null or ${stores.lastCrawledAt} < ${cutoff}`);
 }
 
 export async function findOrCreateStore(input: {

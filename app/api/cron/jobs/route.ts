@@ -2,6 +2,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { createFetch } from '@/lib/http';
 import { childLogger } from '@/lib/log';
 import { drainJobs } from '@/modules/jobs';
+import '@/modules/jobs/handlers';
 import { ok } from '@/lib/result';
 
 export const dynamic = 'force-dynamic';
