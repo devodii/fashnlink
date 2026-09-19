@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { cn } from 'cn';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Pressable } from '@/components/motion/pressable';
@@ -20,8 +21,6 @@ export interface PollOptionsProps {
   className?: string;
 }
 
-/** shopper-created and merchant-created polls both render
- * through this; animated result bars once `results` is on. */
 export function PollOptions({ options, value, onVote, results, className }: PollOptionsProps) {
   const reduceMotion = useReducedMotion();
   const total = options.reduce((sum, o) => sum + (o.votes ?? 0), 0);
@@ -42,8 +41,13 @@ export function PollOptions({ options, value, onVote, results, className }: Poll
                 value === option.id && 'ring-ring',
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={option.image} alt={option.label} className="size-full object-cover" />
+              <Image
+                src={option.image}
+                alt={option.label}
+                fill
+                sizes="50vw"
+                className="object-cover"
+              />
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">{option.label}</p>

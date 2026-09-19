@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { Images, Trash2 } from 'lucide-react';
 import { MediaGrid } from '@/components/media-grid';
 import { EmptyState } from '@/components/empty-state';
@@ -80,12 +81,15 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
     <div className="flex flex-1 flex-col gap-6">
       {defaultTwin?.twinUrl && (
         <Section title="Your model">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={defaultTwin.twinUrl}
-            alt="Your twin"
-            className="aspect-[3/4] w-32 rounded-md object-cover"
-          />
+          <div className="relative aspect-[3/4] w-32 overflow-hidden rounded-md">
+            <Image
+              src={defaultTwin.twinUrl}
+              alt="Your twin"
+              fill
+              sizes="128px"
+              className="object-cover"
+            />
+          </div>
         </Section>
       )}
 

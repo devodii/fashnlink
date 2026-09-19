@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
@@ -71,12 +72,15 @@ export default async function SharedRenderPage({
         {price && <p className="text-sm text-muted-foreground">{price}</p>}
       </div>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={row.outputUrl}
-        alt={row.productTitle}
-        className="aspect-[3/4] w-full rounded-md object-cover"
-      />
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md">
+        <Image
+          src={row.outputUrl}
+          alt={row.productTitle}
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
 
       <Button asChild size="lg" className="w-full">
         <a href={`/t/${row.slug}?via=${renderId}`}>See it on you</a>
