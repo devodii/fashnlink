@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import { apiHandler } from '@/lib/api-handler';
 import { env } from '@/lib/env';
 import { db } from '@/db';
-import { links, merchants, renders, twins } from '@/db/schema';
+import { campaignItems, campaigns, links, merchants, renders, twins } from '@/db/schema';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
@@ -73,12 +73,28 @@ export const POST = apiHandler({
       return err({ code: 'NOT_FOUND', message: 'render not found' });
     }
 
-    const [link] = await db
-      .select({ merchantId: links.merchantId })
-      .from(links)
-      .where(eq(links.id, render.linkId))
-      .limit(1);
-    if (!link) return err({ code: 'NOT_FOUND', message: 'render link not found' });
+    // Section 9.8: a campaign-driven render (`via: 'campaign'`) has no
+    // `linkId` — its merchant comes from campaign_items -> campaigns
+    // instead. Every other `via` value always has a link.
+    let merchantId: string | null = null;
+    if (render.linkId) {
+      const [link] = await db
+        .select({ merchantId: links.merchantId })
+        .from(links)
+        .where(eq(links.id, render.linkId))
+        .limit(1);
+      if (!link) return err({ code: 'NOT_FOUND', message: 'render link not found' });
+      merchantId = link.merchantId;
+    } else {
+      const [item] = await db
+        .select({ merchantId: campaigns.merchantId })
+        .from(campaignItems)
+        .innerJoin(campaigns, eq(campaignItems.campaignId, campaigns.id))
+        .where(eq(campaignItems.renderId, render.id))
+        .limit(1);
+      if (!item) return err({ code: 'NOT_FOUND', message: 'render campaign not found' });
+      merchantId = item.merchantId;
+    }
 
     const provider = getProvider(render.provider as ProviderKey);
     const parsed = provider.parseWebhook(body);
@@ -87,9 +103,21 @@ export const POST = apiHandler({
     if (parsed.value.status === 'failed' || !parsed.value.imageUrl) {
       await db
         .update(renders)
-        .set({ error: { message: parsed.value.error ?? 'render failed' } })
+        .set({ error: { message: parsed.value.error ?? 'render failed' }, status: 'failed' })
         .where(eq(renders.id, render.id));
-      await refundFailedRender(link.merchantId, render.id);
+      // Campaign renders were never individually credited (the whole
+      // campaign's credits are reserved up front, section 9.8) — refunding
+      // per-render here would over-credit the merchant. The drop fan-out job
+      // releases the unused portion once the whole campaign finishes instead.
+      if (render.linkId && merchantId) {
+        await refundFailedRender(merchantId, render.id);
+      }
+      if (render.via === 'campaign') {
+        await db
+          .update(campaignItems)
+          .set({ status: 'failed', skipReason: parsed.value.error ?? 'render failed' })
+          .where(eq(campaignItems.renderId, render.id));
+      }
       log.warn({ error: parsed.value.error }, 'render failed, refunded');
       return ok({ handled: true });
     }
@@ -100,7 +128,7 @@ export const POST = apiHandler({
     const [merchant] = await db
       .select({ watermarkEnabled: merchants.watermarkEnabled })
       .from(merchants)
-      .where(eq(merchants.id, link.merchantId))
+      .where(eq(merchants.id, merchantId as string))
       .limit(1);
     const watermarked = merchant?.watermarkEnabled ?? true;
 
@@ -135,6 +163,16 @@ export const POST = apiHandler({
         latencyMs: render.createdAt ? Date.now() - render.createdAt.getTime() : null,
       })
       .where(eq(renders.id, render.id));
+
+    if (render.via === 'campaign') {
+      // `delivered_at` (section 5) means "the ESP confirmed the event", set
+      // later when the campaign's completion step actually pushes it — not
+      // here, which is only the render finishing.
+      await db
+        .update(campaignItems)
+        .set({ status: 'rendered' })
+        .where(eq(campaignItems.renderId, render.id));
+    }
 
     return ok({ handled: true });
   },

@@ -36,6 +36,10 @@ export const POST = apiHandler({
       .where(eq(renders.id, body.renderId))
       .limit(1);
     if (!render) return err({ code: 'NOT_FOUND', message: 'render not found' });
+    // Campaign renders (section 9.8, via: 'campaign') have no link — a
+    // shopper can never reach the email gate for one (it's pushed straight
+    // to their inbox, never clicked through a public /t/[slug] page).
+    if (!render.linkId) return err({ code: 'NOT_FOUND', message: 'render has no link' });
 
     const [link] = await db
       .select({ merchantId: links.merchantId })

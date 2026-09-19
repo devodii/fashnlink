@@ -57,6 +57,13 @@
       "when": 1789826687007,
       "tag": "0007_bouncy_green_goblin",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789829590960,
+      "tag": "0008_good_jane_foster",
+      "breakpoints": true
     }
   ]
 }

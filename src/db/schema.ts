@@ -344,9 +344,12 @@ export const renders = pgTable(
   'renders',
   {
     id: text('id').primaryKey(),
-    linkId: text('link_id')
-      .notNull()
-      .references(() => links.id),
+    // Nullable: a campaign-driven render (`via: 'campaign'`, section 9.8) has
+    // no shopper-facing link — it's pushed straight to the shopper's inbox
+    // via the merchant's ESP, never clicked through a public `/t/[slug]`
+    // page. Every other `via` value still always has one; the null case only
+    // ever comes from the drop fan-out job.
+    linkId: text('link_id').references(() => links.id),
     productId: text('product_id')
       .notNull()
       .references(() => products.id),
