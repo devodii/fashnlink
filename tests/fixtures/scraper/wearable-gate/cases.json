@@ -1,0 +1,325 @@
+[
+  {
+    "id": "w1",
+    "title": "Linen Button-Up Shirt",
+    "productType": "Shirts",
+    "tags": ["men", "linen"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w2",
+    "title": "Midi Wrap Dress",
+    "productType": "Dresses",
+    "tags": ["women", "floral"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w3",
+    "title": "Classic Denim Jacket",
+    "productType": "Outerwear",
+    "tags": ["denim"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w4",
+    "title": "Pleated Midi Skirt",
+    "productType": "Skirts",
+    "tags": [],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w5",
+    "title": "Slim Fit Chino Trousers",
+    "productType": "Pants",
+    "tags": ["chino"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w6",
+    "title": "Cropped Hoodie",
+    "productType": "Sweatshirts",
+    "tags": ["fleece"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w7",
+    "title": "Cable Knit Cardigan",
+    "productType": "Knitwear",
+    "tags": [],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w8",
+    "title": "Satin Jumpsuit",
+    "productType": "Jumpsuits",
+    "tags": ["evening"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w9",
+    "title": "Embroidered Kurta Set",
+    "productType": "Ethnic Wear",
+    "tags": ["kurta", "set"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w10",
+    "title": "Two-Piece Swimwear Set",
+    "productType": "Swimwear",
+    "tags": ["bikini"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w11",
+    "title": "High-Waist Leggings",
+    "productType": "Activewear",
+    "tags": ["gym"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w12",
+    "title": "Leather Ankle Boots",
+    "productType": "Shoes",
+    "tags": ["leather"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w13",
+    "title": "Canvas Low-Top Sneakers",
+    "productType": "Sneakers",
+    "tags": [],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w14",
+    "title": "Strappy Heeled Sandals",
+    "productType": "Sandals",
+    "tags": ["summer"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w15",
+    "title": "Wide Brim Straw Hat",
+    "productType": "Headwear",
+    "tags": ["hat"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w16",
+    "title": "Cotton Baseball Cap",
+    "productType": "Headwear",
+    "tags": ["cap"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w17",
+    "title": "Sterling Silver Stacking Ring",
+    "productType": "Jewelry",
+    "tags": ["ring"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w18",
+    "title": "Gold Plated Hoop Earrings",
+    "productType": "Jewelry",
+    "tags": ["earrings"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w19",
+    "title": "Structured Leather Crossbody Bag",
+    "productType": "Bags",
+    "tags": ["crossbody"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "w20",
+    "title": "Aviator Sunglasses",
+    "productType": "Eyewear",
+    "tags": ["sunglasses"],
+    "group": "wearable",
+    "expectedStage1": "needs_vision"
+  },
+
+  {
+    "id": "n1",
+    "title": "Ceramic Coffee Mug",
+    "productType": "Home",
+    "tags": ["mug", "kitchen"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n2",
+    "title": "Soy Wax Candle",
+    "productType": "Home Decor",
+    "tags": ["candle", "decor"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n3",
+    "title": "Framed Art Print Poster",
+    "productType": "Wall Art",
+    "tags": ["poster", "print"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n4",
+    "title": "Vinyl Sticker Pack",
+    "productType": "Stationery",
+    "tags": ["sticker"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n5",
+    "title": "$50 Digital Gift Card",
+    "productType": "Gift Cards",
+    "tags": ["gift card", "download"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n6",
+    "title": "Self-Guided Meal Plan E-Book",
+    "productType": "Digital",
+    "tags": ["ebook", "download"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n7",
+    "title": "Organic Cotton Fabric by the Yard",
+    "productType": "Craft Supplies",
+    "tags": ["fabric by the yard", "yarn"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n8",
+    "title": "Oak Coffee Table",
+    "productType": "Furniture",
+    "tags": ["furniture", "home"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n9",
+    "title": "Salmon Oil Supplement for Dogs",
+    "productType": "Pet Supplies",
+    "tags": ["pet", "supplement"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+  {
+    "id": "n10",
+    "title": "Hydrating Facial Skincare Set",
+    "productType": "Beauty",
+    "tags": ["skincare"],
+    "group": "not_wearable",
+    "expectedStage1": "not_wearable"
+  },
+
+  {
+    "id": "c1",
+    "title": "Shop the Look: Full Outfit Bundle",
+    "productType": "Bundles",
+    "tags": ["set", "lookbook"],
+    "group": "collage",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "c2",
+    "title": "Spring Collection Lookbook Grid",
+    "productType": "Editorial",
+    "tags": ["dress", "top"],
+    "group": "collage",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "c3",
+    "title": "Mix & Match Capsule Wardrobe",
+    "productType": "Bundles",
+    "tags": ["set", "top", "skirt"],
+    "group": "collage",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "c4",
+    "title": "Outfit Grid: Jacket + Jeans + Boots",
+    "productType": "Editorial",
+    "tags": ["jacket", "boots"],
+    "group": "collage",
+    "expectedStage1": "needs_vision"
+  },
+  {
+    "id": "c5",
+    "title": "Accessories Flat Lay Collection",
+    "productType": "Editorial",
+    "tags": ["ring", "watch", "belt"],
+    "group": "collage",
+    "expectedStage1": "needs_vision"
+  },
+
+  {
+    "id": "k1",
+    "title": "Toddler Cotton Romper",
+    "productType": "Baby Clothing",
+    "tags": ["toddler", "romper"],
+    "group": "kids",
+    "expectedStage1": "kids"
+  },
+  {
+    "id": "k2",
+    "title": "Kids Graphic Tee",
+    "productType": "Kids",
+    "tags": ["kids"],
+    "group": "kids",
+    "expectedStage1": "kids"
+  },
+  {
+    "id": "k3",
+    "title": "Infant Onesie Set",
+    "productType": "Baby",
+    "tags": ["infant", "set"],
+    "group": "kids",
+    "expectedStage1": "kids"
+  },
+  {
+    "id": "k4",
+    "title": "Baby Booties",
+    "productType": "Baby Shoes",
+    "tags": ["baby"],
+    "group": "kids",
+    "expectedStage1": "kids"
+  },
+  {
+    "id": "k5",
+    "title": "Kids Rain Boots",
+    "productType": "Kids Footwear",
+    "tags": ["kids", "boots"],
+    "group": "kids",
+    "expectedStage1": "kids"
+  }
+]

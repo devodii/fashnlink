@@ -52,6 +52,26 @@ export type StoreRef = {
 // its own shape (a page number, a `next_page_info` token, a sitemap index).
 export type Cursor = unknown;
 
+// Matches db/schema.ts `garmentCategoryEnum` / `wearableTypeEnum` / `eligibilityEnum` /
+// `imageRoleEnum`. Shared by the wearable gate (section 6.7) and enrichment
+// (section 6.6) since one vision call's output (garment_category) feeds both.
+export type GarmentCategory =
+  'top' | 'bottom' | 'one_piece' | 'outerwear' | 'shoes' | 'accessory' | 'set' | 'unknown';
+
+export type WearableType =
+  'garment' | 'footwear' | 'headwear' | 'eyewear' | 'jewelry' | 'bag' | 'accessory' | 'none';
+
+export type Eligibility = 'eligible' | 'not_wearable' | 'no_usable_image' | 'kids' | 'pending';
+
+export type ImageRole =
+  | 'flat_lay'
+  | 'ghost_mannequin'
+  | 'on_model_front'
+  | 'on_model_back'
+  | 'detail'
+  | 'lifestyle'
+  | 'unknown';
+
 // Section 6.5. Optional methods ARE the capability declaration: `capabilities`
 // must list exactly the optional methods actually implemented, and
 // `ScraperRegistry`'s boot-time assertion (types below) enforces that.
