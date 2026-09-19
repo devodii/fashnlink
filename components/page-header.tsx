@@ -16,7 +16,6 @@ export interface PageHeaderProps extends React.ComponentProps<'header'> {
   breadcrumbs?: Breadcrumb[];
 }
 
-/** Sticky on mobile with a compact mode once scrolled. */
 export function PageHeader({
   title,
   description,

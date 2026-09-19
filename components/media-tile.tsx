@@ -18,8 +18,6 @@ const ASPECT_CLASS = {
   '9/16': 'aspect-[9/16]',
 } as const;
 
-/** products, renders, closet, model pack all use this one
- * tile. */
 export function MediaTile({
   src,
   alt,

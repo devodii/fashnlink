@@ -6,8 +6,6 @@ export interface LoadingButtonProps extends React.ComponentProps<typeof Button> 
   loading?: boolean;
 }
 
-/** a `Button` that keeps its width while `loading` swaps its
- * content for a spinner, instead of the label disappearing mid-click. */
 export function LoadingButton({ loading, disabled, children, ...props }: LoadingButtonProps) {
   return (
     <Button disabled={disabled || loading} {...props}>

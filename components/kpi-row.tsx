@@ -7,8 +7,6 @@ export interface KpiRowProps {
   className?: string;
 }
 
-/** responsive grid of `StatCard`, 2 columns on mobile, 4 on
- * desktop. */
 export function KpiRow({ stats, className }: KpiRowProps) {
   return (
     <div className={cn('grid grid-cols-2 gap-3 md:grid-cols-4', className)}>

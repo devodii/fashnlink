@@ -10,9 +10,6 @@ export interface PaginationProps {
   className?: string;
 }
 
-/** controlled, compact on mobile; a numbered variant on
- * `DataTable`'s own Previous/Next footer for cases that want page numbers
- * (e.g. a public catalog browse). */
 export function Pagination({ pageIndex, pageCount, onPageChange, className }: PaginationProps) {
   const pages = Array.from({ length: pageCount }, (_, i) => i).filter(
     (p) => p === 0 || p === pageCount - 1 || Math.abs(p - pageIndex) <= 1,

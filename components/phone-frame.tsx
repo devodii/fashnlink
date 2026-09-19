@@ -7,8 +7,6 @@ export interface PhoneFrameProps {
   className?: string;
 }
 
-/** wraps children (or an iframe `src`) in a phone bezel, scales
- * to its container. Used for the merchant's link preview. */
 export function PhoneFrame({ src, children, className }: PhoneFrameProps) {
   return (
     <div
