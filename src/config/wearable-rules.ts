@@ -14,11 +14,6 @@ export type ImageVisionVerdict = {
 
 const MIN_SHORT_EDGE_PX = 512;
 
-/**
- * wearable_type -> default garment_category/routing when the vision call says
- * "accessory-ish". Applied when the
- * model's own garment_category comes back "unknown" for a non-garment type.
- */
 export const WEARABLE_TYPE_CATEGORY: Partial<Record<WearableType, GarmentCategory>> = {
   jewelry: 'accessory',
   eyewear: 'accessory',
@@ -28,14 +23,6 @@ export const WEARABLE_TYPE_CATEGORY: Partial<Record<WearableType, GarmentCategor
   footwear: 'shoes',
 };
 
-/**
- * DECISION: the render-provider half of section 6.7's routing note
- * ("jewelry|eyewear|headwear|bag|accessory → nano_banana") belongs to M3's
- * `src/config/models.ts` ROUTING table, which doesn't exist
- * yet; only the category mapping above (M2's concern: what garment_category
- * a product row gets) is built here.
- */
-
 export type FinalWearabilityVerdict = {
   eligibility: Eligibility;
   eligibilityReason: string;
@@ -44,10 +31,6 @@ export type FinalWearabilityVerdict = {
   tryonSourceIndex: number | null;
 };
 
-/**
- * Verdict rules, applied once per-image Stage 2 results (and
- * each image's known pixel dimensions) are in hand.
- */
 export function resolveVerdict(
   perImage: { verdict: ImageVisionVerdict; width: number | null; height: number | null }[],
 ): FinalWearabilityVerdict {

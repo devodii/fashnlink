@@ -1,9 +1,3 @@
-/**
- * stage 1; free, synchronous text scoring before any image ever
- * touches the model. Keep this list-shaped and boring; it's the thing a human
- * tunes, not a place for cleverness.
- */
-
 export const WEARABLE_POSITIVE = [
   // garments
   'shirt',
@@ -97,9 +91,6 @@ export const WEARABLE_NEGATIVE = [
   'perfume',
 ] as const;
 
-/**
- * Matched separately from WEARABLE_NEGATIVE (section 6.7: "kids (→ kids)") ;
- * a kids match short-circuits straight to the `kids` verdict, it does not
- * just add negative weight to the wearable/not-wearable score.
- */
+// A match here short-circuits straight to the kids verdict rather than
+// adding negative weight to the wearable/not-wearable score.
 export const KIDS_KEYWORDS = ['kids', 'baby', 'toddler', 'infant'] as const;

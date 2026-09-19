@@ -8,11 +8,6 @@ export interface Language {
   suggestPrompt: string;
 }
 
-/**
- * source language is always English (`en`); it's the only
- * entry with no suggest prompt, since we never suggest translating *to* the
- * page's own source language.
- */
 export const LANGUAGES: Language[] = [
   { code: 'en', label: 'English', nativeLabel: 'English', suggestPrompt: '' },
   { code: 'fr', label: 'French', nativeLabel: 'Français', suggestPrompt: 'Voir en français ?' },
