@@ -23,17 +23,6 @@ export interface UploadDropzoneProps {
   className?: string;
 }
 
-/**
- * DECISION: storage backend is UploadThing (src/lib/uploadthing.ts), not
- * presigned R2 URLs; this component owns the upload itself via
- * `useUploadThing("imageUploader")` rather than handing raw `File[]` up for
- * a parent to upload, since client uploads go straight from the browser to
- * storage with no server round trip to orchestrate. `onFiles` fires with the
- * uploaded result (`url`/`key`/`name`), not the source `File[]`; `progress`/
- * `error` remain overridable props for a caller that wants to show a
- * different state (e.g. a subsequent moderation step, section 7.4), but
- * default to this component's own upload state when omitted.
- */
 export function UploadDropzone({
   accept = 'image/*',
   maxSizeMb = 10,

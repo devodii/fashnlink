@@ -6,11 +6,6 @@ import { readGoogTransCookie, setLanguage } from '@/lib/google-translate';
 import { InlineAlert } from '@/components/inline-alert';
 import { Button } from '@/components/ui/button';
 
-/** on first visit, if `navigator.language` matches a supported
- * language and the visitor hasn't chosen or dismissed one yet, offers a
- * one-line translate prompt; the shopper page mounts this at
- * the top. No widget script is loaded just to show this; the prompt text is
- * a static string per language (`languages.ts`). */
 export function LanguageSuggestBanner() {
   const [suggested, setSuggested] = React.useState<(typeof LANGUAGES)[number] | null>(null);
 

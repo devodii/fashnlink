@@ -15,31 +15,19 @@ import {
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 
 export interface LanguagePickerProps {
-  /** Icon-only trigger for tight spaces (the shopper page header, section
-   * 8.3); the full label shows by default (dashboard `AppShell` footer,
-   * section 10.4). */
   compact?: boolean;
   className?: string;
 }
 
-/**
- * DECISION: "hides itself when google.translate fails to init
- * within 3s" only applies once a translation has actually been requested ;
- * on the very first render (source language, no cookie) there's nothing to
- * fail yet, so the picker always shows initially and only self-hides after a
- * pick times out.
- */
 const INIT_TIMEOUT_MS = 3000;
 
 export function LanguagePicker({ compact, className }: LanguagePickerProps) {
   const isDesktop = useIsDesktop();
   const [open, setOpen] = React.useState(false);
   const [hidden, setHidden] = React.useState(false);
-  /**
-   * DECISION: `document.cookie` is client-only, so the initial render always
-   * assumes the source language and syncs to the real value in an effect ;
-   * avoids a hydration mismatch rather than reading the cookie during render.
-   */
+  // document.cookie is client-only, so the initial render always assumes
+  // the source language and syncs to the real value in an effect, avoiding
+  // a hydration mismatch.
   const [currentCode, setCurrentCode] = React.useState(SOURCE_LANGUAGE_CODE);
 
   React.useEffect(() => {

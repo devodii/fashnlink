@@ -26,13 +26,12 @@ interface TranslateErrorBoundaryState {
 }
 
 /**
- * DECISION: Google's widget mutates text nodes directly, which
- * can throw `NotFoundError: removeChild` when React re-renders the same
- * subtree. Error boundaries must be class components; this is the one class
- * component in the codebase, scoped to exactly this mitigation. On that one
- * error it clears the cookie once and reloads instead of white-screening;
- * any other error is not our concern and rethrows for a real error boundary
- * higher up (or the framework's default) to handle.
+ * Google's translate widget mutates text nodes directly, which can throw
+ * `NotFoundError: removeChild` when React re-renders the same subtree. This
+ * is the one class component in the codebase (error boundaries must be
+ * class components), scoped to exactly this mitigation: on that one error it
+ * clears the cookie and reloads instead of white-screening; any other error
+ * rethrows for a real error boundary higher up to handle.
  */
 class TranslateErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -59,10 +58,6 @@ class TranslateErrorBoundary extends React.Component<
   }
 }
 
-/** Mounted once in the root layout. Injects Google's page
- * translator only when a translation is already active (the `googtrans`
- * cookie is set); never on first paint for the default language, so there's
- * no script cost or layout jump for the common case. */
 export function TranslateProvider({ children }: { children: React.ReactNode }) {
   const [shouldLoad, setShouldLoad] = React.useState(false);
 
