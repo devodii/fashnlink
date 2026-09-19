@@ -12,7 +12,13 @@ import {
   twins,
 } from '@/db/schema';
 import { newId } from '@/lib/ids';
-import { currentBalance, reserveRenderCredit, refundFailedRender } from './credit-ledger';
+import {
+  currentBalance,
+  reserveRenderCredit,
+  refundFailedRender,
+  reserveCredits,
+  releaseCredits,
+} from './credit-ledger';
 
 // Integration test against the REAL local Postgres (docker-compose,
 // `pnpm db:up`), proving section 7.3's transaction/balance logic end to end
@@ -147,5 +153,35 @@ describe('M3 credit ledger transaction against a real local Postgres', () => {
       .from(creditLedger)
       .where(eq(creditLedger.merchantId, merchantId));
     expect(ledgerRows.filter((r) => r.reason === 'refund_failed_render').length).toBe(1);
+  });
+
+  it('reserves and releases campaign credits (section 9.8 new drop)', async () => {
+    // Balance is 1 from the previous test (shares merchantId/setup order).
+    expect(await currentBalance(merchantId)).toBe(1);
+
+    const tooMuch = await reserveCredits(merchantId, 5);
+    expect(tooMuch.ok).toBe(false);
+    if (!tooMuch.ok) expect(tooMuch.error.code).toBe('INSUFFICIENT_CREDITS');
+    expect(await currentBalance(merchantId)).toBe(1);
+
+    await db
+      .insert(creditLedger)
+      .values({ id: newId('ledger'), merchantId, delta: 9, reason: 'grant_free', refAfter: 10 });
+    expect(await currentBalance(merchantId)).toBe(10);
+
+    const reserved = await reserveCredits(merchantId, 6);
+    expect(reserved.ok).toBe(true);
+    expect(await currentBalance(merchantId)).toBe(4);
+
+    // 2 of the 6 reserved credits were never spent (skipped items) — release them.
+    const released = await releaseCredits(merchantId, 2);
+    expect(released.ok).toBe(true);
+    expect(await currentBalance(merchantId)).toBe(6);
+
+    const reserveRows = await db
+      .select()
+      .from(creditLedger)
+      .where(eq(creditLedger.merchantId, merchantId));
+    expect(reserveRows.filter((r) => r.reason === 'campaign_reserve').length).toBe(2);
   });
 });

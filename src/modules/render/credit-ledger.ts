@@ -154,3 +154,61 @@ export async function grantCredits(
     return err({ code: 'INTERNAL', message: 'failed to grant credits', cause });
   }
 }
+
+// Section 9.8 (new drop campaigns): "confirm reserves credits" up front for
+// the whole campaign (audience × products), a single negative ledger row —
+// NOT one row per render, since the fan-out job hasn't run any renders yet
+// when the merchant confirms. `releaseCredits` refunds the unused portion
+// (skipped/failed items, section 9.8's "released for any skipped item") as
+// its own positive row — same append-only, `SELECT ... FOR UPDATE`-guarded
+// pattern as every other ledger mutation in this file, never an edit of the
+// original reservation row.
+export async function reserveCredits(
+  merchantId: string,
+  amount: number,
+): Promise<Result<{ balance: number }>> {
+  try {
+    const balance = await db.transaction(async (tx) => {
+      const [latest] = await tx
+        .select({ refAfter: creditLedger.refAfter })
+        .from(creditLedger)
+        .where(eq(creditLedger.merchantId, merchantId))
+        .orderBy(desc(creditLedger.createdAt))
+        .limit(1)
+        .for('update');
+
+      const currentBalance = latest?.refAfter ?? 0;
+      if (currentBalance < amount) {
+        throw { code: 'INSUFFICIENT_CREDITS' as const };
+      }
+
+      const newBalance = currentBalance - amount;
+      await tx.insert(creditLedger).values({
+        id: newId('ledger'),
+        merchantId,
+        delta: -amount,
+        reason: 'campaign_reserve',
+        refAfter: newBalance,
+      });
+      return newBalance;
+    });
+    return ok({ balance });
+  } catch (cause: unknown) {
+    if (
+      cause &&
+      typeof cause === 'object' &&
+      'code' in cause &&
+      cause.code === 'INSUFFICIENT_CREDITS'
+    ) {
+      return err({ code: 'INSUFFICIENT_CREDITS', message: 'not enough credits for this campaign' });
+    }
+    return err({ code: 'INTERNAL', message: 'failed to reserve campaign credits', cause });
+  }
+}
+
+export async function releaseCredits(
+  merchantId: string,
+  amount: number,
+): Promise<Result<{ balance: number }>> {
+  return grantCredits(merchantId, amount, 'campaign_reserve');
+}
