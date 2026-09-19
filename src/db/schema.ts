@@ -180,22 +180,28 @@ export const merchants = pgTable('merchants', {
   ...timestamps,
 });
 
-export const stores = pgTable('stores', {
-  id: text('id').primaryKey(),
-  merchantId: text('merchant_id')
-    .notNull()
-    .references(() => merchants.id),
-  domain: text('domain').notNull(),
-  platform: platformEnum('platform').notNull(),
-  currency: text('currency'),
-  country: text('country'),
-  catalogSize: integer('catalog_size'),
-  apparelShare: real('apparel_share'),
-  fingerprint: jsonb('fingerprint').notNull().default({}),
-  lastCrawledAt: timestamp('last_crawled_at', { withTimezone: true }),
-  crawlCursor: jsonb('crawl_cursor'),
-  ...timestamps,
-});
+export const stores = pgTable(
+  'stores',
+  {
+    id: text('id').primaryKey(),
+    // DECISION: nullable, not notNull — section 9.6 (reverse acquisition)
+    // requires a store to exist and accrue renders BEFORE any merchant claims
+    // it (the marketing quick-link demo, section 8.1, scrapes into a store with
+    // no owner yet). `claims.claimedByMerchantId` is what eventually links one.
+    merchantId: text('merchant_id').references(() => merchants.id),
+    domain: text('domain').notNull(),
+    platform: platformEnum('platform').notNull(),
+    currency: text('currency'),
+    country: text('country'),
+    catalogSize: integer('catalog_size'),
+    apparelShare: real('apparel_share'),
+    fingerprint: jsonb('fingerprint').notNull().default({}),
+    lastCrawledAt: timestamp('last_crawled_at', { withTimezone: true }),
+    crawlCursor: jsonb('crawl_cursor'),
+    ...timestamps,
+  },
+  (table) => [uniqueIndex('stores_domain_idx').on(table.domain)],
+);
 
 export const products = pgTable(
   'products',
@@ -237,7 +243,15 @@ export const productImages = pgTable(
     productId: text('product_id')
       .notNull()
       .references(() => products.id),
+    // DECISION: storage swapped from R2 to UploadThing mid-build; `r2Key`
+    // keeps its name (avoiding a rename migration) but is now provider-
+    // agnostic — it holds our own logical key (UploadThing's `customId`,
+    // used for delete). `url` is required alongside it because — unlike R2's
+    // public-bucket scheme — UploadThing has no way to re-derive a public URL
+    // from just the key later, so the URL returned at upload time must be
+    // persisted directly.
     r2Key: text('r2_key').notNull(),
+    url: text('url').notNull(),
     sourceUrl: text('source_url'),
     width: integer('width'),
     height: integer('height'),
