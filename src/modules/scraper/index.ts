@@ -16,6 +16,14 @@ import { ScraperRegistry, probeHomepage } from './registry';
 import { shopifyAdapter } from './adapters/shopify';
 import { woocommerceAdapter } from './adapters/woocommerce';
 import { squarespaceAdapter } from './adapters/squarespace';
+import { wixAdapter } from './adapters/wix';
+import { bigcommerceAdapter } from './adapters/bigcommerce';
+import { magentoAdapter } from './adapters/magento';
+import { prestashopAdapter } from './adapters/prestashop';
+import { salesforceAdapter } from './adapters/salesforce';
+import { lemonsqueezyAdapter } from './adapters/lemonsqueezy';
+import { gumroadAdapter } from './adapters/gumroad';
+import { bigcartelAdapter } from './adapters/bigcartel';
 import { genericAdapter } from './adapters/generic';
 import { manualAdapter } from './adapters/manual';
 import { assessWearability } from './wearable-gate';
@@ -25,14 +33,22 @@ import { buildStoreFingerprint } from './detect';
 import type { NormalizedProduct, ScrapeResult } from './schema';
 import type { HomepageProbe, ScraperAdapter } from './types';
 
-// Section 6.5: the deep adapters (shopify, woocommerce) + the fallbacks (generic, manual).
-// The 8 "thin" adapters (wix, bigcommerce, magento, prestashop, salesforce,
-// lemonsqueezy, gumroad, bigcartel) are a follow-up — adding one is "one file,
-// one line here" by design, nothing else in this module changes.
+// Section 6.5: the 3 deep adapters (shopify, woocommerce, squarespace), the
+// 8 thin adapters, and the fallbacks (generic, manual). Every platform in
+// section 6.5 now has an adapter — adding another platform later is still
+// "one file, one line here," proven twice over (deep + thin) by this list.
 export const scraperRegistry = new ScraperRegistry([
   shopifyAdapter,
   woocommerceAdapter,
   squarespaceAdapter,
+  wixAdapter,
+  bigcommerceAdapter,
+  magentoAdapter,
+  prestashopAdapter,
+  salesforceAdapter,
+  lemonsqueezyAdapter,
+  gumroadAdapter,
+  bigcartelAdapter,
   genericAdapter,
   manualAdapter,
 ]);
