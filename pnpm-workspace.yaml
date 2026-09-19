@@ -1,5 +1,5 @@
 allowBuilds:
   esbuild: true
   msgpackr-extract: true
-  sharp: false
+  sharp: true
   unrs-resolver: false

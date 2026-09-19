@@ -168,43 +168,61 @@ async function classifyImagesWithVision(
   }
 }
 
+export type WearabilityAssessment = {
+  verdict: FinalWearabilityVerdict;
+  // Raw per-image Stage 2 output, same order as `candidate.images.slice(0,3)`,
+  // `null` for an image that never reached Stage 2 (text short-circuited, or
+  // there were no images at all). Enrichment (section 6.6) reuses this for
+  // image-role classification instead of running a second vision call.
+  perImageVisionVerdicts: (ImageVisionVerdict | null)[];
+};
+
 // Section 6.7's public entry point, run in the pipeline between `normalize`
 // and `enrich` (section 6.2 step 5b) and again in the manual-upload path.
 // Only the top 3 candidate images are considered, per spec.
 export async function assessWearability(
   candidate: WearabilityCandidate,
   ctx: Ctx,
-): Promise<Result<FinalWearabilityVerdict>> {
+): Promise<Result<WearabilityAssessment>> {
   const text = scoreCandidateText(candidate);
 
   if (text.isKids) {
     return ok({
-      eligibility: 'kids',
-      eligibilityReason: 'text:kids',
-      wearableType: 'none',
-      garmentCategory: 'unknown',
-      tryonSourceIndex: null,
+      verdict: {
+        eligibility: 'kids',
+        eligibilityReason: 'text:kids',
+        wearableType: 'none',
+        garmentCategory: 'unknown',
+        tryonSourceIndex: null,
+      },
+      perImageVisionVerdicts: [],
     });
   }
 
   if (text.score <= -1) {
     return ok({
-      eligibility: 'not_wearable',
-      eligibilityReason: 'text:negative',
-      wearableType: 'none',
-      garmentCategory: 'unknown',
-      tryonSourceIndex: null,
+      verdict: {
+        eligibility: 'not_wearable',
+        eligibilityReason: 'text:negative',
+        wearableType: 'none',
+        garmentCategory: 'unknown',
+        tryonSourceIndex: null,
+      },
+      perImageVisionVerdicts: [],
     });
   }
 
   const topImages = candidate.images.slice(0, 3);
   if (topImages.length === 0) {
     return ok({
-      eligibility: 'no_usable_image',
-      eligibilityReason: 'no_images',
-      wearableType: 'none',
-      garmentCategory: 'unknown',
-      tryonSourceIndex: null,
+      verdict: {
+        eligibility: 'no_usable_image',
+        eligibilityReason: 'no_images',
+        wearableType: 'none',
+        garmentCategory: 'unknown',
+        tryonSourceIndex: null,
+      },
+      perImageVisionVerdicts: [],
     });
   }
 
@@ -217,5 +235,5 @@ export async function assessWearability(
     height: image.height,
   }));
 
-  return ok(resolveVerdict(perImage));
+  return ok({ verdict: resolveVerdict(perImage), perImageVisionVerdicts: visionResult.value });
 }
