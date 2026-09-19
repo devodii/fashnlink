@@ -370,8 +370,8 @@ function ShareSheetDemo() {
 }
 
 const NAV: NavItem[] = [
-  { label: 'Dashboard', href: '#', icon: ShoppingBag, active: true },
-  { label: 'Products', href: '#', icon: Package },
+  { label: 'Dashboard', href: '#dashboard', icon: ShoppingBag, active: true },
+  { label: 'Products', href: '#products', icon: Package },
 ];
 
 /** Section 12 (M1.5): every component in its default, loading, empty, error,
