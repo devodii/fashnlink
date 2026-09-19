@@ -1,0 +1,91 @@
+import { err, ok, type Result } from '@/lib/result';
+import { reserveCredits } from '@/modules/render/credit-ledger';
+import { enqueueJob } from '@/modules/jobs';
+import { MAX_DROP_ITEMS, MAX_DROP_PRODUCTS } from '@/config/limits';
+import {
+  createCampaignRow,
+  findDropAudience,
+  findEligibleProductsForDrop,
+  insertCampaignItems,
+} from '@/db/repos/campaigns';
+
+export type DropEstimate = {
+  eligibleProductIds: string[];
+  audienceCount: number;
+  itemCount: number;
+  estimatedCredits: number;
+};
+
+// Section 8.2 `/dashboard/drops/new`: "audience count = opted-in shoppers
+// with a ready twin, estimated credits = audience × products."
+export async function estimateDrop(
+  merchantId: string,
+  productIds: string[],
+): Promise<Result<DropEstimate>> {
+  if (productIds.length === 0 || productIds.length > MAX_DROP_PRODUCTS) {
+    return err({ code: 'INVALID_INPUT', message: `pick 1-${MAX_DROP_PRODUCTS} products` });
+  }
+
+  const eligible = await findEligibleProductsForDrop(merchantId, productIds);
+  if (eligible.length !== productIds.length) {
+    return err({ code: 'INVALID_INPUT', message: 'one or more products are not eligible' });
+  }
+
+  const audience = await findDropAudience(merchantId);
+  const itemCount = audience.length * eligible.length;
+
+  return ok({
+    eligibleProductIds: eligible.map((p) => p.id),
+    audienceCount: audience.length,
+    itemCount,
+    estimatedCredits: itemCount,
+  });
+}
+
+// Section 9.8: "confirm reserves credits in the ledger ... Rendering job
+// fans out campaign_items ... capped at 2,000 items in v1." Reservation and
+// campaign/item creation happen before any job is enqueued — if the
+// reservation fails (insufficient credits), nothing else is created.
+export async function createDrop(
+  merchantId: string,
+  productIds: string[],
+): Promise<Result<{ campaignId: string; itemCount: number }>> {
+  const estimate = await estimateDrop(merchantId, productIds);
+  if (!estimate.ok) return estimate;
+
+  if (estimate.value.itemCount === 0) {
+    return err({ code: 'INVALID_INPUT', message: 'no opted-in shoppers with a ready twin yet' });
+  }
+  if (estimate.value.itemCount > MAX_DROP_ITEMS) {
+    return err({
+      code: 'INVALID_INPUT',
+      message: `this drop would create ${estimate.value.itemCount} items, over the ${MAX_DROP_ITEMS} cap — pick fewer products`,
+    });
+  }
+
+  const reservation = await reserveCredits(merchantId, estimate.value.estimatedCredits);
+  if (!reservation.ok) return reservation;
+
+  const campaignId = await createCampaignRow({
+    merchantId,
+    productIds: estimate.value.eligibleProductIds,
+    audienceCount: estimate.value.audienceCount,
+    estimatedCredits: estimate.value.estimatedCredits,
+  });
+
+  const audience = await findDropAudience(merchantId);
+  const rows = audience.flatMap((shopper) =>
+    estimate.value.eligibleProductIds.map((productId) => ({
+      campaignId,
+      shopperId: shopper.shopperId,
+      productId,
+    })),
+  );
+  const itemIds = await insertCampaignItems(rows);
+
+  for (const itemId of itemIds) {
+    await enqueueJob('campaign.renderItem', { campaignItemId: itemId });
+  }
+
+  return ok({ campaignId, itemCount: itemIds.length });
+}

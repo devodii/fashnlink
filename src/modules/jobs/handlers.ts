@@ -7,3 +7,4 @@
 // complete no matter which route cold-starts first. New job type -> add one
 // import line here.
 import '@/modules/scraper/jobs';
+import '@/modules/campaigns/render-item';
