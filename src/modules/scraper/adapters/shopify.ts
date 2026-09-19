@@ -92,20 +92,32 @@ export const shopifyAdapter: ScraperAdapter = {
   rawSchema: shopifyRawSchema,
 
   async detect(page: HomepageProbe, ctx: Ctx): Promise<DetectResult> {
-    const signals: string[] = [];
+    // DECISION: a single HTML/header signal is NOT sufficient on its own —
+    // found via real-world testing on woocommerce.ts (a PrestaShop store
+    // with a companion WordPress blog false-matched WooCommerce off one
+    // coincidental substring). Applying the same fix here defensively:
+    // `cdn.shopify.com` alone could plausibly appear on a non-Shopify page
+    // that embeds a Shopify-hosted widget/image. A successful live
+    // `/products.json` probe is authoritative on its own; otherwise at least
+    // two independent signals are required, matching section 6.3's table
+    // ("any two -> confidence high").
+    const htmlSignals: string[] = [];
     if (page.headers.get('x-shopify-stage') || page.headers.get('x-shopid'))
-      signals.push('header:x-shopify-stage|x-shopid');
-    if (page.html.includes('cdn.shopify.com')) signals.push('html:cdn.shopify.com');
-    if (/window\.Shopify|Shopify\.theme/.test(page.html)) signals.push('html:window.Shopify');
+      htmlSignals.push('header:x-shopify-stage|x-shopid');
+    if (page.html.includes('cdn.shopify.com')) htmlSignals.push('html:cdn.shopify.com');
+    if (/window\.Shopify|Shopify\.theme/.test(page.html)) htmlSignals.push('html:window.Shopify');
 
     const probe = await fetchJson<{ products: unknown[] }>(
       `${page.url.origin}/products.json?limit=1`,
       ctx,
     );
-    if (probe.ok && Array.isArray(probe.value.products)) signals.push('api:/products.json');
+    if (probe.ok && Array.isArray(probe.value.products)) {
+      return { match: true, confidence: 1, signals: [...htmlSignals, 'api:/products.json'] };
+    }
 
-    const confidence = Math.min(1, signals.length / 2);
-    return { match: confidence >= 0.5, confidence, signals };
+    if (htmlSignals.length < 2)
+      return { match: false, confidence: htmlSignals.length / 2, signals: htmlSignals };
+    return { match: true, confidence: 1, signals: htmlSignals };
   },
 
   async getProduct(url: URL, ctx: Ctx): Promise<Result<ShopifyRawProduct>> {
