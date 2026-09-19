@@ -3,14 +3,14 @@ import { err, ok, type Result } from '@/lib/result';
 import { ROUTING, type ProviderKey } from '@/config/models';
 import type { GarmentCategory } from '@/modules/scraper/types';
 import { fashnProvider } from './providers/fashn';
-import { klingProvider } from './providers/kling';
 import { nanoBananaProvider } from './providers/nano-banana';
+import { openaiImageProvider } from './providers/openai-image';
 import type { RenderInput, RenderProvider, SubmitResult } from './types';
 
 const PROVIDERS: Record<ProviderKey, RenderProvider> = {
   fashn: fashnProvider,
-  kling: klingProvider,
   nano_banana: nanoBananaProvider,
+  openai_image: openaiImageProvider,
 };
 
 export function getProvider(key: ProviderKey): RenderProvider {
