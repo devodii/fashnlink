@@ -9,9 +9,8 @@ import { err, ok } from '@/lib/result';
 const bodySchema = z.object({ renderId: z.string().min(1) });
 
 /**
- * one vote per (link, shopper); `poll_votes`'s own unique
- * index enforces this at the DB level; a repeat vote from the same shopper
- * is treated as idempotent (return the existing vote) rather than an error.
+ * A repeat vote from the same shopper is treated as idempotent, returning
+ * the existing vote, rather than an error.
  */
 export const POST = apiHandler({
   name: 'polls.vote',
@@ -33,7 +32,7 @@ export const POST = apiHandler({
       .select()
       .from(pollVotes)
       .where(eq(pollVotes.linkId, link.id))
-      .limit(200); // small polls only, section 9.3 — no pagination needed
+      .limit(200); // small polls only, no pagination needed
     const priorVote = existing.find((v) => v.voterShopperId === shopper.value.shopperId);
     if (priorVote) return ok({ voteId: priorVote.id, renderId: priorVote.renderId });
 

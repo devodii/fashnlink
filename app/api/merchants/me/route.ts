@@ -19,11 +19,6 @@ const bodySchema = z.object({
     .optional(),
 });
 
-/**
- * Shared by onboarding step 2 and `/dashboard/settings` ;
- * one form, one route, matching the M5 directive's "reuse the same form,
- * don't duplicate" instruction.
- */
 export const PATCH = apiHandler({
   name: 'merchants.updateSettings',
   auth: ['merchant_session'],

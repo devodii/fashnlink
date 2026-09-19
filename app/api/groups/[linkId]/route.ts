@@ -5,11 +5,6 @@ import { db } from '@/db';
 import { groupMembers, links, twins } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 
-/**
- * Public: group roster for `/t/[slug]` (group mode); only opted-in
- * members' twin avatars are exposed, per section 9.4. Merchant-facing
- * size/color detail lives in the dashboard, not here.
- */
 export const GET = apiHandler({
   name: 'groups.state',
   auth: ['public'],

@@ -19,11 +19,6 @@ export interface ProductRenderCardProps {
 
 type Stage = 'idle' | 'pending' | 'ready' | 'error';
 
-/**
- * Shared by poll and group `/t/[slug]` modes (M6, section 9.3/9.4): one
- * product, one twin already on hand, a "see it on you" -> render -> poll
- * cycle; the multi-product sibling of `TryOnFlow`'s single render path.
- */
 export function ProductRenderCard({
   linkId,
   productId,

@@ -8,12 +8,6 @@ import { Images } from 'lucide-react';
 import { Closet } from './closet';
 import { RetargetOptins } from './retarget-optins';
 
-/**
- * `/me`; the closet. All the shopper's renders across every
- * merchant, newest first, grouped by merchant. Anonymous shoppers (no
- * cookie yet; they've never actually tried anything on) see the empty
- * state; there's nothing to fetch for an id that doesn't exist.
- */
 export default async function ClosetPage() {
   const shopperId = await readShopperId();
 
