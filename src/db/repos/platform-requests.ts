@@ -44,3 +44,26 @@ export async function recordPlatformRequest(input: {
     .returning();
   return created;
 }
+
+// Onboarding's "Something else" chip (section 8.1 step 1) — free text, no
+// URL at all, so there's no real hostname to dedupe on. `hostname` is still
+// NOT NULL + unique on this table, so a synthetic per-merchant placeholder
+// stands in; this path is a low-volume manual backlog entry, not something
+// that needs the URL-based dedup `recordPlatformRequest` does.
+export async function recordFreeTextPlatformRequest(input: { merchantId: string; notes: string }) {
+  const [created] = await db
+    .insert(platformRequests)
+    .values({
+      id: newId('preq'),
+      hostname: `freetext:${input.merchantId}:${Date.now()}`,
+      sampleUrl: null,
+      detectedPlatform: null,
+      signals: {},
+      requestCount: 1,
+      firstMerchantId: input.merchantId,
+      status: 'open',
+      notes: input.notes,
+    })
+    .returning();
+  return created;
+}
