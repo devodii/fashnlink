@@ -18,13 +18,15 @@ export type SubmitRenderInput = CreateRenderInput & {
   garmentPhotoType: 'flat-lay' | 'model';
 };
 
-// DECISION (same M4 boundary as twin.ts): this is the orchestration a future
-// `POST /api/renders` route (section 8.4) will call — rate limit -> reserve
-// credit -> submit to fal -> mark `running` or refund on submission failure.
-// The HTTP route itself isn't built yet (needs the shopper-cookie identity
-// system and the links module from M4 to resolve `linkId`/`shopperId` from a
-// real request), so this function takes them as already-known parameters,
-// same shape `reserveRenderCredit` already does.
+/**
+ * DECISION (same M4 boundary as twin.ts): this is the orchestration a future
+ * `POST /api/renders` route will call; rate limit -> reserve
+ * credit -> submit to fal -> mark `running` or refund on submission failure.
+ * The HTTP route itself isn't built yet (needs the shopper-cookie identity
+ * system and the links module from M4 to resolve `linkId`/`shopperId` from a
+ * real request), so this function takes them as already-known parameters,
+ * same shape `reserveRenderCredit` already does.
+ */
 export async function submitRender(
   input: SubmitRenderInput,
   ctx: Ctx,

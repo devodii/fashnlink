@@ -15,8 +15,8 @@ export interface CopyFieldProps {
   className?: string;
 }
 
-/** Section 10.4: read-only value with a copy button and "Copied" state.
- * `translate="no"` (section 10.7) — the value is a URL/slug/price, never
+/** read-only value with a copy button and "Copied" state.
+ * `translate="no"`; the value is a URL/slug/price, never
  * something Google's widget should touch. */
 export function CopyField({ value, label, truncate, className }: CopyFieldProps) {
   const { copied, copy } = useCopy();

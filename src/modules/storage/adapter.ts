@@ -11,10 +11,12 @@ export type StorageOutput = { key: string; url: string | null };
 
 export type StorageKey = 'uploadthing';
 
-// One backend today (uploadthing), registered as an Adapter (section 4:
-// "storage backends are Adapter<...> implementations behind an
-// AdapterRegistry") so adding a second provider later is one more file plus a
-// registry entry, not a second abstraction.
+/**
+ * One backend today (uploadthing), registered as an Adapter (section 4:
+ * "storage backends are Adapter<...> implementations behind an
+ * AdapterRegistry") so adding a second provider later is one more file plus a
+ * registry entry, not a second abstraction.
+ */
 export const uploadthingAdapter: Adapter<StorageInput, StorageOutput, StorageKey> = {
   key: 'uploadthing',
   canHandle: () => true,

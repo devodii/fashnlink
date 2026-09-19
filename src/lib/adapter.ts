@@ -1,19 +1,23 @@
 import type { Logger } from '@/lib/log';
 import type { Result } from '@/lib/result';
 
-// A pluggable component keyed by a discriminator, with a self-test for
-// "can I handle this input" (section 4). Render providers, ESP adapters, and
-// storage backends implement this directly. Scraper adapters use the richer
-// ScraperAdapter interface (src/modules/scraper) behind ScraperRegistry, which
-// extends AdapterRegistry with capability queries — no third pattern.
+/**
+ * A pluggable component keyed by a discriminator, with a self-test for
+ * "can I handle this input". Render providers, ESP adapters, and
+ * storage backends implement this directly. Scraper adapters use the richer
+ * ScraperAdapter interface (src/modules/scraper) behind ScraperRegistry, which
+ * extends AdapterRegistry with capability queries; no third pattern.
+ */
 export interface Adapter<TInput, TOutput, TKey extends string = string> {
   readonly key: TKey;
   canHandle(input: TInput): Promise<boolean> | boolean;
   run(input: TInput, ctx: Ctx): Promise<Result<TOutput>>;
 }
 
-// Ctx carries logger, request id, deadline, and a fetch with rate limiting +
-// retries (src/lib/http.ts).
+/**
+ * Ctx carries logger, request id, deadline, and a fetch with rate limiting +
+ * retries (src/lib/http.ts).
+ */
 export type Ctx = {
   log: Logger;
   requestId: string;

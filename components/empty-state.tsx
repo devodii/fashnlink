@@ -10,7 +10,7 @@ export interface EmptyStateProps {
   className?: string;
 }
 
-/** Section 10.4: one sentence + one button, everywhere something has
+/** one sentence + one button, everywhere something has
  * nothing to show yet (empty catalog, no leads, no renders). */
 export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
   return (

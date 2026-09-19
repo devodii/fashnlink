@@ -1,13 +1,15 @@
 import type { DetectResult, HomepageProbe, PlatformKey } from './types';
 
-// Section 6.3's signal table — HTML/header-only checks, cheap, from the
-// single homepage probe every resolution path already fetches. Each
-// platform's signal function is exported individually so it can back BOTH
-// `stores.fingerprint` (`detectPlatformSignals`, every platform, used even
-// for platforms with no adapter yet — section 6.3's "free lead-scoring
-// data") AND that platform's own `ScraperAdapter.detect()` (the thin
-// JSON-LD/sitemap adapters in `shared/thin-adapter.ts` — one signal
-// function, not two separate implementations of the same regexes).
+/**
+ * Signal table; HTML/header-only checks, cheap, from the
+ * single homepage probe every resolution path already fetches. Each
+ * platform's signal function is exported individually so it can back BOTH
+ * `stores.fingerprint` (`detectPlatformSignals`, every platform, used even
+ * for platforms with no adapter yet; section 6.3's "free lead-scoring
+ * data") AND that platform's own `ScraperAdapter.detect()` (the thin
+ * JSON-LD/sitemap adapters in `shared/thin-adapter.ts`; one signal
+ * function, not two separate implementations of the same regexes).
+ */
 
 function shopifySignals(html: string, headers: Headers): string[] {
   const signals: string[] = [];
@@ -44,8 +46,10 @@ function bigcommerceSignals(html: string): string[] {
   const signals: string[] = [];
   if (html.includes('cdn11.bigcommerce.com')) signals.push('html:cdn11.bigcommerce.com');
   if (html.includes('stencil')) signals.push('html:stencil');
-  // Confirmed against a real store (seabostonusa.com): BigCommerce's Stencil
-  // theme renders this meta tag even on pages stencil/cdn11 checks miss.
+  /**
+   * Confirmed against a real store (seabostonusa.com): BigCommerce's Stencil
+   * theme renders this meta tag even on pages stencil/cdn11 checks miss.
+   */
   if (html.includes("content='bigcommerce.stencil'"))
     signals.push('html:meta[platform=bigcommerce.stencil]');
   return signals;
@@ -79,19 +83,21 @@ const SIGNAL_DETECTORS: Record<PlatformKey, ((html: string, headers: Headers) =>
     magento: magentoSignals,
     prestashop: prestashopSignals,
     salesforce: salesforceSignals,
-    lemonsqueezy: null, // hostPatterns-only (section 6.5) — no homepage signal, no browsable homepage at all
+    lemonsqueezy: null, // hostPatterns-only — no homepage signal, no browsable homepage at all
     gumroad: null,
     bigcartel: null,
     generic: null,
     manual: null,
   };
 
-// One HTML/header probe -> a DetectResult, for any platform's own
-// `detect()`. Salesforce gets a flat high confidence on its single signal
-// (section 6.3's table treats `demandware.store` alone as sufficient,
-// unlike woocommerce/prestashop which need two signals before trusting a
-// match) — every other platform's confidence scales with how many of its
-// signals matched, capped at 1.
+/**
+ * One HTML/header probe -> a DetectResult, for any platform's own
+ * `detect()`. Salesforce gets a flat high confidence on its single signal
+ * (section 6.3's table treats `demandware.store` alone as sufficient,
+ * unlike woocommerce/prestashop which need two signals before trusting a
+ * match); every other platform's confidence scales with how many of its
+ * signals matched, capped at 1.
+ */
 export function detectSignalsFor(platform: PlatformKey, probe: HomepageProbe): DetectResult {
   const detector = SIGNAL_DETECTORS[platform];
   if (!detector) return { match: false, confidence: 0, signals: [] };
@@ -103,10 +109,6 @@ export function detectSignalsFor(platform: PlatformKey, probe: HomepageProbe): D
   return { match: confidence >= 0.5, confidence, signals };
 }
 
-// Section 6.3: "Store the full signal list... into stores.fingerprint. This
-// is free lead-scoring data" — every platform, including the 8 with no
-// adapter (or, for lemonsqueezy/gumroad/bigcartel, no homepage signal at
-// all), gets a read.
 export function detectPlatformSignals(
   probe: HomepageProbe,
 ): { platform: PlatformKey; confidence: number; signals: string[] }[] {
@@ -119,8 +121,10 @@ export function detectPlatformSignals(
   return results.sort((a, b) => b.confidence - a.confidence);
 }
 
-// Section 6.3's closing note — installed-app/pixel fingerprinting, free
-// lead-scoring data stored alongside the platform signals.
+/**
+ * Closing note; installed-app/pixel fingerprinting, free
+ * lead-scoring data stored alongside the platform signals.
+ */
 export function fingerprintApps(html: string): Record<string, boolean> {
   return {
     klaviyo: html.includes('klaviyo.js') || /klaviyo/i.test(html),

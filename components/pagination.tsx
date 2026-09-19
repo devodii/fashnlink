@@ -10,7 +10,7 @@ export interface PaginationProps {
   className?: string;
 }
 
-/** Section 10.4: controlled, compact on mobile — a numbered variant on
+/** controlled, compact on mobile; a numbered variant on
  * `DataTable`'s own Previous/Next footer for cases that want page numbers
  * (e.g. a public catalog browse). */
 export function Pagination({ pageIndex, pageCount, onPageChange, className }: PaginationProps) {

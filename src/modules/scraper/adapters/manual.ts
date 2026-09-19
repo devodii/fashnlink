@@ -4,12 +4,14 @@ import type { Ctx } from '@/lib/adapter';
 import type { DetectResult, HomepageProbe, ScraperAdapter } from '../types';
 import type { NormalizedProduct } from '../schema';
 
-// Section 6.5's closing note: "manual — not a scraper; the adapter used for
-// uploaded photos so the rest of the system never special-cases it." There is
-// no URL to scrape — the dashboard's manual-upload form (section 8.2, not
-// built until M5) builds this shape directly and calls `normalize()` on it;
-// `getProduct`/`detect` exist only so `manual` satisfies the same interface
-// as every other adapter and the registry never needs a manual-only branch.
+/**
+ * Closing note: "manual (not a scraper) the adapter used for
+ * uploaded photos so the rest of the system never special-cases it." There is
+ * no URL to scrape; the dashboard's manual-upload form (section 8.2, not
+ * built until M5) builds this shape directly and calls `normalize()` on it;
+ * `getProduct`/`detect` exist only so `manual` satisfies the same interface
+ * as every other adapter and the registry never needs a manual-only branch.
+ */
 export const manualRawSchema = z.object({
   title: z.string().min(1),
   priceCents: z.number().nullable(),
@@ -29,9 +31,11 @@ export const manualAdapter: ScraperAdapter = {
   rawSchema: manualRawSchema,
 
   async detect(_page: HomepageProbe, _ctx: Ctx): Promise<DetectResult> {
-    // Never auto-detected from a homepage probe — a merchant chooses "upload
-    // a photo instead" explicitly (section 8.1/8.2), the registry never
-    // resolves to `manual` via URL/homepage detection.
+    /**
+     * Never auto-detected from a homepage probe; a merchant chooses "upload
+     * a photo instead" explicitly, the registry never
+     * resolves to `manual` via URL/homepage detection.
+     */
     return { match: false, confidence: 0, signals: [] };
   },
 

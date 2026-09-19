@@ -1,5 +1,7 @@
-// Section 6.5 (generic adapter fallback chain): OpenGraph/product meta tags,
-// microdata-adjacent fallback when JSON-LD is missing or incomplete.
+/**
+ * OpenGraph/product meta tags,
+ * microdata-adjacent fallback when JSON-LD is missing or incomplete.
+ */
 export function extractMetaTags(html: string): Record<string, string> {
   const tags: Record<string, string> = {};
   const metaRe = /<meta[^>]+>/gi;

@@ -7,7 +7,6 @@ import { decrypt } from '@/lib/crypto';
 import { err, ok } from '@/lib/result';
 import { childLogger } from '@/lib/log';
 
-// Section 8.2: "'Test connection' button creates a test profile and event."
 export const POST = apiHandler({
   name: 'merchants.espConnection.test',
   auth: ['merchant_session'],

@@ -14,13 +14,11 @@ export type ThinAdapterConfig = {
   sitemapNameFilter?: RegExp;
 };
 
-// Section 6.5: "thin files that mostly delegate to shared helpers jsonld.ts
-// and sitemap.ts" — bigcommerce, magento, prestashop, salesforce (and, with
-// a sitemap name filter, wix) are all the same shape: detect via
-// section 6.3's signal table, `getProduct` via the shared JSON-LD/OpenGraph
-// scraper, `listProducts` via the shared sitemap crawler. One factory, one
-// line per platform in each adapter file — no new abstraction beyond what
-// `generic.ts` already proved works.
+/**
+ * scraper, `listProducts` via the shared sitemap crawler. One factory, one
+ * line per platform in each adapter file; no new abstraction beyond what
+ * `generic.ts` already proved works.
+ */
 export function createThinJsonLdAdapter(config: ThinAdapterConfig): ScraperAdapter {
   return {
     key: config.key,

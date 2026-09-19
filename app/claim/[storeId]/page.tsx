@@ -10,8 +10,10 @@ import {
 import { Container } from '@/components/container';
 import { ClaimButton } from './claim-button';
 
-// Section 9.6: reverse acquisition — public proof that people are already
-// trying on a store's products, with no merchant account yet.
+/**
+ * reverse acquisition; public proof that people are already
+ * trying on a store's products, with no merchant account yet.
+ */
 export default async function ClaimPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
 

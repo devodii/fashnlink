@@ -10,8 +10,8 @@ export interface ImageRevealProps {
   className?: string;
 }
 
-/** Section 10.4: crossfades from `from` (the product image) to `to` (the
- * render) once `to` is ready — the hero of the shopper page (section 8.3). */
+/** crossfades from `from` (the product image) to `to` (the
+ * render) once `to` is ready; the hero of the shopper page. */
 export function ImageReveal({ from, to, alt, aspect = '3/4', className }: ImageRevealProps) {
   return (
     <Reveal

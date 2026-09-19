@@ -8,10 +8,12 @@ import { Images } from 'lucide-react';
 import { Closet } from './closet';
 import { RetargetOptins } from './retarget-optins';
 
-// Section 8.3: `/me` — the closet. All the shopper's renders across every
-// merchant, newest first, grouped by merchant. Anonymous shoppers (no
-// cookie yet — they've never actually tried anything on) see the empty
-// state; there's nothing to fetch for an id that doesn't exist.
+/**
+ * `/me`; the closet. All the shopper's renders across every
+ * merchant, newest first, grouped by merchant. Anonymous shoppers (no
+ * cookie yet; they've never actually tried anything on) see the empty
+ * state; there's nothing to fetch for an id that doesn't exist.
+ */
 export default async function ClosetPage() {
   const shopperId = await readShopperId();
 
@@ -55,8 +57,6 @@ export default async function ClosetPage() {
     .where(eq(shoppers.id, shopperId))
     .limit(1);
 
-  // Section 8.3: "a 'Shops that can email you looks' list with per-merchant
-  // opt-out toggles" — only currently-active opt-ins (opted_out_at IS NULL).
   const optins = await db
     .select({ merchantId: retargetOptins.merchantId, merchantName: merchants.name })
     .from(retargetOptins)

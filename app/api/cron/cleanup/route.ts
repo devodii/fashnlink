@@ -10,12 +10,14 @@ export const dynamic = 'force-dynamic';
 
 const RENDER_RETENTION_DAYS = 90;
 
-// Section 8.1's privacy promise / 8.4: delete renders older than 90 days for
-// shoppers who never saved an email (section 6.7 — no closet account means
-// no indefinite retention), purging the UploadThing object each one owns.
-// Campaign image expiry (section 9.8) is a no-op here — M7 hasn't built
-// campaigns yet, so the query below naturally returns zero rows rather than
-// needing a special case.
+/**
+ * Privacy promise / 8.4: delete renders older than 90 days for
+ * shoppers who never saved an email (section 6.7; no closet account means
+ * no indefinite retention), purging the UploadThing object each one owns.
+ * Campaign image expiry is a no-op here; M7 hasn't built
+ * campaigns yet, so the query below naturally returns zero rows rather than
+ * needing a special case.
+ */
 export const GET = apiHandler({
   name: 'cron.cleanup',
   auth: ['cron'],

@@ -17,10 +17,12 @@ export async function createSingleLink(input: { merchantId: string; productId: s
   return created ?? null;
 }
 
-// Section 8.2/9.3/9.4 (M6): poll (2-3 productIds) and group (1 productId,
-// `settings.groupName`/`settings.groupNote`) links. `settings` is untyped
-// jsonb at the schema level (same as `merchants.settings`) — callers pass
-// the shape `/p/[slug]` and the group `/t/[slug]` variant expect.
+/**
+ * poll (2-3 productIds) and group (1 productId,
+ * `settings.groupName`/`settings.groupNote`) links. `settings` is untyped
+ * jsonb at the schema level (same as `merchants.settings`); callers pass
+ * the shape `/p/[slug]` and the group `/t/[slug]` variant expect.
+ */
 export async function createMultiProductLink(input: {
   merchantId: string;
   productIds: string[];
@@ -43,12 +45,12 @@ export async function createMultiProductLink(input: {
   return created ?? null;
 }
 
-// Section 9.3: "Poll closes after 48h or when the creator taps 'decide'."
-// DECISION: closing a poll sets `settings.closedAt`/`settings.decidedBy`
-// rather than archiving the link — `/p/[slug]` still needs to render the
-// final results page after close, which an archived (404'd) link couldn't.
-// The 48h auto-close is a read-time check (`isPollClosed` below) against
-// `createdAt`, not a cron job — cheap and always correct, no schedule to miss.
+/**
+ * rather than archiving the link; `/p/[slug]` still needs to render the
+ * final results page after close, which an archived (404'd) link couldn't.
+ * The 48h auto-close is a read-time check (`isPollClosed` below) against
+ * `createdAt`, not a cron job; cheap and always correct, no schedule to miss.
+ */
 export async function closePoll(id: string, decidedBy: 'creator' | 'timeout') {
   const [link] = await db.select().from(links).where(eq(links.id, id)).limit(1);
   if (!link) return null;
@@ -82,9 +84,11 @@ export async function findLinksByMerchant(merchantId: string) {
     .orderBy(desc(links.createdAt));
 }
 
-// Dashboard `/dashboard/links` table (section 8.2) — one row per link with
-// its product's title/thumbnail already joined, plus lead count, so the page
-// doesn't need N+1 queries per row.
+/**
+ * Dashboard `/dashboard/links` table; one row per link with
+ * its product's title/thumbnail already joined, plus lead count, so the page
+ * doesn't need N+1 queries per row.
+ */
 export async function findLinksWithProductByMerchant(merchantId: string) {
   const rows = await db
     .select({

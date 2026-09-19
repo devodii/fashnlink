@@ -374,8 +374,8 @@ const NAV: NavItem[] = [
   { label: 'Products', href: '#products', icon: Package },
 ];
 
-/** Section 12 (M1.5): every component in its default, loading, empty, error,
- * and mobile states — gated behind a production `notFound()` by the server
+/** every component in its default, loading, empty, error,
+ * and mobile states; gated behind a production `notFound()` by the server
  * page at `app/dev/components/page.tsx`, which is what actually keeps this
  * out of a production build (a `'use client'` module can't gate itself). */
 export function DevComponentsGallery() {
@@ -384,7 +384,7 @@ export function DevComponentsGallery() {
       <Container size="lg" className="space-y-12 pb-24">
         <PageHeader
           title="Component gallery"
-          description="Every reusable component, in its default, loading, empty, error, and mobile states (section 12, M1.5)."
+          description="Every reusable component, in its default, loading, empty, error, and mobile states."
         />
 
         <Section

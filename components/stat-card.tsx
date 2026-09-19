@@ -14,7 +14,7 @@ export interface StatCardProps {
   className?: string;
 }
 
-/** Section 10.4: the atom of every dashboard KPI row. `delta` is a plain
+/** the atom of every dashboard KPI row. `delta` is a plain
  * percentage number (positive = up); sign/color are derived, not passed in. */
 export function StatCard({
   label,

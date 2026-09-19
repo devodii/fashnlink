@@ -7,7 +7,7 @@ import { err, ok } from '@/lib/result';
 
 const paramsSchema = z.object({ id: z.string() });
 
-// Section 8.4: `GET /api/renders/[id]/status` — polled while `queued`/`running`.
+// `GET /api/renders/[id]/status`; polled while `queued`/`running`.
 export const GET = apiHandler({
   name: 'renders.status',
   auth: ['shopper_session'],

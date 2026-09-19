@@ -10,7 +10,7 @@ export interface NumberTickerProps {
   className?: string;
 }
 
-/** Section 10.6: powers `CountUp`. Collapses to an instant set under reduced
+/** powers `CountUp`. Collapses to an instant set under reduced
  * motion instead of animating the count. */
 export function NumberTicker({ value, durationMs = 600, formatter, className }: NumberTickerProps) {
   const reduceMotion = useReducedMotion();
@@ -37,9 +37,11 @@ export function NumberTicker({ value, durationMs = 600, formatter, className }: 
     return () => cancelAnimationFrame(frame);
   }, [value, durationMs, reduceMotion]);
 
-  // Section 10.7 mitigation #2: text that changes after mount is marked
-  // `translate="no"` so Google's widget doesn't fight React over this node
-  // on every tick.
+  /**
+   * mitigation #2: text that changes after mount is marked
+   * `translate="no"` so Google's widget doesn't fight React over this node
+   * on every tick.
+   */
   return (
     <span className={className} translate="no">
       {formatter ? formatter(display) : display.toLocaleString()}

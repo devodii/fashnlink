@@ -8,8 +8,6 @@ import { err, ok } from '@/lib/result';
 const paramsSchema = z.object({ id: z.string() });
 const bodySchema = z.object({ isPublic: z.boolean() });
 
-// Section 8.3: "The shopper who owns the render can toggle it private from
-// /me" — `/r/[renderId]` 404s once `isPublic` is false.
 export const POST = apiHandler({
   name: 'renders.setVisibility',
   auth: ['shopper_session'],

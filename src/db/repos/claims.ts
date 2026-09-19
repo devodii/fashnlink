@@ -3,9 +3,6 @@ import { db } from '@/db';
 import { claims, products, stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
 
-// Section 9.6: "renders accrue to a claims row" for a product whose store
-// has no owning merchant yet. Called after every successful render
-// submission (`submitRender`) — a no-op for any normally-owned store.
 export async function accrueClaimIfUnowned(productId: string): Promise<void> {
   const [row] = await db
     .select({ storeId: stores.id, merchantId: stores.merchantId })

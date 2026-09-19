@@ -8,17 +8,21 @@ import { SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR } from '@/config/limits';
 
 const bodySchema = z.object({ url: z.string().url() });
 
-// Section 8.1 step 1 / 8.2 "new link" — the ONE place a merchant-pasted URL
-// turns into a persisted product + link. Onboarding and
-// `/dashboard/links/new` both call this route rather than each reimplementing
-// the scrape-then-link sequence.
+/**
+ * step 1 / 8.2 "new link"; the ONE place a merchant-pasted URL
+ * turns into a persisted product + link. Onboarding and
+ * `/dashboard/links/new` both call this route rather than each reimplementing
+ * the scrape-then-link sequence.
+ */
 export const POST = apiHandler({
   name: 'links.createFromUrl',
   auth: ['merchant_session'],
   schema: { body: bodySchema },
   rateLimit: {
-    // `auth: ['merchant_session']` above means resolveAuth has already
-    // thrown UNAUTHORIZED by the time this runs if it isn't that variant.
+    /**
+     * `auth: ['merchant_session']` above means resolveAuth has already
+     * thrown UNAUTHORIZED by the time this runs if it isn't that variant.
+     */
     key: (args) =>
       `scrape:${args.auth.type === 'merchant_session' ? args.auth.merchantId : 'unknown'}`,
     limit: SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR,

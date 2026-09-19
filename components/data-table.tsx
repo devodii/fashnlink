@@ -70,17 +70,19 @@ interface DataTableProps<TData, TValue>
   loading?: boolean;
   skeletonRowCount?: number;
   toolbar?: React.ReactNode;
-  /** Section 10.8: under `md`, rows render as this instead of a
+  /** under `md`, rows render as this instead of a
    * horizontally-scrolling table. */
   mobileCard?: (row: TData) => React.ReactNode;
   className?: string;
 }
 
-// DECISION: section 10.4 lists `sorting?` without specifying controlled vs.
-// uncontrolled. Mirrored on `pagination`'s documented "client or server"
-// duality: omitted -> internal state (client-sorted); passed -> the caller
-// owns sorting state (server-sorted), matching how `pagination` already
-// works below.
+/**
+ * DECISION: section 10.4 lists `sorting?` without specifying controlled vs.
+ * uncontrolled. Mirrored on `pagination`'s documented "client or server"
+ * duality: omitted -> internal state (client-sorted); passed -> the caller
+ * owns sorting state (server-sorted), matching how `pagination` already
+ * works below.
+ */
 export function DataTable<TData, TValue>({
   columns,
   data,

@@ -8,9 +8,6 @@ export interface RetargetOptinsProps {
   merchants: { merchantId: string; merchantName: string }[];
 }
 
-// Section 8.3: "'Shops that can email you looks' list with per-merchant
-// opt-out toggles" — one tap, no confirm dialog (the action is reversible:
-// re-ticking the same checkbox at a future email gate re-opts-in).
 export function RetargetOptins({ merchants }: RetargetOptinsProps) {
   const [list, setList] = React.useState(merchants);
   const [pending, setPending] = React.useState<string | null>(null);

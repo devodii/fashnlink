@@ -17,10 +17,6 @@ export default async function DropStatusPage({ params }: { params: Promise<{ id:
 
   const counts = await countCampaignItemsByStatus(id);
 
-  // Section 9.8: "3 anonymized preview examples (faces blurred, since
-  // merchant may not view shopper renders in full)" — same approach as
-  // /claim/[storeId]'s blurred thumbnails (M6): no image URL is ever sent to
-  // the client at all, not just CSS-blurred, since section 14 bans
   // merchant-visible shopper renders outright. This is product titles only.
   const previewRows = await db
     .select({ productTitle: products.title })

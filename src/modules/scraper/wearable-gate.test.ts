@@ -21,8 +21,10 @@ function toCandidate(fixture: FixtureCase): WearabilityCandidate {
   };
 }
 
-// Section 6.7/6.9: Stage 1 is unit-tested without the model — the 40-example
-// fixture set (20 wearable, 10 non-wearable, 5 collages, 5 kids).
+/**
+ * Stage 1 is unit-tested without the model; the 40-example
+ * fixture set (20 wearable, 10 non-wearable, 5 collages, 5 kids).
+ */
 describe('scoreCandidateText (wearable gate stage 1)', () => {
   it('has exactly 40 fixture cases', () => {
     expect((cases as FixtureCase[]).length).toBe(40);

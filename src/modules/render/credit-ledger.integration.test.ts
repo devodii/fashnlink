@@ -20,12 +20,14 @@ import {
   releaseCredits,
 } from './credit-ledger';
 
-// Integration test against the REAL local Postgres (docker-compose,
-// `pnpm db:up`), proving section 7.3's transaction/balance logic end to end
-// — no fal/OpenAI calls involved, so nothing here needs a real FAL_KEY.
-// Section 4's Adapter/Result philosophy applies to the DB boundary too: this
-// is the one thing worth proving against a real transactional database
-// rather than a mock.
+/**
+ * Integration test against the REAL local Postgres (docker-compose,
+ * `pnpm db:up`), proving section 7.3's transaction/balance logic end to end
+ * ; no fal/OpenAI calls involved, so nothing here needs a real FAL_KEY.
+ * Adapter/Result philosophy applies to the DB boundary too: this
+ * is the one thing worth proving against a real transactional database
+ * rather than a mock.
+ */
 
 const TEST_SUFFIX = `m3-ledger-test-${Date.now()}`;
 
@@ -155,7 +157,7 @@ describe('M3 credit ledger transaction against a real local Postgres', () => {
     expect(ledgerRows.filter((r) => r.reason === 'refund_failed_render').length).toBe(1);
   });
 
-  it('reserves and releases campaign credits (section 9.8 new drop)', async () => {
+  it('reserves and releases campaign credits', async () => {
     // Balance is 1 from the previous test (shares merchantId/setup order).
     expect(await currentBalance(merchantId)).toBe(1);
 
@@ -173,7 +175,7 @@ describe('M3 credit ledger transaction against a real local Postgres', () => {
     expect(reserved.ok).toBe(true);
     expect(await currentBalance(merchantId)).toBe(4);
 
-    // 2 of the 6 reserved credits were never spent (skipped items) — release them.
+    // 2 of the 6 reserved credits were never spent (skipped items); release them.
     const released = await releaseCredits(merchantId, 2);
     expect(released.ok).toBe(true);
     expect(await currentBalance(merchantId)).toBe(6);

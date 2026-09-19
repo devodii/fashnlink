@@ -7,10 +7,12 @@ import { err, ok } from '@/lib/result';
 
 const paramsSchema = z.object({ id: z.string() });
 
-// Section 8.4: `GET /api/twins/[id]/status` — polled by the client
-// (usePolling, section 10.4) while a twin is `pending`. Scoped to the
-// requesting shopper's own twin — a status id is guessable (ULID, not a
-// secret), so ownership is checked, not just existence.
+/**
+ * `GET /api/twins/[id]/status`; polled by the client
+ * (usePolling, section 10.4) while a twin is `pending`. Scoped to the
+ * requesting shopper's own twin; a status id is guessable (ULID, not a
+ * secret), so ownership is checked, not just existence.
+ */
 export const GET = apiHandler({
   name: 'twins.status',
   auth: ['shopper_session'],

@@ -14,17 +14,21 @@ const bodySchema = z.object({
   productId: z.string().min(1),
   variantId: z.string().min(1).nullable().optional(),
   twinId: z.string().min(1),
-  // M6: a render's `via` must match the link's own kind — a 'poll'/'group'
-  // render only makes sense against a poll/group link, never a single link
-  // (which would let anyone inflate poll_votes/group_members joins against
-  // renders that were never really options in that poll/group).
+  /**
+   * M6: a render's `via` must match the link's own kind; a 'poll'/'group'
+   * render only makes sense against a poll/group link, never a single link
+   * (which would let anyone inflate poll_votes/group_members joins against
+   * renders that were never really options in that poll/group).
+   */
   via: z.enum(['poll', 'group']).nullable().optional(),
 });
 
-// Section 8.4: `POST /api/renders` — deducts a credit (M3's credit-ledger
-// transaction) and submits to fal via `submitRender`. `via` defaults to
-// 'direct' (single-link mode, section 8.3); poll/group modes (M6) pass their
-// own `via` explicitly, checked against the link's `kind` below.
+/**
+ * `POST /api/renders`; deducts a credit (M3's credit-ledger
+ * transaction) and submits to fal via `submitRender`. `via` defaults to
+ * 'direct' (single-link mode, section 8.3); poll/group modes (M6) pass their
+ * own `via` explicitly, checked against the link's `kind` below.
+ */
 export const POST = apiHandler({
   name: 'renders.create',
   auth: ['shopper_session'],
@@ -70,7 +74,6 @@ export const POST = apiHandler({
       .limit(1);
     if (!product) return err({ code: 'NOT_FOUND', message: 'product not found' });
     if (product.eligibility !== 'eligible') {
-      // Section 14: "No render of a product whose eligibility is not eligible."
       return err({ code: 'INVALID_INPUT', message: 'this product is not eligible for try-on' });
     }
 
@@ -96,11 +99,13 @@ export const POST = apiHandler({
     const log = childLogger(requestId, { route: 'renders.create', shopperId });
     const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };
 
-    // DECISION: `role === 'flat_lay'` -> 'flat-lay', everything else (ghost
-    // mannequin, on-model, ...) -> 'model' — the two `garmentPhotoType`
-    // values fal's providers accept (section 7.1). Not a precise 1:1 mapping
-    // of every enrichment role, but the closest reasonable default; refine
-    // per-role if a specific provider turns out to need it.
+    /**
+     * DECISION: `role === 'flat_lay'` -> 'flat-lay', everything else (ghost
+     * mannequin, on-model, ...) -> 'model'; the two `garmentPhotoType`
+     * values fal's providers accept. Not a precise 1:1 mapping
+     * of every enrichment role, but the closest reasonable default; refine
+     * per-role if a specific provider turns out to need it.
+     */
     const garmentPhotoType = tryonImage.role === 'flat_lay' ? 'flat-lay' : 'model';
 
     const submission = await submitRender(
@@ -121,8 +126,10 @@ export const POST = apiHandler({
     );
     if (!submission.ok) return submission;
 
-    // Section 9.6: a no-op unless this product's store has no owning
-    // merchant — never blocks the render response on this bookkeeping.
+    /**
+     * a no-op unless this product's store has no owning
+     * merchant; never blocks the render response on this bookkeeping.
+     */
     accrueClaimIfUnowned(product.id).catch((cause) =>
       log.warn({ cause }, 'failed to accrue claim for unowned store'),
     );

@@ -4,19 +4,23 @@ import type { Ctx } from '@/lib/adapter';
 import { childLogger } from '@/lib/log';
 import type { WearabilityCandidate } from './wearable-gate';
 
-// Jev (TypeSafe AI) has no image modality — Stage 1b only ever sees text, so
-// it's fully testable against the AI SDK's own mock evaluation model, no live
-// API key needed. This exercises the REAL `experimental_evaluate` validation/
-// answer-shaping logic against a fake model, per `ai/test`'s intended use.
+/**
+ * Jev (TypeSafe AI) has no image modality; Stage 1b only ever sees text, so
+ * it's fully testable against the AI SDK's own mock evaluation model, no live
+ * API key needed. This exercises the REAL `experimental_evaluate` validation/
+ * answer-shaping logic against a fake model, per `ai/test`'s intended use.
+ */
 
-// Redis is mocked to `null` (an already-supported, already-tested state per
-// src/lib/redis.ts's own null-safety convention) so this suite never depends
-// on real network state — whatever UPSTASH_REDIS_REST_URL happens to resolve
-// to in a given environment (unset locally, a placeholder in CI) is
-// irrelevant to what's being tested here. A CI run once actually hit this:
-// its placeholder Upstash URL doesn't resolve, and the client's own
-// retry/backoff before failing took long enough to blow the test timeout
-// even with `classifyWithJev`'s try/catch correctly in place.
+/**
+ * Redis is mocked to `null` (an already-supported, already-tested state per
+ * src/lib/redis.ts's own null-safety convention) so this suite never depends
+ * on real network state; whatever UPSTASH_REDIS_REST_URL happens to resolve
+ * to in a given environment (unset locally, a placeholder in CI) is
+ * irrelevant to what's being tested here. A CI run once actually hit this:
+ * its placeholder Upstash URL doesn't resolve, and the client's own
+ * retry/backoff before failing took long enough to blow the test timeout
+ * even with `classifyWithJev`'s try/catch correctly in place.
+ */
 vi.mock('@/lib/redis', () => ({ redis: null }));
 
 type DoEvaluate = NonNullable<
@@ -87,8 +91,10 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
     mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.02, isKids: 0.01 }));
     const { assessWearability } = await import('./wearable-gate');
 
-    // Deliberately no stage-1a keyword hits (positive or negative) — this
-    // proves stage 1b, not stage 1a, produced the rejection.
+    /**
+     * Deliberately no stage-1a keyword hits (positive or negative); this
+     * proves stage 1b, not stage 1a, produced the rejection.
+     */
     const result = await assessWearability(candidate({ title: 'Desert Bloom No. 4' }), ctx());
 
     expect(result.ok).toBe(true);
@@ -114,8 +120,10 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
     mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.6, isKids: 0.1 }));
     const { assessWearability } = await import('./wearable-gate');
 
-    // No images -> the pipeline's own "no_usable_image" path, proving Jev
-    // did NOT short-circuit this uncertain case and control passed onward.
+    /**
+     * No images -> the pipeline's own "no_usable_image" path, proving Jev
+     * did NOT short-circuit this uncertain case and control passed onward.
+     */
     const result = await assessWearability(candidate({ title: 'A thing' }), ctx());
 
     expect(result.ok).toBe(true);
@@ -135,10 +143,12 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
   });
 
   it('sends title, tags, description, and image alt/filename as jev state, no image bytes', async () => {
-    // Low isWearable so stage 1b short-circuits the rejection itself — this
-    // test only cares about the *request* sent to jev, not stage 2, and a
-    // real (unmocked) stage-2 OpenAI call here would hang against the
-    // placeholder API key in this sandbox.
+    /**
+     * Low isWearable so stage 1b short-circuits the rejection itself; this
+     * test only cares about the *request* sent to jev, not stage 2, and a
+     * real (unmocked) stage-2 OpenAI call here would hang against the
+     * placeholder API key in this sandbox.
+     */
     mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.02, isKids: 0.1 }));
     const { assessWearability } = await import('./wearable-gate');
 

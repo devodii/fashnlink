@@ -82,8 +82,10 @@ export function TryOnFlow({
   const [emailSkippedOnce, setEmailSkippedOnce] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [hasEmail, setHasEmail] = React.useState(false);
-  // Section 9.8: a second, unticked checkbox — never combined with the email
-  // gate's own submit into one implied consent. Default false always.
+  /**
+   * a second, unticked checkbox; never combined with the email
+   * gate's own submit into one implied consent. Default false always.
+   */
   const [retargetOptIn, setRetargetOptIn] = React.useState(false);
 
   const attributedRef = React.useRef(false);
@@ -153,7 +155,7 @@ export function TryOnFlow({
     const json = await res.json();
     if (!res.ok) {
       if (json.error?.code === 'MODERATION_BLOCKED') {
-        // Section 7.4: generic message, never the actual moderation reason.
+        // generic message, never the actual moderation reason.
         setErrorMessage("This photo can't be used. Please try a different one.");
       } else {
         setErrorMessage(json.error?.message ?? 'Something went wrong. Please try again.');

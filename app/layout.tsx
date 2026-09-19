@@ -15,8 +15,10 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-// DECISION: real title/description land with the marketing page in M6; this is a
-// neutral placeholder so metadata is never "Create Next App" in the meantime.
+/**
+ * DECISION: real title/description land with the marketing page in M6; this is a
+ * neutral placeholder so metadata is never "Create Next App" in the meantime.
+ */
 export const metadata: Metadata = {
   title: 'App',
   description: 'Send a link. They see it on themselves.',

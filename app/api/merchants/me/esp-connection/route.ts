@@ -11,16 +11,15 @@ const bodySchema = z.object({
   provider: z.enum(espProviderEnum.enumValues),
   apiKey: z.string().min(1),
   listId: z.string().nullable().default(null),
-  // Section 9.8: "toggle 'Abandoned try-on events' on/off". Defaults true on
-  // first connect — a merchant who just connected an ESP is opting into the
-  // feature the connect form exists for.
   abandonedEnabled: z.boolean().default(true),
 });
 
-// Section 8.2/9.8: `/dashboard/retargeting`'s "connect Klaviyo/Mailchimp"
-// form. One connection per merchant (no multi-ESP support in v1) — a
-// reconnect replaces the encrypted key and provider rather than adding a
-// second row.
+/**
+ * `/dashboard/retargeting`'s "connect Klaviyo/Mailchimp"
+ * form. One connection per merchant (no multi-ESP support in v1); a
+ * reconnect replaces the encrypted key and provider rather than adding a
+ * second row.
+ */
 export const POST = apiHandler({
   name: 'merchants.espConnection.upsert',
   auth: ['merchant_session'],

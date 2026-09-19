@@ -6,8 +6,10 @@ import type { NormalizedProduct } from '../schema';
 import { mapVariantOptions } from '../shared/options';
 import { centsFromMinorUnits, parsePriceStringToCents } from '../shared/price';
 
-// Section 6.5's Shopify adapter — `.js` preferred (includes `options`,
-// `media`, per-variant `featured_image`), `.json` fallback.
+/**
+ * Shopify adapter; `.js` preferred (includes `options`,
+ * `media`, per-variant `featured_image`), `.json` fallback.
+ */
 
 const shopifyMediaSchema = z.object({
   id: z.number(),
@@ -53,9 +55,11 @@ export const shopifyRawSchema = z.object({
   images: z.array(z.string()).optional().default([]),
 });
 
-// `.js` gives variant prices in cents; `.json` (the fallback) gives dollar
-// strings (section 6.5) — `priceFormat` records which one this raw payload
-// came from so `normalize()` converts correctly either way.
+/**
+ * `.js` gives variant prices in cents; `.json` (the fallback) gives dollar
+ * strings; `priceFormat` records which one this raw payload
+ * came from so `normalize()` converts correctly either way.
+ */
 export type ShopifyRawProduct = z.infer<typeof shopifyRawSchema> & {
   storeOrigin: string;
   priceFormat: 'cents' | 'dollars';
@@ -92,15 +96,17 @@ export const shopifyAdapter: ScraperAdapter = {
   rawSchema: shopifyRawSchema,
 
   async detect(page: HomepageProbe, ctx: Ctx): Promise<DetectResult> {
-    // DECISION: a single HTML/header signal is NOT sufficient on its own —
-    // found via real-world testing on woocommerce.ts (a PrestaShop store
-    // with a companion WordPress blog false-matched WooCommerce off one
-    // coincidental substring). Applying the same fix here defensively:
-    // `cdn.shopify.com` alone could plausibly appear on a non-Shopify page
-    // that embeds a Shopify-hosted widget/image. A successful live
-    // `/products.json` probe is authoritative on its own; otherwise at least
-    // two independent signals are required, matching section 6.3's table
-    // ("any two -> confidence high").
+    /**
+     * DECISION: a single HTML/header signal is NOT sufficient on its own ;
+     * found via real-world testing on woocommerce.ts (a PrestaShop store
+     * with a companion WordPress blog false-matched WooCommerce off one
+     * coincidental substring). Applying the same fix here defensively:
+     * `cdn.shopify.com` alone could plausibly appear on a non-Shopify page
+     * that embeds a Shopify-hosted widget/image. A successful live
+     * `/products.json` probe is authoritative on its own; otherwise at least
+     * two independent signals are required, matching section 6.3's table
+     * ("any two -> confidence high").
+     */
     const htmlSignals: string[] = [];
     if (page.headers.get('x-shopify-stage') || page.headers.get('x-shopid'))
       htmlSignals.push('header:x-shopify-stage|x-shopid');
@@ -177,11 +183,13 @@ export const shopifyAdapter: ScraperAdapter = {
   },
 
   buyDeepLink(_product: NormalizedProduct, variantId?: string): string | null {
-    // Reconstructed from `raw` at call time by the pipeline, since
-    // `NormalizedProduct` alone doesn't carry the store origin — see
-    // `normalize()`, which already sets `buyUrl` using the default variant so
-    // this is mostly here to support re-deriving it for a *different* variant
-    // (section 8.3's variant re-render). `product.url`'s origin is reused.
+    /**
+     * Reconstructed from `raw` at call time by the pipeline, since
+     * `NormalizedProduct` alone doesn't carry the store origin; see
+     * `normalize()`, which already sets `buyUrl` using the default variant so
+     * this is mostly here to support re-deriving it for a *different* variant
+     * (section 8.3's variant re-render). `product.url`'s origin is reused.
+     */
     const origin = new URL(_product.url).origin;
     const targetVariant = variantId ?? _product.variants[0]?.externalId;
     if (!targetVariant) return null;

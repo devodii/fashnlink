@@ -11,29 +11,35 @@ export type CheckoutPageAdapterConfig = {
   hostPatterns: RegExp[];
 };
 
-// Section 6.5: lemonsqueezy/gumroad/bigcartel — "getProduct from the
-// checkout/buy page (og:image, og:title, price from the page's JSON state),
-// buyDeepLink = the same URL. No catalog." These are host-pattern-only
-// (never resolved via homepage detection — confirmed against real
-// gumroad/bigcartel checkout pages, which expose `og:title`/`og:image` and
-// a price meta tag (`product:price:amount` on Gumroad, `og:price:amount` on
-// Big Cartel) that `scrapeJsonLdProductPage`'s existing OpenGraph fallback
-// already reads — no separate parser needed for those two.
+/**
+ * lemonsqueezy/gumroad/bigcartel; "getProduct from the
+ * checkout/buy page (og:image, og:title, price from the page's JSON state),
+ * buyDeepLink = the same URL. No catalog." These are host-pattern-only
+ * (never resolved via homepage detection; confirmed against real
+ * gumroad/bigcartel checkout pages, which expose `og:title`/`og:image` and
+ * a price meta tag (`product:price:amount` on Gumroad, `og:price:amount` on
+ * Big Cartel) that `scrapeJsonLdProductPage`'s existing OpenGraph fallback
+ * already reads; no separate parser needed for those two.
+ */
 export function createCheckoutPageAdapter(config: CheckoutPageAdapterConfig): ScraperAdapter {
   return {
     key: config.key,
     displayName: config.displayName,
     priority: config.priority,
     hostPatterns: config.hostPatterns,
-    // No `listProducts` capability — section 6.5 is explicit that these
-    // adapters have no catalog.
+    /**
+     * No `listProducts` capability; section 6.5 is explicit that these
+     * adapters have no catalog.
+     */
     capabilities: new Set(['detect', 'getProduct', 'buyDeepLink']),
     rawSchema: productPageRawSchema,
 
     async detect(_page: HomepageProbe, _ctx: Ctx): Promise<DetectResult> {
-      // Never resolved via homepage probe — only `hostPatterns` ever matches
-      // these (a merchant pastes a specific checkout/buy link, there is no
-      // browsable store homepage to detect from).
+      /**
+       * Never resolved via homepage probe; only `hostPatterns` ever matches
+       * these (a merchant pastes a specific checkout/buy link, there is no
+       * browsable store homepage to detect from).
+       */
       return { match: false, confidence: 0, signals: [] };
     },
 

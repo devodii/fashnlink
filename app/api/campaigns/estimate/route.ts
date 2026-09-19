@@ -5,8 +5,10 @@ import { ok } from '@/lib/result';
 
 const bodySchema = z.object({ productIds: z.array(z.string().min(1)).min(1).max(3) });
 
-// Live preview for `/dashboard/drops/new` — audience/credit estimate as the
-// merchant checks/unchecks products, before they've reserved anything.
+/**
+ * Live preview for `/dashboard/drops/new`; audience/credit estimate as the
+ * merchant checks/unchecks products, before they've reserved anything.
+ */
 export const POST = apiHandler({
   name: 'campaigns.estimate',
   auth: ['merchant_session'],

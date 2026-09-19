@@ -20,8 +20,8 @@ const TONE_CLASS: Record<Tone, string> = {
   destructive: 'bg-destructive/15 text-destructive',
 };
 
-/** Section 10.4: `status` (a raw enum value from the DB, e.g. `renders.status`)
- * maps to a display label + tone via the caller-supplied `map` — tone is
+/** `status` (a raw enum value from the DB, e.g. `renders.status`)
+ * maps to a display label + tone via the caller-supplied `map`; tone is
  * always a token color, never a raw class chosen inline per call site. */
 export function StatusBadge({ status, map, className }: StatusBadgeProps) {
   const entry = map[status];

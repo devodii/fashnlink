@@ -11,7 +11,7 @@ export interface TagInputProps {
   className?: string;
 }
 
-/** Section 10.4: chips with add/remove. Enter or comma commits a tag. */
+/** chips with add/remove. Enter or comma commits a tag. */
 export function TagInput({ value, onChange, placeholder, className }: TagInputProps) {
   const [draft, setDraft] = React.useState('');
 

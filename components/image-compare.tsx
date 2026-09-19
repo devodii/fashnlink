@@ -10,7 +10,7 @@ export interface ImageCompareProps {
   className?: string;
 }
 
-/** Section 10.4: before/after with a drag handle — marketing demo and render
+/** before/after with a drag handle; marketing demo and render
  * detail. */
 export function ImageCompare({ before, after, alt, className }: ImageCompareProps) {
   const [position, setPosition] = React.useState(50);

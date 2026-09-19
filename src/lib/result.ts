@@ -14,9 +14,11 @@ export type AppError = {
     | 'RATE_LIMITED'
     | 'INVALID_INPUT'
     | 'INTERNAL'
-    // DECISION: added for src/lib/api-handler.ts, which needs distinct codes for
-    // auth failures and idempotency-key conflicts — the original M1 union
-    // predates API routes having auth/idempotency at all.
+    /**
+     * DECISION: added for src/lib/api-handler.ts, which needs distinct codes for
+     * auth failures and idempotency-key conflicts; the original M1 union
+     * predates API routes having auth/idempotency at all.
+     */
     | 'UNAUTHORIZED'
     | 'FORBIDDEN'
     | 'CONFLICT';

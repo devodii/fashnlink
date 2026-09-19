@@ -10,7 +10,7 @@ export interface FadeInProps {
   className?: string;
 }
 
-/** Section 10.6: opacity + 8px y, under 400ms. Route content and page-load
+/** opacity + 8px y, under 400ms. Route content and page-load
  * entrances use this. Collapses to instant under reduced motion. */
 export function FadeIn({ children, delay = 0, once = true, className }: FadeInProps) {
   const reduceMotion = useReducedMotion();

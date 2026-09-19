@@ -18,8 +18,10 @@ const FIXTURE_STORES = [
   },
 ];
 
-// Section 6.9: 2 real fixture stores for this thin adapter, no network in
-// the test suite (fetch stubbed to the recorded HTML).
+/**
+ * 2 real fixture stores for this thin adapter, no network in
+ * the test suite (fetch stubbed to the recorded HTML).
+ */
 describe('wix adapter (fixture-based, no network)', () => {
   it('detects wix from real homepage signals', () => {
     const html = readFileSync(

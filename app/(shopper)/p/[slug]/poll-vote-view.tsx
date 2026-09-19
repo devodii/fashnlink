@@ -25,9 +25,11 @@ export interface PollVoteViewProps {
   defaultTwin: ShopperTwin | null;
 }
 
-// Section 8.3/9.3: friends land here from a shared poll link — vote on the
-// poll creator's renders, and optionally build their own twin to try each
-// look on themselves too.
+/**
+ * friends land here from a shared poll link; vote on the
+ * poll creator's renders, and optionally build their own twin to try each
+ * look on themselves too.
+ */
 export function PollVoteView({
   linkId,
   merchantName,

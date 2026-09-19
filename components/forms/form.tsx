@@ -13,13 +13,15 @@ export interface FormProps<TValues extends RHF.FieldValues> {
   className?: string;
 }
 
-// DECISION: section 10.5 says server-returned `AppError` maps to `setError`
-// on the matching field or, otherwise, to a root error rendered via
-// `InlineAlert`. The spec's `AppError` (section 4) doesn't define a fixed
-// field-error shape, so the convention here is `error.meta.fieldErrors:
-// Record<string, string>` — a server action that wants a field-level message
-// (e.g. "email already in use") sets that key; anything else surfaces as one
-// root `InlineAlert`.
+/**
+ * DECISION: section 10.5 says server-returned `AppError` maps to `setError`
+ * on the matching field or, otherwise, to a root error rendered via
+ * `InlineAlert`. The spec's `AppError` doesn't define a fixed
+ * field-error shape, so the convention here is `error.meta.fieldErrors:
+ * Record<string, string>`; a server action that wants a field-level message
+ * (e.g. "email already in use") sets that key; anything else surfaces as one
+ * root `InlineAlert`.
+ */
 export function Form<TValues extends RHF.FieldValues>({
   form,
   onSubmit,

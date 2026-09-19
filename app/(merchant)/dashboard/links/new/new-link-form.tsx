@@ -23,11 +23,6 @@ const groupSchema = z.object({
   groupNote: z.string().optional(),
 });
 
-// Section 8.1/8.2's "paste a URL" flow — single-kind still goes through the
-// same `POST /api/links` route onboarding step 1 uses. Poll/group (M6) post
-// to their own routes (`/api/links/poll`, `/api/links/group`) since they
-// take a different shape (several URLs, or a group name), but land on the
-// same link-detail page afterward.
 export function NewLinkForm() {
   const router = useRouter();
   const [kind, setKind] = React.useState<Kind>('single');

@@ -5,8 +5,10 @@ import { ok } from '@/lib/result';
 
 const bodySchema = z.object({ productIds: z.array(z.string().min(1)).min(1).max(3) });
 
-// Section 8.2 `/dashboard/drops/new`: "confirm" — reserves credits and fans
-// out campaign_items in one call (see src/modules/campaigns/create.ts).
+/**
+ * `/dashboard/drops/new`: "confirm"; reserves credits and fans
+ * out campaign_items in one call (see src/modules/campaigns/create.ts).
+ */
 export const POST = apiHandler({
   name: 'campaigns.create',
   auth: ['merchant_session'],

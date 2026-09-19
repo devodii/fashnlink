@@ -19,7 +19,7 @@ export interface VariantPickerProps {
   className?: string;
 }
 
-/** Section 10.4: size/color pills on the shopper product page (section 8.3).
+/** size/color pills on the shopper product page.
  * `value` is keyed by option name (`{ Size: "m", Color: "black" }`). */
 export function VariantPicker({ options, value, onChange, className }: VariantPickerProps) {
   return (

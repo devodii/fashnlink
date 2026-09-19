@@ -16,8 +16,10 @@ export type DropEstimate = {
   estimatedCredits: number;
 };
 
-// Section 8.2 `/dashboard/drops/new`: "audience count = opted-in shoppers
-// with a ready twin, estimated credits = audience × products."
+/**
+ * `/dashboard/drops/new`: "audience count = opted-in shoppers
+ * with a ready twin, estimated credits = audience × products."
+ */
 export async function estimateDrop(
   merchantId: string,
   productIds: string[],
@@ -42,10 +44,6 @@ export async function estimateDrop(
   });
 }
 
-// Section 9.8: "confirm reserves credits in the ledger ... Rendering job
-// fans out campaign_items ... capped at 2,000 items in v1." Reservation and
-// campaign/item creation happen before any job is enqueued — if the
-// reservation fails (insufficient credits), nothing else is created.
 export async function createDrop(
   merchantId: string,
   productIds: string[],

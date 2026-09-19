@@ -4,10 +4,12 @@ import { platformRequests } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import type { PlatformKey } from '@/modules/scraper/types';
 
-// Section 6.5's scraper backlog: when `resolveByUrl` lands on `generic` and
-// it fails (or the merchant says we got it wrong), we log the hostname here,
-// deduplicated. A weekly job (not built yet — Phase M6 cron territory) emails
-// the top requested hosts.
+/**
+ * Scraper backlog: when `resolveByUrl` lands on `generic` and
+ * it fails (or the merchant says we got it wrong), we log the hostname here,
+ * deduplicated. A weekly job (not built yet; Phase M6 cron territory) emails
+ * the top requested hosts.
+ */
 export async function recordPlatformRequest(input: {
   hostname: string;
   sampleUrl: string;
@@ -45,11 +47,13 @@ export async function recordPlatformRequest(input: {
   return created;
 }
 
-// Onboarding's "Something else" chip (section 8.1 step 1) — free text, no
-// URL at all, so there's no real hostname to dedupe on. `hostname` is still
-// NOT NULL + unique on this table, so a synthetic per-merchant placeholder
-// stands in; this path is a low-volume manual backlog entry, not something
-// that needs the URL-based dedup `recordPlatformRequest` does.
+/**
+ * Onboarding's "Something else" chip; free text, no
+ * URL at all, so there's no real hostname to dedupe on. `hostname` is still
+ * NOT NULL + unique on this table, so a synthetic per-merchant placeholder
+ * stands in; this path is a low-volume manual backlog entry, not something
+ * that needs the URL-based dedup `recordPlatformRequest` does.
+ */
 export async function recordFreeTextPlatformRequest(input: { merchantId: string; notes: string }) {
   const [created] = await db
     .insert(platformRequests)

@@ -14,7 +14,7 @@ export interface StepperProps {
   className?: string;
 }
 
-/** Section 10.4: numeric +/- input — quantity-style pickers. */
+/** numeric +/- input; quantity-style pickers. */
 export function Stepper({
   value,
   onChange,

@@ -1,10 +1,12 @@
 import { parsePriceStringToCents } from './price';
 
-// Section 6.5 (generic adapter): parse every `<script type="application/ld+json">`
-// block, walk `@graph`, find a `Product` or `ProductGroup` (`hasVariant[]`).
-// Regex-extracted rather than a full DOM parse — no HTML parser is in the
-// dependency list (section 2), and JSON-LD blocks are trivially isolated by
-// their own script tag.
+/**
+ * parse every `<script type="application/ld+json">`
+ * block, walk `@graph`, find a `Product` or `ProductGroup` (`hasVariant[]`).
+ * Regex-extracted rather than a full DOM parse; no HTML parser is in the
+ * dependency list, and JSON-LD blocks are trivially isolated by
+ * their own script tag.
+ */
 export type JsonLdOffer = {
   price?: string | number;
   priceCurrency?: string;
@@ -31,7 +33,7 @@ export function extractJsonLdBlocks(html: string): unknown[] {
     try {
       blocks.push(JSON.parse(match[1].trim()));
     } catch {
-      // malformed JSON-LD on the page — skip it, not our bug to fix.
+      // malformed JSON-LD on the page; skip it, not our bug to fix.
     }
   }
   return blocks;

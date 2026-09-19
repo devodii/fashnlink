@@ -7,8 +7,6 @@ import { ok } from '@/lib/result';
 
 const paramsSchema = z.object({ id: z.string() });
 
-// Section 9.1: "Every share increments renders.share_count." `ShareSheet`
-// (components/share-sheet.tsx) calls this from its `onShare` callback.
 export const POST = apiHandler({
   name: 'renders.share',
   auth: ['shopper_session'],

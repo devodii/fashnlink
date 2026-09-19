@@ -17,10 +17,6 @@ export function getProvider(key: ProviderKey): RenderProvider {
   return PROVIDERS[key];
 }
 
-// Section 7.1: "First provider is tried; on failure the [render engine]
-// retries once with the next." Submission failure only — fal's queue accept
-// is synchronous (this either 200s with a request_id or it doesn't), so
-// "failure" here means the submit call itself failed, not a render that
 // later fails via webhook (that's the caller's refund path, not a retry).
 export async function submitWithRouting(
   category: GarmentCategory,

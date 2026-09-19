@@ -7,7 +7,7 @@ export interface KpiRowProps {
   className?: string;
 }
 
-/** Section 10.4: responsive grid of `StatCard`, 2 columns on mobile, 4 on
+/** responsive grid of `StatCard`, 2 columns on mobile, 4 on
  * desktop. */
 export function KpiRow({ stats, className }: KpiRowProps) {
   return (

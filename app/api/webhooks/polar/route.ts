@@ -9,13 +9,15 @@ import { PLANS } from '@/config/pricing';
 import { childLogger } from '@/lib/log';
 import { grantCredits } from '@/modules/render/credit-ledger';
 
-// DECISION: payment processor switched from Stripe to Polar mid-build (this
-// route was originally `/api/webhooks/stripe`, using Stripe's SDK — see the
-// now-removed `src/lib/stripe.ts`). Same reasoning as fal/stripe's webhook
-// routes: a standard Fetch `Request` body can only be read once, so
-// `webhookVerify` reads a *clone* and leaves the original untouched for the
-// handler to read again. `validateEvent` (unlike Stripe's `constructEvent`)
-// is synchronous and takes a plain header object, not a `Headers` instance.
+/**
+ * DECISION: payment processor switched from Stripe to Polar mid-build (this
+ * route was originally `/api/webhooks/stripe`, using Stripe's SDK; see the
+ * now-removed `src/lib/stripe.ts`). Same reasoning as fal/stripe's webhook
+ * routes: a standard Fetch `Request` body can only be read once, so
+ * `webhookVerify` reads a *clone* and leaves the original untouched for the
+ * handler to read again. `validateEvent` (unlike Stripe's `constructEvent`)
+ * is synchronous and takes a plain header object, not a `Headers` instance.
+ */
 function headersToRecord(headers: Headers): Record<string, string> {
   const record: Record<string, string> = {};
   headers.forEach((value, key) => {
@@ -35,14 +37,16 @@ async function verifyAndParse(req: Request) {
   }
 }
 
-// Section 8.4/13 (adapted from Stripe to Polar): `POST /api/webhooks/polar`
-// — the founding-pass Checkout Link's completed-order event grants 1000
-// credits and turns off the watermark. Idempotent via `payment_events` (the
-// provider's own event id is its primary key, section 5) — a Polar retry of
-// the same event is a no-op. Merchant identity is carried through Polar's
-// `customer_external_id` mechanism (their documented equivalent of Stripe's
-// `client_reference_id`) — "Buy founding pass" (section 8.2, not yet built)
-// must open the checkout link with `?customer_external_id=<merchantId>`.
+/**
+ * `POST /api/webhooks/polar`
+ * ; the founding-pass Checkout Link's completed-order event grants 1000
+ * credits and turns off the watermark. Idempotent via `payment_events` (the
+ * provider's own event id is its primary key, section 5); a Polar retry of
+ * the same event is a no-op. Merchant identity is carried through Polar's
+ * `customer_external_id` mechanism (their documented equivalent of Stripe's
+ * `client_reference_id`); "Buy founding pass"
+ * must open the checkout link with `?customer_external_id=<merchantId>`.
+ */
 export const POST = apiHandler({
   name: 'webhooks.polar',
   auth: ['webhook'],
@@ -56,10 +60,12 @@ export const POST = apiHandler({
     const event = await verifyAndParse(req);
     if (!event) return err({ code: 'UNAUTHORIZED', message: 'invalid polar signature' });
 
-    // Polar doesn't give every payload a stable top-level `id` the way
-    // Stripe's `Event` does — `order.paid`'s `data.id` (the order id) is the
-    // one that's actually unique per delivery for the event this route acts
-    // on, so idempotency keys on that rather than a synthesized value.
+    /**
+     * Polar doesn't give every payload a stable top-level `id` the way
+     * Stripe's `Event` does; `order.paid`'s `data.id` (the order id) is the
+     * one that's actually unique per delivery for the event this route acts
+     * on, so idempotency keys on that rather than a synthesized value.
+     */
     const eventId = 'id' in event.data ? String(event.data.id) : `${event.type}:${Date.now()}`;
     const log = childLogger(requestId, { route: 'webhooks.polar', eventId, type: event.type });
 

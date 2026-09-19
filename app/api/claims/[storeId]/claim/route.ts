@@ -6,15 +6,13 @@ import { claims, links, products, stores } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 import { SYSTEM_MERCHANT_ID } from '@/config/system-merchant';
 
-// Section 9.6: "Claim your store" — login, then attach the store to the
-// now-authenticated merchant and transfer existing renders/leads.
-// DECISION: "transfer" is implemented as reassigning any `links` the
-// marketing-demo system merchant created for this store's products (the
-// only way a link exists against an unowned store, per M6's quick-demo
-// design) — a `leads` row created against those same demo links keeps its
-// original `merchantId`, since re-attributing leads retroactively risks
-// crediting the claiming merchant with contacts collected before they owned
-// the store; flagged here rather than silently done.
+/**
+ * only way a link exists against an unowned store, per M6's quick-demo
+ * design); a `leads` row created against those same demo links keeps its
+ * original `merchantId`, since re-attributing leads retroactively risks
+ * crediting the claiming merchant with contacts collected before they owned
+ * the store; flagged here rather than silently done.
+ */
 export const POST = apiHandler({
   name: 'claims.claim',
   auth: ['merchant_session'],

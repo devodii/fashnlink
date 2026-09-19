@@ -5,8 +5,10 @@ import { Section } from '@/components/section';
 import { PricingCard } from '@/components/pricing-card';
 import { QuickDemoForm } from './quick-demo-form';
 
-// Section 8.1: marketing homepage. Server Component — the only client
-// island is the quick-demo form itself (it needs to POST and show state).
+/**
+ * marketing homepage. Server Component; the only client
+ * island is the quick-demo form itself (it needs to POST and show state).
+ */
 export default async function Home() {
   const founderCount = await countFounderMerchants();
   const seatsRemaining = Math.max(FOUNDING_PASS_SEATS_TOTAL - founderCount, 0);

@@ -13,10 +13,12 @@ import { childLogger } from '@/lib/log';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import type { AppError, Result } from '@/lib/result';
 
-// Every Route Handler in app/api/** is built with apiHandler() instead of a
-// bespoke export, so auth, validation, rate limiting, idempotency, and error
-// shaping live in one place (section 1.3/4's "one interface, many
-// implementations" philosophy applied to routes, not just adapters).
+/**
+ * Every Route Handler in app/api/** is built with apiHandler() instead of a
+ * bespoke export, so auth, validation, rate limiting, idempotency, and error
+ * shaping live in one place (section 1.3/4's "one interface, many
+ * implementations" philosophy applied to routes, not just adapters).
+ */
 
 export type AuthScope = 'merchant_session' | 'shopper_session' | 'cron' | 'webhook' | 'public';
 
@@ -39,9 +41,9 @@ export type HandlerConfig<TBody, TParams, TQuery> = {
   mcp?: { name: string; description: string };
   /** Scopes tried in order; first that resolves wins. Omitted/empty = public (no auth resolution). */
   auth?: AuthScope[];
-  /** Required when `auth` includes 'webhook' — fal and Stripe verify completely differently, so each route supplies its own check rather than the util guessing. */
+  /** Required when `auth` includes 'webhook'; fal and Stripe verify completely differently, so each route supplies its own check rather than the util guessing. */
   webhookVerify?: (req: NextRequest) => Promise<Result<void>> | Result<void>;
-  /** Mechanism only — the route supplies its own key/limit/window (section 7.4/13 have the actual numbers, which belong in src/config once the routes using them exist). */
+  /** Mechanism only; the route supplies its own key/limit/window. */
   rateLimit?: {
     key: (args: { auth: ResolvedAuth; req: NextRequest }) => string;
     limit: number;
@@ -52,8 +54,8 @@ export type HandlerConfig<TBody, TParams, TQuery> = {
   /**
    * DECISION: defaults to false, unlike the reference implementation this
    * pattern is adapted from (which snake_cased every response for a public
-   * REST API convention). This codebase is camelCase end to end — Drizzle
-   * columns, NormalizedProduct, etc. — so flipping the response shape by
+   * REST API convention). This codebase is camelCase end to end (Drizzle
+   * columns, NormalizedProduct, etc.), so flipping the response shape by
    * default would fight every other module. Opt in per route if a consumer
    * genuinely needs snake_case (e.g. a public API for third parties, Phase 2).
    */
@@ -68,9 +70,9 @@ export type HandlerConfig<TBody, TParams, TQuery> = {
   }) => Promise<Result<unknown> | Response> | Result<unknown> | Response;
 };
 
-// Every route registers here regardless of MCP exposure — GET /api/docs lists all of it.
+// Every route registers here regardless of MCP exposure; GET /api/docs lists all of it.
 export const routeRegistry = new Map<string, HandlerConfig<unknown, unknown, unknown>>();
-// Opt-in subset (config.mcp set) — GET /api/mcp/tools lists only these.
+// Opt-in subset (config.mcp set); GET /api/mcp/tools lists only these.
 export const mcpToolsRegistry = new Map<string, HandlerConfig<unknown, unknown, unknown>>();
 
 const STATUS_BY_CODE: Record<AppError['code'], number> = {
@@ -83,15 +85,17 @@ const STATUS_BY_CODE: Record<AppError['code'], number> = {
   MODERATION_BLOCKED: 422,
   INSUFFICIENT_CREDITS: 402,
   RATE_LIMITED: 429,
-  // DECISION (M5, found via a real onboarding browser test): a scrape
-  // failure is almost always "this specific product URL 404s / can't be
-  // parsed" — a client-actionable problem the merchant should see and can
-  // fix by pasting a different URL, exactly like UNSUPPORTED_PLATFORM and
-  // MODERATION_BLOCKED below. It was 502 ("upstream server failed"), which
-  // this file's own catch handler maps to the generic "an internal error
-  // occurred" message for anything >= 500 — silently swallowing the real,
-  // useful error text (e.g. "Shopify product not found: ...") that
-  // onboarding step 1 and `/dashboard/links/new` are built to display.
+  /**
+   * DECISION (M5, found via a real onboarding browser test): a scrape
+   * failure is almost always "this specific product URL 404s / can't be
+   * parsed"; a client-actionable problem the merchant should see and can
+   * fix by pasting a different URL, exactly like UNSUPPORTED_PLATFORM and
+   * MODERATION_BLOCKED below. It was 502 ("upstream server failed"), which
+   * this file's own catch handler maps to the generic "an internal error
+   * occurred" message for anything >= 500; silently swallowing the real,
+   * useful error text (e.g. "Shopify product not found: ...") that
+   * onboarding step 1 and `/dashboard/links/new` are built to display.
+   */
   SCRAPE_FAILED: 422,
   RENDER_FAILED: 502,
   INTERNAL: 500,
@@ -113,11 +117,13 @@ function toAppError(error: unknown): AppError {
   return { code: 'INTERNAL', message: 'An internal error occurred', cause: error };
 }
 
-// The one sanctioned place in this codebase that throws instead of returning
-// a Result: apiHandler is the boundary that adapts Result-returning route
-// handlers to Next.js's Response-based routing, so throw-and-catch here is
-// the mechanism, not a violation of section 1.4's "never throw across module
-// boundaries" (which is about application code, not this framework glue).
+/**
+ * The one sanctioned place in this codebase that throws instead of returning
+ * a Result: apiHandler is the boundary that adapts Result-returning route
+ * handlers to Next.js's Response-based routing, so throw-and-catch here is
+ * the mechanism, not a violation of section 1.4's "never throw across module
+ * boundaries" (which is about application code, not this framework glue).
+ */
 function appError(
   code: AppError['code'],
   message: string,
@@ -127,10 +133,12 @@ function appError(
 }
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
-  // DECISION: no origin allowlist yet — every current caller of a cors:true
-  // route is our own frontend or an anonymous public visitor (section 8.4's
-  // marketing quick-link demo). Tighten to a real allowlist if/when a
-  // cross-origin embed with credentials is actually built.
+  /**
+   * DECISION: no origin allowlist yet; every current caller of a cors:true
+   * route is our own frontend or an anonymous public visitor (section 8.4's
+   * marketing quick-link demo). Tighten to a real allowlist if/when a
+   * cross-origin embed with credentials is actually built.
+   */
   if (!origin) return {};
   return {
     'Access-Control-Allow-Origin': origin,
@@ -167,10 +175,12 @@ async function resolveAuth<TBody, TParams, TQuery>(
     if (scope === 'public') return { type: 'public' };
 
     if (scope === 'shopper_session') {
-      // M4: creates a `shoppers` row + signs the cookie on first visit, per
-      // section 3/8.3 — always "succeeds" (there's no such thing as an
-      // unauthenticated shopper request, only a not-yet-identified one), so
-      // this never falls through to the next scope.
+      /**
+       * M4: creates a `shoppers` row + signs the cookie on first visit, per
+       * section 3/8.3; always "succeeds" (there's no such thing as an
+       * unauthenticated shopper request, only a not-yet-identified one), so
+       * this never falls through to the next scope.
+       */
       const shopperId = await getOrCreateShopperId();
       return { type: 'shopper_session', shopperId };
     }
@@ -203,11 +213,13 @@ async function resolveAuth<TBody, TParams, TQuery>(
   throw appError('UNAUTHORIZED', 'Unauthorized');
 }
 
-// M4: every shopper-scoped route needs this exact narrowing (resolveAuth's
-// return type is the union of everything any scope could resolve to, even
-// though a route declaring only `['shopper_session']` will in fact always
-// get that variant back) — one helper instead of the same runtime check
-// copy-pasted into every shopper route.
+/**
+ * M4: every shopper-scoped route needs this exact narrowing (resolveAuth's
+ * return type is the union of everything any scope could resolve to, even
+ * though a route declaring only `['shopper_session']` will in fact always
+ * get that variant back); one helper instead of the same runtime check
+ * copy-pasted into every shopper route.
+ */
 export function requireShopperSession(
   resolvedAuth: ResolvedAuth,
 ): Result<{ shopperId: string }, AppError> {
@@ -217,9 +229,11 @@ export function requireShopperSession(
   return { ok: true, value: { shopperId: resolvedAuth.shopperId } };
 }
 
-// M5: the merchant-scoped equivalent of `requireShopperSession` above — same
-// reasoning, one helper instead of copy-pasting the narrowing into every
-// dashboard/onboarding route.
+/**
+ * M5: the merchant-scoped equivalent of `requireShopperSession` above; same
+ * reasoning, one helper instead of copy-pasting the narrowing into every
+ * dashboard/onboarding route.
+ */
 export function requireMerchantSession(
   resolvedAuth: ResolvedAuth,
 ): Result<{ merchantId: string; email: string }, AppError> {
@@ -244,9 +258,11 @@ function actorIdFor(resolvedAuth: ResolvedAuth): string {
   }
 }
 
-// M3: extracted to src/lib/rate-limit.ts so module-level code that isn't
-// behind a Next.js route (render submission, twin creation) can share the
-// same primitive instead of a second implementation.
+/**
+ * M3: extracted to src/lib/rate-limit.ts so module-level code that isn't
+ * behind a Next.js route (render submission, twin creation) can share the
+ * same primitive instead of a second implementation.
+ */
 
 type IdempotencyLookup = { done: true; status: number; body: unknown } | { done: false } | null;
 
@@ -265,7 +281,7 @@ async function getStoredIdempotentResponse(
 
   const lockAgeMs = Date.now() - row.lockedAt.getTime();
   if (lockAgeMs > 60_000) {
-    // Stale lock (handler crashed mid-request) — clear it so the retry can proceed.
+    // Stale lock (handler crashed mid-request); clear it so the retry can proceed.
     await db
       .delete(idempotencyKeys)
       .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
@@ -359,11 +375,13 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
         if (!rl.allowed) throw appError('RATE_LIMITED', 'Too many requests');
       }
 
-      // Validation before idempotency (deliberately reordered vs. the
-      // reference pattern this is adapted from, which checked idempotency
-      // first — that let a request with a malformed body permanently consume
-      // the idempotency key, since the early-return on a validation failure
-      // never reached the lock-release code in its catch block).
+      /**
+       * Validation before idempotency (deliberately reordered vs. the
+       * reference pattern this is adapted from, which checked idempotency
+       * first; that let a request with a malformed body permanently consume
+       * the idempotency key, since the early-return on a validation failure
+       * never reached the lock-release code in its catch block).
+       */
       const rawParams = await context.params;
       const { searchParams } = new URL(req.url);
       const rawQuery = Object.fromEntries(searchParams.entries());

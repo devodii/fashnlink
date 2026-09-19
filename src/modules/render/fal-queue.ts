@@ -3,11 +3,13 @@ import { err, ok, type Result } from '@/lib/result';
 import type { Ctx } from '@/lib/adapter';
 import type { SubmitResult } from './types';
 
-// Shared submission mechanics for every provider (section 7.1: "Use fal's
-// queue API with webhooks, never long-poll in a request"). Endpoint shape
-// verified against fal's docs (fal.ai/docs/model-endpoints/queue,
-// 2026-09-19): POST https://queue.fal.run/{modelId}, `Authorization: Key
-// $FAL_KEY`, webhook delivered via the `fal_webhook` query param.
+/**
+ * Shared submission mechanics for every provider (section 7.1: "Use fal's
+ * queue API with webhooks, never long-poll in a request"). Endpoint shape
+ * verified against fal's docs (fal.ai/docs/model-endpoints/queue,
+ * 2026-09-19): POST https://queue.fal.run/{modelId}, `Authorization: Key
+ * $FAL_KEY`, webhook delivered via the `fal_webhook` query param.
+ */
 export async function submitToFalQueue(
   modelId: string,
   body: Record<string, unknown>,

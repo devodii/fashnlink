@@ -28,10 +28,12 @@ async function loadRender(renderId: string) {
   return row;
 }
 
-// Section 8.3/9.1: `/r/[renderId]` — public share page. OG tags point at the
-// share card (`/api/og/render/[renderId]`) so the link unfurls with the
-// render image in WhatsApp/iMessage/Instagram; "See it on you" is the
-// re-entry point into `/t/[slug]?via=<renderId>` for the friend who opens it.
+/**
+ * `/r/[renderId]`; public share page. OG tags point at the
+ * share card (`/api/og/render/[renderId]`) so the link unfurls with the
+ * render image in WhatsApp/iMessage/Instagram; "See it on you" is the
+ * re-entry point into `/t/[slug]?via=<renderId>` for the friend who opens it.
+ */
 export async function generateMetadata({
   params,
 }: {

@@ -15,7 +15,7 @@ export interface ConfirmDialogProps {
   onConfirm: () => void | Promise<void>;
 }
 
-/** Section 10.4: async-aware — the confirm button shows a loading state and
+/** async-aware; the confirm button shows a loading state and
  * the dialog doesn't close until the action settles. Used for every
  * destructive/irreversible action (pause a link, delete a twin, opt out). */
 export function ConfirmDialog({

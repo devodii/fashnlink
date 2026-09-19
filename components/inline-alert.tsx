@@ -26,7 +26,7 @@ export interface InlineAlertProps {
   className?: string;
 }
 
-/** Section 10.4: the only alert style in the app — root-level form errors
+/** the only alert style in the app; root-level form errors
  * (`Form`), scraper/wearable-gate rejection messages, empty/error states. */
 export function InlineAlert({ tone = 'neutral', title, children, className }: InlineAlertProps) {
   const Icon = TONE_ICON[tone];

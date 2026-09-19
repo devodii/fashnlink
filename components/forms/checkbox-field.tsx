@@ -13,8 +13,8 @@ export interface CheckboxFieldProps<
   disabled?: boolean;
 }
 
-/** Consent/age-attestation checkboxes (section 8.3, 9.8) are `CheckboxField`
- * instances — label sits beside the box, not above it, so it reads as one
+/** Consent/age-attestation checkboxes are `CheckboxField`
+ * instances; label sits beside the box, not above it, so it reads as one
  * sentence. */
 export function CheckboxField<TValues extends RHF.FieldValues, TName extends RHF.Path<TValues>>({
   control,

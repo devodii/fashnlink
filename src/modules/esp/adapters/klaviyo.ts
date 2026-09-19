@@ -3,12 +3,14 @@ import { err, ok, type Result } from '@/lib/result';
 import type { EspPush, EspPushResult } from '../types';
 
 const API_BASE = 'https://a.klaviyo.com/api';
-// DECISION: Klaviyo requires a dated revision header on every request. This
-// is the most recent stable revision known at build time — since no real
-// Klaviyo account exists in this sandbox to verify against live, whoever
-// connects a real account first should confirm this against
-// https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation
-// before relying on it in production, and bump it here (one place) if stale.
+/**
+ * DECISION: Klaviyo requires a dated revision header on every request. This
+ * is the most recent stable revision known at build time; since no real
+ * Klaviyo account exists in this sandbox to verify against live, whoever
+ * connects a real account first should confirm this against
+ * https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation
+ * before relying on it in production, and bump it here (one place) if stale.
+ */
 const REVISION = '2025-07-15';
 
 function headers(apiKey: string) {
@@ -44,9 +46,11 @@ async function pushEvent(
   return ok({ delivered: true });
 }
 
-// Profile properties (including the `unsubscribed_tryon` opt-out signal,
-// section 9.8) upsert by email — Klaviyo's profile-import endpoint
-// creates-or-updates rather than erroring on an existing profile.
+/**
+ * Profile properties (including the `unsubscribed_tryon` opt-out signal,
+ * section 9.8) upsert by email; Klaviyo's profile-import endpoint
+ * creates-or-updates rather than erroring on an existing profile.
+ */
 async function setProfileProperties(
   push: Extract<EspPush, { op: 'setProfileProperties' }>,
   ctx: Ctx,

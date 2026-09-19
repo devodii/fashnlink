@@ -25,12 +25,6 @@ export interface PollFlowProps {
   shopperId: string | null;
 }
 
-// Section 9.3: "Try 2 looks, ask friends" — a shopper tries on every product
-// in a merchant-created poll link (once their twin is ready), then shares
-// `/p/[slug]?s=<shopperId>` so friends vote on THEIR renders. `?s=` is not a
-// secret (shopperId is already an unforgeable-cookie-only value; exposing it
-// in a URL only lets someone view this shopper's poll results, nothing
-// destructive), so a plain id is fine here — no separate token needed.
 export function PollFlow({
   linkId,
   slug,

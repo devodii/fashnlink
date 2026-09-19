@@ -18,9 +18,11 @@ const FIXTURE_STORES = [
   },
 ];
 
-// Section 6.9: 2 real fixture products from carillons.be, a real live
-// PrestaShop store (jewelry/wellness accessories, confirmed via the
-// `prestashop` + `/modules/` HTML signal pair).
+/**
+ * 2 real fixture products from carillons.be, a real live
+ * PrestaShop store (jewelry/wellness accessories, confirmed via the
+ * `prestashop` + `/modules/` HTML signal pair).
+ */
 describe('prestashop adapter (fixture-based, no network)', () => {
   it('detects prestashop from real homepage signals', () => {
     const html = readFileSync(path.join(FIXTURE_DIR, 'carillons.homepage.html'), 'utf-8');

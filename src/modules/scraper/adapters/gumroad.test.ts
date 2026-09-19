@@ -12,7 +12,7 @@ const FIXTURE_STORES = [
   { name: 'annagreen', url: 'https://annagreen.gumroad.com/l/phrjT' },
 ];
 
-// Section 6.9: 2 real fixture checkout pages, no network in the test suite.
+// 2 real fixture checkout pages, no network in the test suite.
 describe('gumroad adapter (fixture-based, no network)', () => {
   it('has no listProducts capability (no catalog, section 6.5)', () => {
     expect(gumroadAdapter.capabilities.has('listProducts')).toBe(false);
@@ -48,7 +48,7 @@ describe('gumroad adapter (fixture-based, no network)', () => {
 
       expect(normalizedProductSchema.safeParse(normalized.value).success).toBe(true);
       expect(normalized.value.images.length).toBeGreaterThan(0);
-      // buyDeepLink = the same URL (section 6.5).
+      // buyDeepLink = the same URL.
       expect(gumroadAdapter.buyDeepLink?.(normalized.value)).toBe(normalized.value.url);
     });
   }

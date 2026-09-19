@@ -7,12 +7,10 @@ import { ok } from '@/lib/result';
 
 const bodySchema = z.object({ merchantId: z.string().min(1) });
 
-// Section 9.8: "/me shows every merchant the shopper is opted into with a
-// one-tap opt-out. Opt-out sets opted_out_at, deletes any campaign_items not
-// yet delivered". The ESP unsubscribe push (`unsubscribed_tryon: true`
-// property) happens in the ESP adapter layer once a merchant has a live
-// connection — no-op today if `esp_connections` has nothing for this
-// merchant, which is the common case in this sandbox/early merchants.
+/**
+ * connection; no-op today if `esp_connections` has nothing for this
+ * merchant, which is the common case in this sandbox/early merchants.
+ */
 export const POST = apiHandler({
   name: 'me.retargetOptOut',
   auth: ['shopper_session'],

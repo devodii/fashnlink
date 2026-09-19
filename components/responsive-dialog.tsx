@@ -31,7 +31,7 @@ export interface ResponsiveDialogProps {
   className?: string;
 }
 
-/** Section 10.4: `Dialog` on >= md, `Drawer` on mobile. Used for every modal
+/** `Dialog` on >= md, `Drawer` on mobile. Used for every modal
  * in the app so the interaction pattern (center dialog vs. bottom sheet)
  * stays consistent instead of decided per feature. */
 export function ResponsiveDialog({

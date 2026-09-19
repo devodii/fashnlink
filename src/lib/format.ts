@@ -1,6 +1,8 @@
-// Generic display formatters used across shopper/merchant pages and the
-// share card (section 9.1) — the inverse of scraper/shared/price.ts's
-// string-to-cents parsing.
+/**
+ * Generic display formatters used across shopper/merchant pages and the
+ * share card; the inverse of scraper/shared/price.ts's
+ * string-to-cents parsing.
+ */
 export function formatPriceCents(cents: number | null, currency: string | null): string {
   if (cents === null) return '';
   try {

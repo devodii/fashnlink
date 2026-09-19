@@ -3,10 +3,12 @@ import '@/lib/api-handler-routes';
 import { apiHandler, mcpToolsRegistry } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
 
-// Only routes that opt in via `config.mcp` appear here (most routes — e.g.
-// webhooks — have no business being an agent tool). Shape matches what an
-// MCP server's `tools/list` response expects, so a future MCP transport
-// (Phase 2) can wrap this listing directly instead of hand-defining tools.
+/**
+ * Only routes that opt in via `config.mcp` appear here (most routes; e.g.
+ * webhooks; have no business being an agent tool). Shape matches what an
+ * MCP server's `tools/list` response expects, so a future MCP transport
+ * (Phase 2) can wrap this listing directly instead of hand-defining tools.
+ */
 function describeMcpTools() {
   return Array.from(mcpToolsRegistry.values()).map((route) => ({
     name: route.mcp!.name,

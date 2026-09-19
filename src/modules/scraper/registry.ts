@@ -7,14 +7,16 @@ import {
   type ScraperCapability,
 } from './types';
 
-// The "richer" specialization section 4 refers to ("scraper adapters use the
-// richer ScraperAdapter interface behind ScraperRegistry, which extends
-// AdapterRegistry with capability queries"). It does not literally extend the
-// generic `AdapterRegistry<TInput,TOutput,TKey>` class — a ScraperAdapter's
-// shape (detect/getProduct/normalize + several optional methods) doesn't fit
-// that class's single `canHandle`/`run` pair, so forcing inheritance would
-// mean wrapping every adapter in an adapter. Composition here keeps the same
-// role (priority-ordered resolution, `get`, `list`) without a fake fit.
+/**
+ * The "richer" specialization section 4 refers to ("scraper adapters use the
+ * richer ScraperAdapter interface behind ScraperRegistry, which extends
+ * AdapterRegistry with capability queries"). It does not literally extend the
+ * generic `AdapterRegistry<TInput,TOutput,TKey>` class; a ScraperAdapter's
+ * shape (detect/getProduct/normalize + several optional methods) doesn't fit
+ * that class's single `canHandle`/`run` pair, so forcing inheritance would
+ * mean wrapping every adapter in an adapter. Composition here keeps the same
+ * role (priority-ordered resolution, `get`, `list`) without a fake fit.
+ */
 export class ScraperRegistry {
   constructor(private adapters: ScraperAdapter[]) {
     this.assertCapabilities();
@@ -49,8 +51,10 @@ export class ScraperRegistry {
     return [...this.adapters].sort((a, b) => a.priority - b.priority);
   }
 
-  // Section 6.2/6.5: host patterns first (no network), then a homepage probe
-  // through adapters in priority order, then `generic` as the final fallback.
+  /**
+   * host patterns first (no network), then a homepage probe
+   * through adapters in priority order, then `generic` as the final fallback.
+   */
   async resolveByUrl(
     url: URL,
     ctx: Ctx,
@@ -74,7 +78,7 @@ export class ScraperRegistry {
   }
 }
 
-// One homepage GET (section 6.2 step 2), shared by every adapter's `detect`.
+// One homepage GET, shared by every adapter's `detect`.
 export async function probeHomepage(url: URL, ctx: Ctx): Promise<HomepageProbe> {
   const fetchImpl = ctx.fetch ?? createFetch({ log: ctx.log });
   const origin = `${url.protocol}//${url.host}`;

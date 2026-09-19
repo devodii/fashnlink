@@ -20,10 +20,12 @@ const querySchema = z.object({
   id: z.string(),
 });
 
-// Section 8.4/7.1: fal delivers webhooks to this route (URL built in
-// twin.ts / the render-submission path with `kind`+`id` so this handler
-// knows which row to update without an ambiguous lookup by providerJobId
-// alone — same `request_id` shape could theoretically recur across rows).
+/**
+ * fal delivers webhooks to this route (URL built in
+ * twin.ts / the render-submission path with `kind`+`id` so this handler
+ * knows which row to update without an ambiguous lookup by providerJobId
+ * alone; same `request_id` shape could theoretically recur across rows).
+ */
 export const POST = apiHandler({
   name: 'webhooks.fal',
   auth: ['webhook'],
@@ -74,9 +76,11 @@ export const POST = apiHandler({
       return err({ code: 'NOT_FOUND', message: 'render not found' });
     }
 
-    // Section 9.8: a campaign-driven render (`via: 'campaign'`) has no
-    // `linkId` — its merchant comes from campaign_items -> campaigns
-    // instead. Every other `via` value always has a link.
+    /**
+     * a campaign-driven render (`via: 'campaign'`) has no
+     * `linkId`; its merchant comes from campaign_items -> campaigns
+     * instead. Every other `via` value always has a link.
+     */
     let merchantId: string | null = null;
     if (render.linkId) {
       const [link] = await db
@@ -106,10 +110,12 @@ export const POST = apiHandler({
         .update(renders)
         .set({ error: { message: parsed.value.error ?? 'render failed' }, status: 'failed' })
         .where(eq(renders.id, render.id));
-      // Campaign renders were never individually credited (the whole
-      // campaign's credits are reserved up front, section 9.8) — refunding
-      // per-render here would over-credit the merchant. The drop fan-out job
-      // releases the unused portion once the whole campaign finishes instead.
+      /**
+       * Campaign renders were never individually credited (the whole
+       * campaign's credits are reserved up front, section 9.8); refunding
+       * per-render here would over-credit the merchant. The drop fan-out job
+       * releases the unused portion once the whole campaign finishes instead.
+       */
       if (render.linkId && merchantId) {
         await refundFailedRender(merchantId, render.id);
       }
@@ -140,12 +146,14 @@ export const POST = apiHandler({
     const watermarked = merchant?.watermarkEnabled ?? true;
 
     if (watermarked) {
-      // Section 7.3: small text mark, bottom-right, token-driven (white on a
-      // dark scrim). A raw hex/rgb literal here would be exactly the kind of
-      // off-token color the rest of the UI is banned from using, but this is
-      // a server-side raster composite, not a Tailwind class — sharp needs
-      // real color values, so the scrim/text colors are named constants
-      // instead of a class name.
+      /**
+       * small text mark, bottom-right, token-driven (white on a
+       * dark scrim). A raw hex/rgb literal here would be exactly the kind of
+       * off-token color the rest of the UI is banned from using, but this is
+       * a server-side raster composite, not a Tailwind class; sharp needs
+       * real color values, so the scrim/text colors are named constants
+       * instead of a class name.
+       */
       const metadata = await sharp(bytes).metadata();
       const width = metadata.width ?? 1024;
       const height = metadata.height ?? 1024;
@@ -172,9 +180,11 @@ export const POST = apiHandler({
       .where(eq(renders.id, render.id));
 
     if (render.via === 'campaign') {
-      // `delivered_at` (section 5) means "the ESP confirmed the event", set
-      // later when the campaign's completion step actually pushes it — not
-      // here, which is only the render finishing.
+      /**
+       * `delivered_at` means "the ESP confirmed the event", set
+       * later when the campaign's completion step actually pushes it; not
+       * here, which is only the render finishing.
+       */
       await db
         .update(campaignItems)
         .set({ status: 'rendered' })

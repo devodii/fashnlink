@@ -10,8 +10,8 @@ export interface CreditMeterProps {
   className?: string;
 }
 
-/** Section 10.4/13: merchant render-credit balance — `reserved` covers a
- * pending campaign (section 9.8) not yet settled against `balance`. */
+/** merchant render-credit balance; `reserved` covers a
+ * pending campaign not yet settled against `balance`. */
 export function CreditMeter({
   balance,
   reserved = 0,

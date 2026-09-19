@@ -10,15 +10,15 @@ const bodySchema = z.object({
   renderId: z.string().min(1),
   chosenVariantId: z.string().min(1).nullable().optional(),
   note: z.string().max(280).nullable().optional(),
-  // Section 9.4: "Members opt in to show their face to the group" — off by
-  // default, never inferred from anything else.
   showInGroup: z.boolean().optional().default(false),
 });
 
-// Section 9.4: "I'm in: size / color" — one `group_members` row per shopper
-// per group link. A shopper re-submitting updates their existing pick rather
-// than creating a duplicate row (no unique index on the table, so this is
-// enforced here, not by the DB).
+/**
+ * "I'm in: size / color"; one `group_members` row per shopper
+ * per group link. A shopper re-submitting updates their existing pick rather
+ * than creating a duplicate row (no unique index on the table, so this is
+ * enforced here, not by the DB).
+ */
 export const POST = apiHandler({
   name: 'groups.join',
   auth: ['shopper_session'],

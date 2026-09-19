@@ -1,7 +1,9 @@
 import type { GarmentCategory } from '@/modules/scraper/types';
 
-// Section 6.6 — garment category from productType/tags/title, keyword table
-// first, vision fallback only when nothing here matches.
+/**
+ * ; garment category from productType/tags/title, keyword table
+ * first, vision fallback only when nothing here matches.
+ */
 export const GARMENT_CATEGORY_KEYWORDS: Record<Exclude<GarmentCategory, 'unknown'>, string[]> = {
   top: ['shirt', 'tee', 't-shirt', 'blouse', 'top', 'sweater', 'hoodie', 'cardigan', 'tank'],
   bottom: ['skirt', 'trousers', 'pants', 'jeans', 'shorts', 'leggings'],

@@ -22,16 +22,18 @@ export const dynamic = 'force-dynamic';
 
 const ABANDON_AFTER_HOURS = 24;
 const CAP_DAYS = 7;
-const SIGNED_URL_EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 30 days (section 9.8)
+const SIGNED_URL_EXPIRY_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
-// Section 9.8 Kind A, "Abandoned Cart Printer". DECISION: `cart_events` isn't
-// fed by real storefront cart/checkout webhooks yet (that's explicitly
-// Phase 2, section 12 — "Shopify theme app extension + order webhooks").
-// `renders.buyClickedAt IS NULL` (already built by M4) is the actual
-// tryon-no-buy SIGNAL; this cron's own writes into `cart_events` (kind
-// `tryon_no_buy`) are the AUDIT TRAIL of what's already been pushed, and
-// double as the per-shopper-per-merchant 7-day dedupe key. One table, one
-// job — not two parallel tracking mechanisms.
+/**
+ * Kind A, "Abandoned Cart Printer". DECISION: `cart_events` isn't
+ * fed by real storefront cart/checkout webhooks yet (that's explicitly
+ * Phase 2, section 12; "Shopify theme app extension + order webhooks").
+ * `renders.buyClickedAt IS NULL` (already built by M4) is the actual
+ * tryon-no-buy SIGNAL; this cron's own writes into `cart_events` (kind
+ * `tryon_no_buy`) are the AUDIT TRAIL of what's already been pushed, and
+ * double as the per-shopper-per-merchant 7-day dedupe key. One table, one
+ * job; not two parallel tracking mechanisms.
+ */
 export const GET = apiHandler({
   name: 'cron.abandoned',
   auth: ['cron'],

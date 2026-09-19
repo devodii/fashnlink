@@ -5,18 +5,22 @@ import type { DetectResult, HomepageProbe, ScraperAdapter, StoreRef } from '../t
 import type { NormalizedProduct } from '../schema';
 import { mapVariantOptions } from '../shared/options';
 
-// Store API prices are integer strings scaled by `10^currency_minor_unit`
-// (e.g. "2000" at minor_unit 2 == $20.00) — rescale to our own always-cents
-// (`priceCents`, i.e. *100) convention regardless of the store's minor unit.
+/**
+ * Store API prices are integer strings scaled by `10^currency_minor_unit`
+ * (e.g. "2000" at minor_unit 2 == $20.00); rescale to our own always-cents
+ * (`priceCents`, i.e. *100) convention regardless of the store's minor unit.
+ */
 function wooPriceToCents(priceStr: string, minorUnit: number): number | null {
   const raw = parseInt(priceStr, 10);
   if (!Number.isFinite(raw)) return null;
   return Math.round((raw / 10 ** minorUnit) * 100);
 }
 
-// Section 6.5's WooCommerce adapter — the Store API (`wc/store/v1`), not the
-// authenticated REST API (no API key needed, it's the same data the theme's
-// own JS uses to render the page).
+/**
+ * WooCommerce adapter; the Store API (`wc/store/v1`), not the
+ * authenticated REST API (no API key needed, it's the same data the theme's
+ * own JS uses to render the page).
+ */
 
 const wooImageSchema = z.object({
   id: z.number(),
@@ -62,9 +66,11 @@ export const woocommerceRawSchema = z.object({
   is_in_stock: z.boolean().optional().default(true),
 });
 
-// A resolved variation is the same shape as a product (the Store API returns
-// `type: "variation"` products for variation ids), narrowed to the fields
-// `normalize()` actually needs.
+/**
+ * A resolved variation is the same shape as a product (the Store API returns
+ * `type: "variation"` products for variation ids), narrowed to the fields
+ * `normalize()` actually needs.
+ */
 const wooResolvedVariationSchema = z.object({
   id: z.number(),
   sku: z.string().nullable().optional(),
@@ -96,21 +102,25 @@ async function fetchJson<T>(url: string, ctx: Ctx): Promise<Result<T>> {
   }
 }
 
-// `GET /wp-json/...` first; on a 404 (some hosts block pretty permalinks for
-// the REST base), retry the `?rest_route=` form — same response shape either
-// way, just a different URL construction (section 6.5).
+/**
+ * `GET /wp-json/...` first; on a 404 (some hosts block pretty permalinks for
+ * the REST base), retry the `?rest_route=` form; same response shape either
+ * way, just a different URL construction.
+ */
 async function fetchStoreApi<T>(origin: string, path: string, ctx: Ctx): Promise<Result<T>> {
   const pretty = await fetchJson<T>(`${origin}/wp-json${path}`, ctx);
   if (pretty.ok) return pretty;
   return fetchJson<T>(`${origin}/?rest_route=${path}`, ctx);
 }
 
-// Section 6.5: extract the WordPress post id from the product page HTML —
-// the `<body class="... postid-{id} ...">` WordPress always renders for the
-// single post/product currently being viewed is the most reliable signal
-// (unlike a bare `data-product_id="{id}"`, which also appears on related-
-// product widgets elsewhere on the page and isn't reliably the FIRST match).
-// `data-product_id` and JSON-LD `@id` are the documented fallbacks.
+/**
+ * extract the WordPress post id from the product page HTML ;
+ * the `<body class="... postid-{id} ...">` WordPress always renders for the
+ * single post/product currently being viewed is the most reliable signal
+ * (unlike a bare `data-product_id="{id}"`, which also appears on related-
+ * product widgets elsewhere on the page and isn't reliably the FIRST match).
+ * `data-product_id` and JSON-LD `@id` are the documented fallbacks.
+ */
 function extractProductId(html: string): string | null {
   const bodyTag = html.match(/<body[^>]*>/i)?.[0];
   const postId = bodyTag?.match(/\bpostid-(\d+)\b/)?.[1];
@@ -141,11 +151,13 @@ export const woocommerceAdapter: ScraperAdapter = {
   key: 'woocommerce',
   displayName: 'WooCommerce',
   priority: 20,
-  // DECISION: no `freshness` capability — the Store API exposes no
-  // `date_modified` (section 6.5), and there's no other reliable per-product
-  // timestamp to key a `freshnessKey()` off. The pipeline's own universal
-  // `content_hash` (computed from the normalized product, every platform)
-  // already covers cheap change detection without one.
+  /**
+   * DECISION: no `freshness` capability; the Store API exposes no
+   * `date_modified`, and there's no other reliable per-product
+   * timestamp to key a `freshnessKey()` off. The pipeline's own universal
+   * `content_hash` (computed from the normalized product, every platform)
+   * already covers cheap change detection without one.
+   */
   capabilities: new Set([
     'detect',
     'getProduct',
@@ -157,17 +169,19 @@ export const woocommerceAdapter: ScraperAdapter = {
   rawSchema: woocommerceRawSchema,
 
   async detect(page: HomepageProbe, ctx: Ctx): Promise<DetectResult> {
-    // DECISION: found via real-world testing, not spec text — a lone
-    // `/wp-content/` match is NOT sufficient on its own (unlike a real bug
-    // this caught: carillons.be is a real PrestaShop store with a companion
-    // WordPress *blog* at /blog, whose embedded post-thumbnail URLs contain
-    // `/wp-content/` and nothing else WooCommerce-specific, which falsely
-    // matched WooCommerce before this fix). Section 6.3's own table entry
-    // requires two independent HTML signals before trusting a match — this
-    // adapter's detect() hadn't actually enforced that the same way
-    // `src/modules/scraper/detect.ts`'s fingerprinting detector does; now it
-    // does. A successful live Store API probe is treated as authoritative on
-    // its own since it can't false-positive the way a substring match can.
+    /**
+     * DECISION: found via real-world testing, not spec text; a lone
+     * `/wp-content/` match is NOT sufficient on its own (unlike a real bug
+     * this caught: carillons.be is a real PrestaShop store with a companion
+     * WordPress *blog* at /blog, whose embedded post-thumbnail URLs contain
+     * `/wp-content/` and nothing else WooCommerce-specific, which falsely
+     * matched WooCommerce before this fix). Section 6.3's own table entry
+     * requires two independent HTML signals before trusting a match; this
+     * adapter's detect() hadn't actually enforced that the same way
+     * `src/modules/scraper/detect.ts`'s fingerprinting detector does; now it
+     * does. A successful live Store API probe is treated as authoritative on
+     * its own since it can't false-positive the way a substring match can.
+     */
     const htmlSignals: string[] = [];
     if (page.html.includes('/wp-content/')) htmlSignals.push('html:/wp-content/');
     if (/woocommerce|wc-blocks|wc_add_to_cart_params/.test(page.html))
@@ -193,7 +207,7 @@ export const woocommerceAdapter: ScraperAdapter = {
       const pageRes = await ctx.fetch(url.toString());
       if (pageRes.ok) pageHtml = await pageRes.text();
     } catch {
-      // fall through — extractProductId(null) below returns null, handled
+      // fall through; extractProductId(null) below returns null, handled
     }
 
     const productId = pageHtml ? extractProductId(pageHtml) : null;
@@ -246,9 +260,11 @@ export const woocommerceAdapter: ScraperAdapter = {
     const items = (Array.isArray(raw) ? raw : [])
       .map((p) => woocommerceRawSchema.safeParse(p))
       .filter((r): r is { success: true; data: z.infer<typeof woocommerceRawSchema> } => r.success)
-      // Catalog crawl does NOT resolve variations per product (section 6.5:
-      // "not for the whole catalog up front") — only `getProduct` (a single
-      // pasted/linked URL) does.
+      /**
+       * Catalog crawl does NOT resolve variations per product (section 6.5:
+       * "not for the whole catalog up front"); only `getProduct` (a single
+       * pasted/linked URL) does.
+       */
       .map((r) => ({
         ...r.data,
         storeOrigin: origin,

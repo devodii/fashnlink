@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { parseNanoBananaWebhook } from './nano-banana';
 
-// Payload shape matches nano-banana-2/edit's documented response
-// (fal.ai/models/fal-ai/nano-banana-2/edit/api, verified 2026-09-19).
+/**
+ * Payload shape matches nano-banana-2/edit's documented response
+ * (fal.ai/models/fal-ai/nano-banana-2/edit/api, verified 2026-09-19).
+ */
 describe('parseNanoBananaWebhook', () => {
   it('parses a successful completion', () => {
     const payload = {

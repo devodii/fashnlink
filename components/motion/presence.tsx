@@ -8,7 +8,7 @@ export interface PresenceProps {
   mode?: 'wait' | 'popLayout' | 'sync';
 }
 
-/** Section 10.6: thin `AnimatePresence` wrapper so call sites import from
+/** thin `AnimatePresence` wrapper so call sites import from
  * `components/motion` rather than `framer-motion` directly. */
 export function Presence({ children, mode = 'wait' }: PresenceProps) {
   return <AnimatePresence mode={mode}>{children}</AnimatePresence>;

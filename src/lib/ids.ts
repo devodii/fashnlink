@@ -1,7 +1,7 @@
 import { customAlphabet } from 'nanoid';
 import { ulid } from 'ulid';
 
-// Typed id generators (section 4): `newId('prod')` -> `prod_01J...`.
+// Typed id generators: `newId('prod')` -> `prod_01J...`.
 export const ID_PREFIXES = [
   'merch',
   'store',
@@ -34,8 +34,10 @@ export function newId<TPrefix extends IdPrefix>(prefix: TPrefix): `${TPrefix}_${
   return `${prefix}_${ulid()}`;
 }
 
-// Public link slugs (section 4): 7-char base62, ambiguous characters
-// (0/O/1/l/I) excluded so a slug is safe to read aloud or hand-copy.
+/**
+ * Public link slugs: 7-char base62, ambiguous characters
+ * (0/O/1/l/I) excluded so a slug is safe to read aloud or hand-copy.
+ */
 const SLUG_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 const generateSlug = customAlphabet(SLUG_ALPHABET, 7);
 

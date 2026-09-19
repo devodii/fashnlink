@@ -11,9 +11,11 @@ import type {
 import type { NormalizedProduct } from '@/modules/scraper/schema';
 
 export type UpsertProductInput = {
-  // Caller-supplied (section 6.6's image storage keys are built from this id
-  // *before* the row exists, so the pipeline must know it up front rather
-  // than receiving one back from an insert that happens after enrichment).
+  /**
+   * Caller-supplied (section 6.6's image storage keys are built from this id
+   * *before* the row exists, so the pipeline must know it up front rather
+   * than receiving one back from an insert that happens after enrichment).
+   */
   id: string;
   storeId: string;
   normalized: NormalizedProduct;
@@ -123,11 +125,13 @@ export async function replaceProductVariants(
     .returning();
 }
 
-// Section 8.4/6.2's `refresh-catalogs` cron: a lighter update for a product
-// that already exists (found again in a catalog re-crawl) — live fields only
-// (price, availability, freshness), never touching garment/eligibility
-// classification, which came from a real vision/Jev call the refresh isn't
-// re-running. `content_hash` still detects when nothing actually changed.
+/**
+ * `refresh-catalogs` cron: a lighter update for a product
+ * that already exists (found again in a catalog re-crawl); live fields only
+ * (price, availability, freshness), never touching garment/eligibility
+ * classification, which came from a real vision/Jev call the refresh isn't
+ * re-running. `content_hash` still detects when nothing actually changed.
+ */
 export async function refreshProductLiveFields(
   productId: string,
   patch: {
@@ -145,10 +149,12 @@ export async function refreshProductLiveFields(
     .where(eq(products.id, productId));
 }
 
-// `/dashboard/products` (section 8.2) — every product scraped into any store
-// this merchant owns, with a flag for "no usable try-on image" so the page
-// can surface it per spec ("shows which products have no usable try-on
-// image ... with a hint").
+/**
+ * `/dashboard/products`; every product scraped into any store
+ * this merchant owns, with a flag for "no usable try-on image" so the page
+ * can surface it per spec ("shows which products have no usable try-on
+ * image ... with a hint").
+ */
 export async function findProductsForMerchant(merchantId: string) {
   const rows = await db
     .select({

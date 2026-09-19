@@ -6,10 +6,6 @@ import { links } from '@/db/schema';
 import { closePoll } from '@/db/repos/links';
 import { err, ok } from '@/lib/result';
 
-// Section 9.3: "Poll closes ... when the creator taps 'decide'." The
-// merchant who owns the link is the one who can force-close it early — a
-// shopper-created poll (`settings.createdByShopper`) still belongs to the
-// merchant's link row, so this stays merchant-session gated, not opened up
 // to arbitrary shoppers.
 export const POST = apiHandler({
   name: 'polls.close',

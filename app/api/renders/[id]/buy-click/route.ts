@@ -7,9 +7,6 @@ import { ok } from '@/lib/result';
 
 const paramsSchema = z.object({ id: z.string() });
 
-// Section 8.3/9.8: "Buy click sets renders.buy_clicked_at" — read by the
-// abandoned-try-on cron (section 9.8, Kind A) to distinguish a try-on that
-// led to a buy click from one that didn't. First click only (idempotent).
 export const POST = apiHandler({
   name: 'renders.buyClick',
   auth: ['shopper_session'],

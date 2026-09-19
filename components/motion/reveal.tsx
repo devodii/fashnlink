@@ -10,12 +10,12 @@ export interface RevealProps {
   from: React.ReactNode;
   to: React.ReactNode;
   /** Give the container an explicit size (e.g. `aspect-[3/4]`, section 10.2)
-   * — both layers are absolutely positioned to crossfade, so this component
+   *; both layers are absolutely positioned to crossfade, so this component
    * has no intrinsic size of its own. */
   className?: string;
 }
 
-/** Section 10.6: the render reveal — product image scales 1 -> 1.02 and dims
+/** the render reveal; product image scales 1 -> 1.02 and dims
  * while a shimmer (a moving `bg-muted` band, not a gradient) passes; on
  * completion, crossfades to the render over 600ms with a 1.02 -> 1 settle.
  * The only animated loading texture in the app. */

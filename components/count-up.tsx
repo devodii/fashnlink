@@ -6,7 +6,7 @@ export interface CountUpProps {
   className?: string;
 }
 
-/** Section 10.4: thin wrapper so call sites (`StatCard`, dashboards) don't
+/** thin wrapper so call sites (`StatCard`, dashboards) don't
  * reach into `components/motion` directly. */
 export function CountUp({ value, formatter, className }: CountUpProps) {
   return <NumberTicker value={value} formatter={formatter} className={className} />;

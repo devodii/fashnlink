@@ -15,8 +15,10 @@ const FIXTURE_STORES = [
   },
 ];
 
-// Section 6.9: 2 real fixture products from puma.com (a real, live Salesforce
-// Commerce Cloud / Demandware storefront).
+/**
+ * 2 real fixture products from puma.com (a real, live Salesforce
+ * Commerce Cloud / Demandware storefront).
+ */
 describe('salesforce adapter (fixture-based, no network)', () => {
   it('detects salesforce from real homepage signals', () => {
     const html = readFileSync(path.join(FIXTURE_DIR, 'puma.homepage.html'), 'utf-8');

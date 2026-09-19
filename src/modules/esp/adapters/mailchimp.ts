@@ -3,8 +3,10 @@ import type { Adapter, Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import type { EspPush, EspPushResult } from '../types';
 
-// Mailchimp's Marketing API is datacenter-scoped — the datacenter suffix
-// (e.g. "us21") is embedded in the API key itself, after the last hyphen.
+/**
+ * Mailchimp's Marketing API is datacenter-scoped; the datacenter suffix
+ * (e.g. "us21") is embedded in the API key itself, after the last hyphen.
+ */
 function apiBase(apiKey: string): string {
   const dc = apiKey.split('-').pop();
   return `https://${dc}.api.mailchimp.com/3.0`;
@@ -18,18 +20,18 @@ function headers(apiKey: string) {
   };
 }
 
-// Mailchimp addresses list members by the lowercased MD5 of their email —
-// not an internal id you look up first.
+/**
+ * Mailchimp addresses list members by the lowercased MD5 of their email ;
+ * not an internal id you look up first.
+ */
 function subscriberHash(email: string): string {
   return createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 }
 
-// Section 9.8: "Mailchimp: set merge fields TRYONIMG, TRYONURL, TRYONPROD on
-// the member and add tag tryon-abandoned" (or the drop-kind equivalents) —
-// this adapter's `properties` map is expected to already use Mailchimp's
-// merge-field-name keys; the caller (the abandoned/drop job) is responsible
-// for that mapping, not this adapter, same separation as Klaviyo's adapter
-// not knowing about Klaviyo-specific property naming either.
+/**
+ * for that mapping, not this adapter, same separation as Klaviyo's adapter
+ * not knowing about Klaviyo-specific property naming either.
+ */
 async function upsertMember(
   push: Extract<EspPush, { op: 'event' | 'setProfileProperties' }>,
   ctx: Ctx,

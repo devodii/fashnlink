@@ -6,15 +6,6 @@ import { childLogger } from '@/lib/log';
 
 const log = childLogger('shoppers.delete-everything');
 
-// Section 7.4: "delete button that actually delete[s] from R2 [now
-// UploadThing] and DB." Photos are hard-deleted (selfie + generated twin);
-// renders keep their row as a tombstone with the image reference cleared
-// (section 7.4's exact wording), not deleted outright — the merchant-side
-// aggregate counts (render_count, credit ledger) stay accurate. The
-// `shoppers` row itself is soft-deleted (`deletedAt`, section 5 already has
-// the column) rather than hard-deleted, matching every other table's
-// soft-delete convention; email is cleared since it's the one piece of PII
-// on that row.
 export async function deleteEverythingForShopper(shopperId: string): Promise<void> {
   const shopperTwins = await db
     .select({ id: twins.id, selfieR2Key: twins.selfieR2Key, twinR2Key: twins.twinR2Key })
@@ -35,10 +26,6 @@ export async function deleteEverythingForShopper(shopperId: string): Promise<voi
     await db.delete(twins).where(eq(twins.shopperId, shopperId));
   }
 
-  // Section 9.8: "Deleting the twin cancels all pending campaign items for
-  // that shopper everywhere." This is the only place a shopper's twins are
-  // ever deleted (there's no standalone per-twin delete route yet), so it's
-  // the one place this cancellation needs to happen.
   await db
     .delete(campaignItems)
     .where(and(eq(campaignItems.shopperId, shopperId), eq(campaignItems.status, 'pending')));

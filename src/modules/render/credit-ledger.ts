@@ -16,13 +16,6 @@ export type CreateRenderInput = {
   via: (typeof renderViaEnum.enumValues)[number];
 };
 
-// Section 7.3: "Every submitted render writes a credit_ledger row with
-// delta: -1 for the link's merchant, atomically with the insert of the
-// render (single transaction). If balance would go below 0, return
-// INSUFFICIENT_CREDITS." Balance is computed from the ledger, never cached
-// (section 5) — the `SELECT ... FOR UPDATE` on the merchant's latest ledger
-// row is what makes the check-then-insert race-free under concurrent
-// submissions for the same merchant, not the transaction alone.
 export async function reserveRenderCredit(
   input: CreateRenderInput,
 ): Promise<Result<{ renderId: string }>> {
@@ -78,9 +71,6 @@ export async function reserveRenderCredit(
   }
 }
 
-// Section 7.3: "Failed renders are refunded to the merchant's ledger
-// automatically." Append-only — this is a `+1` reversal row, never an edit
-// or delete of the original `-1` row.
 export async function refundFailedRender(
   merchantId: string,
   renderId: string,
@@ -119,11 +109,6 @@ export async function currentBalance(merchantId: string): Promise<number> {
   return row?.balance ?? 0;
 }
 
-// M5: any positive-delta grant that isn't a render refund — founding-pass
-// purchase (section 8.4/13), the free signup grant, the model-pack's
-// separate one-time allotment (section 8.2/13). Same `SELECT ... FOR UPDATE`
-// race-free pattern as `reserveRenderCredit`/`refundFailedRender` above, so
-// `refAfter` is never computed outside a lock that guarantees it's correct.
 export async function grantCredits(
   merchantId: string,
   amount: number,
@@ -155,14 +140,6 @@ export async function grantCredits(
   }
 }
 
-// Section 9.8 (new drop campaigns): "confirm reserves credits" up front for
-// the whole campaign (audience × products), a single negative ledger row —
-// NOT one row per render, since the fan-out job hasn't run any renders yet
-// when the merchant confirms. `releaseCredits` refunds the unused portion
-// (skipped/failed items, section 9.8's "released for any skipped item") as
-// its own positive row — same append-only, `SELECT ... FOR UPDATE`-guarded
-// pattern as every other ledger mutation in this file, never an edit of the
-// original reservation row.
 export async function reserveCredits(
   merchantId: string,
   amount: number,

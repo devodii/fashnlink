@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
-// Section 6.4 — the one shape every platform adapter normalizes into. Nothing
-// downstream (wearable gate, enrichment, repos) ever looks at platform-raw
-// data again once this exists.
+/**
+ * ; the one shape every platform adapter normalizes into. Nothing
+ * downstream (wearable gate, enrichment, repos) ever looks at platform-raw
+ * data again once this exists.
+ */
 export const normalizedProductImageSchema = z.object({
   url: z.string(),
   alt: z.string().nullable(),
@@ -52,9 +54,11 @@ export type NormalizedProduct = z.infer<typeof normalizedProductSchema>;
 export type NormalizedProductImage = z.infer<typeof normalizedProductImageSchema>;
 export type NormalizedProductVariant = z.infer<typeof normalizedProductVariantSchema>;
 
-// A platform's own response shape, validated by that adapter's own
-// `rawSchema` before `normalize()` ever sees it (section 6.5). Kept as
-// `unknown` here on purpose — each adapter narrows it internally.
+/**
+ * A platform's own response shape, validated by that adapter's own
+ * `rawSchema` before `normalize()` ever sees it. Kept as
+ * `unknown` here on purpose; each adapter narrows it internally.
+ */
 export type RawProduct = unknown;
 
 export type StoreInfo = {

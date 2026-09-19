@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { fashnProvider } from './fashn';
 
-// Realistic payloads matching fal's documented webhook shape
-// (fal.ai/docs/model-endpoints/queue) and FASHN v1.6's own response schema
-// (fal.ai/models/fal-ai/fashn/tryon/v1.6/api), both verified 2026-09-19.
+/**
+ * Realistic payloads matching fal's documented webhook shape
+ * (fal.ai/docs/model-endpoints/queue) and FASHN v1.6's own response schema
+ * (fal.ai/models/fal-ai/fashn/tryon/v1.6/api), both verified 2026-09-19.
+ */
 describe('fashnProvider.parseWebhook', () => {
   it('parses a successful completion', () => {
     const payload = {

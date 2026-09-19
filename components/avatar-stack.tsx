@@ -19,7 +19,7 @@ export interface AvatarStackProps {
   className?: string;
 }
 
-/** Section 10.4: group members (section 9.4) — thin wrapper over the
+/** group members; thin wrapper over the
  * generated `AvatarGroup` primitive that takes plain `{ src, alt }` data. */
 export function AvatarStack({ items, max = 5, size = 'default', className }: AvatarStackProps) {
   const visible = items.slice(0, max);

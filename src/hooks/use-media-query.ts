@@ -8,7 +8,7 @@ function subscribe(query: string, callback: () => void) {
   return () => mql.removeEventListener('change', callback);
 }
 
-/** SSR-safe media query hook (section 2/10.4). Returns `false` on the server
+/** SSR-safe media query hook. Returns `false` on the server
  * and on first client render before hydration can read `matchMedia`. */
 export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(

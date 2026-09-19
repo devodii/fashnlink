@@ -10,23 +10,25 @@ import { scraperRegistry } from './index';
 
 const payloadSchema = z.object({ storeId: z.string() });
 
-// Section 6.2/8.4: catalog refresh, reached two ways — reactively, one job
-// per store, enqueued by `scrapeUrl` after any single-product scrape
-// (section 6.2 step 7); and proactively by the `refresh-catalogs` cron
-// (below), which enqueues one per eligible store on a schedule. Both funnel
-// through this one handler so there is exactly one catalog-crawl code path.
-//
-// DECISION: scoped to REFRESHING products that already exist (price,
-// availability, freshness) — first page of `listProducts` only, no
-// pagination loop, no new-product discovery. Running the full wearable-gate
-// + vision/Jev enrichment pipeline (`scrapeUrl`'s product-mode path) against
-// an entire catalog on every refresh would be far more expensive than what a
-// "keep known products' live fields current" cron needs, and that pipeline
-// isn't currently factored out into a reusable single-product function this
-// handler could call per catalog item without duplicating it. Discovering
-// brand-new catalog products this way is a real gap, not silently pretended
-// otherwise — it's the same "paste it yourself" path (onboarding / new link)
-// until a future pass extracts that pipeline into something this can reuse.
+/**
+ * catalog refresh, reached two ways; reactively, one job
+ * per store, enqueued by `scrapeUrl` after any single-product scrape
+ * ; and proactively by the `refresh-catalogs` cron
+ * (below), which enqueues one per eligible store on a schedule. Both funnel
+ * through this one handler so there is exactly one catalog-crawl code path.
+ *
+ * DECISION: scoped to REFRESHING products that already exist (price,
+ * availability, freshness); first page of `listProducts` only, no
+ * pagination loop, no new-product discovery. Running the full wearable-gate
+ * + vision/Jev enrichment pipeline (`scrapeUrl`'s product-mode path) against
+ * an entire catalog on every refresh would be far more expensive than what a
+ * "keep known products' live fields current" cron needs, and that pipeline
+ * isn't currently factored out into a reusable single-product function this
+ * handler could call per catalog item without duplicating it. Discovering
+ * brand-new catalog products this way is a real gap, not silently pretended
+ * otherwise; it's the same "paste it yourself" path (onboarding / new link)
+ * until a future pass extracts that pipeline into something this can reuse.
+ */
 registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
   const parsed = payloadSchema.safeParse(payload);
   if (!parsed.success)

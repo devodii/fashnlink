@@ -21,18 +21,20 @@ function readJson(file: string) {
   return JSON.parse(readFileSync(path.join(FIXTURE_DIR, file), 'utf-8'));
 }
 
-// Section 6.9: fixture-based unit tests per adapter (recorded real responses,
-// no network), plus the normalizer property test.
-//
-// Only 4 real fixture stores here, not 5 — documented shortfall, not a
-// fabricated fixture. A wide search for a 5th real, independent Squarespace
-// merchant (beyond template/demo sites) during fixture collection kept
-// turning up dead domains, sites migrated off Squarespace, or product
-// collections that don't expose ?format=json data (the collection endpoint
-// only returns item data for genuine "product index" collections — several
-// real candidate stores' /shop pages returned an empty `items: []` for
-// reasons not fully diagnosable from the outside, e.g. a different block
-// type or access-restricted collection).
+/**
+ * fixture-based unit tests per adapter (recorded real responses,
+ * no network), plus the normalizer property test.
+ *
+ * Only 4 real fixture stores here, not 5; documented shortfall, not a
+ * fabricated fixture. A wide search for a 5th real, independent Squarespace
+ * merchant (beyond template/demo sites) during fixture collection kept
+ * turning up dead domains, sites migrated off Squarespace, or product
+ * collections that don't expose ?format=json data (the collection endpoint
+ * only returns item data for genuine "product index" collections; several
+ * real candidate stores' /shop pages returned an empty `items: []` for
+ * reasons not fully diagnosable from the outside, e.g. a different block
+ * type or access-restricted collection).
+ */
 describe('squarespace adapter (fixture-based, no network)', () => {
   for (const { file, origin } of FIXTURE_STORES) {
     it(`normalizes ${file} into a valid NormalizedProduct`, () => {
@@ -50,7 +52,7 @@ describe('squarespace adapter (fixture-based, no network)', () => {
       expect(product.images.length).toBeGreaterThan(0);
       expect(product.priceCents).not.toBeNull();
       expect(product.priceCents).toBeGreaterThan(0);
-      // Squarespace has no cart-permalink scheme — buyUrl is the product page itself.
+      // Squarespace has no cart-permalink scheme; buyUrl is the product page itself.
       expect(product.buyUrl).toBe(product.url);
       expect(product.images.every((image) => image.url.includes('?format=1000w'))).toBe(true);
     });

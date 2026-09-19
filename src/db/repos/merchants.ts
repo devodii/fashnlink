@@ -2,7 +2,7 @@ import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { merchants } from '@/db/schema';
 
-// Section 8.1: marketing pricing block shows founding-pass seats remaining.
+// marketing pricing block shows founding-pass seats remaining.
 export async function countFounderMerchants(): Promise<number> {
   const [row] = await db
     .select({ count: sql<number>`count(*)::int` })

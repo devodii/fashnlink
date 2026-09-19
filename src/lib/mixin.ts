@@ -1,5 +1,7 @@
-// Lets a component accept sub-component props as prefixed keys (e.g. `rowClassName`)
-// instead of a nested object, so spreading them onto JSX stays ergonomic.
+/**
+ * Lets a component accept sub-component props as prefixed keys (e.g. `rowClassName`)
+ * instead of a nested object, so spreading them onto JSX stays ergonomic.
+ */
 export type MixinProps<Mixin extends string, Props> = {
   [Key in keyof Props as `${Mixin}${Capitalize<Key & string>}`]: Props[Key];
 };

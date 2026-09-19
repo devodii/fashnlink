@@ -14,10 +14,12 @@ const FIXTURE_STORES = [
   { file: 'taylorstitch.product.js.json', origin: 'https://taylorstitch.com' },
 ];
 
-// Section 6.9: fixture-based unit tests per adapter (recorded real responses,
-// no network), plus the normalizer property test ("every fixture must
-// produce a NormalizedProduct that passes the zod schema with at least one
-// image and a title").
+/**
+ * fixture-based unit tests per adapter (recorded real responses,
+ * no network), plus the normalizer property test ("every fixture must
+ * produce a NormalizedProduct that passes the zod schema with at least one
+ * image and a title").
+ */
 describe('shopify adapter (fixture-based, no network)', () => {
   for (const { file, origin } of FIXTURE_STORES) {
     it(`normalizes ${file} into a valid NormalizedProduct`, () => {

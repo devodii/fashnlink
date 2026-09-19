@@ -7,7 +7,7 @@ export interface QrCodeProps {
   className?: string;
 }
 
-/** Section 10.4: SVG, token colors only — `fill="currentColor"` on a
+/** SVG, token colors only; `fill="currentColor"` on a
  * `text-foreground` root instead of the library's default black modules, so
  * it themes with the page (light/dark, section 10.1). */
 export function QrCode({ value, size = 160, className }: QrCodeProps) {

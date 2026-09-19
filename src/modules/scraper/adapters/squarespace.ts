@@ -5,14 +5,16 @@ import type { DetectResult, HomepageProbe, ScraperAdapter, StoreRef } from '../t
 import type { NormalizedProduct } from '../schema';
 import { mapVariantOptions } from '../shared/options';
 
-// Section 6.5's Squarespace adapter — `?format=json` on a product or
-// collection URL returns the same server-rendered data the page's own JS
-// uses, no auth needed. Confirmed against real live stores (not just docs):
-// it only works on an actual product/collection URL, not a generic page —
-// several real stores tested during fixture collection returned an empty
-// `items: []` or plain HTML for the wrong path, which is a real-world gotcha
-// worth documenting since section 6.5's one-line description doesn't warn
-// about it.
+/**
+ * Squarespace adapter; `?format=json` on a product or
+ * collection URL returns the same server-rendered data the page's own JS
+ * uses, no auth needed. Confirmed against real live stores (not just docs):
+ * it only works on an actual product/collection URL, not a generic page ;
+ * several real stores tested during fixture collection returned an empty
+ * `items: []` or plain HTML for the wrong path, which is a real-world gotcha
+ * worth documenting since section 6.5's one-line description doesn't warn
+ * about it.
+ */
 
 const squarespaceVariantSchema = z.object({
   id: z.string(),
@@ -60,8 +62,10 @@ async function fetchJson<T>(url: string, ctx: Ctx): Promise<Result<T>> {
   }
 }
 
-// Append `?format=1000w` for a large rendition (section 6.5) — Squarespace
-// serves the same asset at many widths via this query param.
+/**
+ * Append `?format=1000w` for a large rendition; Squarespace
+ * serves the same asset at many widths via this query param.
+ */
 function assetUrlAtMaxWidth(assetUrl: string): string {
   return `${assetUrl}?format=1000w`;
 }
@@ -122,8 +126,10 @@ export const squarespaceAdapter: ScraperAdapter = {
     return ok({ items, next: result.value.pagination?.nextPageUrl ?? null });
   },
 
-  // Section 6.5: no cart-permalink scheme — the product page itself is the
-  // buy destination (the shopper adds to cart from there).
+  /**
+   * no cart-permalink scheme; the product page itself is the
+   * buy destination (the shopper adds to cart from there).
+   */
   buyDeepLink(product: NormalizedProduct): string | null {
     return product.url;
   },
@@ -158,8 +164,10 @@ export const squarespaceAdapter: ScraperAdapter = {
 
     const url = `${raw.storeOrigin}${raw.fullUrl}`;
 
-    // Group every variant's option values by option name (e.g. all "Color"
-    // values across variants) into the NormalizedProduct.options shape.
+    /**
+     * Group every variant's option values by option name (e.g. all "Color"
+     * values across variants) into the NormalizedProduct.options shape.
+     */
     const optionValuesByName = new Map<string, Set<string>>();
     for (const variant of raw.variants) {
       for (const { optionName, value } of variant.optionValues) {

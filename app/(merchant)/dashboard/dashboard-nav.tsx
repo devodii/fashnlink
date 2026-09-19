@@ -24,9 +24,11 @@ const BASE_ITEMS: Omit<NavItem, 'active'>[] = [
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
-// `AppShell` (section 10.4) deliberately doesn't know about routing — this
-// is the one client island that computes `active` from the real pathname
-// and feeds it in, per the component's own contract.
+/**
+ * `AppShell` deliberately doesn't know about routing; this
+ * is the one client island that computes `active` from the real pathname
+ * and feeds it in, per the component's own contract.
+ */
 export function DashboardNav({
   children,
   actions,

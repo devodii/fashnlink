@@ -16,8 +16,8 @@ export interface SwatchPickerProps {
   className?: string;
 }
 
-/** Section 10.4: fixed named accent tokens only (`--brand-1`..`--brand-6`,
- * section 10.1) — never a free color picker (section 14). */
+/** fixed named accent tokens only (`--brand-1`..`--brand-6`,
+ * section 10.1); never a free color picker. */
 export function SwatchPicker({ options, value, onChange, className }: SwatchPickerProps) {
   return (
     <div className={cn('flex flex-wrap gap-2', className)} role="radiogroup">

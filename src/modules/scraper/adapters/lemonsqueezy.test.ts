@@ -1,19 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { lemonsqueezyAdapter } from './lemonsqueezy';
 
-// Section 6.9 normally calls for fixture-based tests against real recorded
-// responses — this adapter doesn't have one. Despite an extensive search
-// (documented in the M2 report), no currently-live LemonSqueezy checkout URL
-// could be found: unlike Gumroad/Big Cartel product pages (which are stable,
-// permanent, and publicly indexable), LemonSqueezy checkout links appear to
-// be generated per-campaign and go stale — every real example URL found,
-// including ones linked from LemonSqueezy's own marketing site, 404s.
-// These tests cover only the parts of the adapter that don't require a real
-// fixture: its structural contract (host patterns, no-catalog capability
-// set, buyDeepLink behavior). `getProduct`/`normalize` reuse the exact same
-// `scrapeJsonLdProductPage` already verified against real Gumroad and Big
-// Cartel pages, so the parsing logic itself isn't untested — only this
-// platform's real-world shape is unconfirmed.
+/**
+ * normally calls for fixture-based tests against real recorded
+ * responses; this adapter doesn't have one. Despite an extensive search
+ * (documented in the M2 report), no currently-live LemonSqueezy checkout URL
+ * could be found: unlike Gumroad/Big Cartel product pages (which are stable,
+ * permanent, and publicly indexable), LemonSqueezy checkout links appear to
+ * be generated per-campaign and go stale; every real example URL found,
+ * including ones linked from LemonSqueezy's own marketing site, 404s.
+ * These tests cover only the parts of the adapter that don't require a real
+ * fixture: its structural contract (host patterns, no-catalog capability
+ * set, buyDeepLink behavior). `getProduct`/`normalize` reuse the exact same
+ * `scrapeJsonLdProductPage` already verified against real Gumroad and Big
+ * Cartel pages, so the parsing logic itself isn't untested; only this
+ * platform's real-world shape is unconfirmed.
+ */
 describe('lemonsqueezy adapter (structural only — no real fixture found, see comment)', () => {
   it('matches only *.lemonsqueezy.com via hostPatterns', () => {
     expect(lemonsqueezyAdapter.hostPatterns?.some((p) => p.test('my-store.lemonsqueezy.com'))).toBe(

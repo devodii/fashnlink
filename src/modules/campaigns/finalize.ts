@@ -10,11 +10,13 @@ import { DROP_FAILURE_PAUSE_MIN_SAMPLE, DROP_FAILURE_PAUSE_RATE } from '@/config
 
 const log = childLogger('campaigns.finalize');
 
-// Called after every campaign_items resolution (from the render job handler
-// and the fal webhook) — section 9.8: "failures beyond 20% pause the
-// campaign and email the merchant" plus "on completion, push one Tryon New
-// Drop event per shopper." Both the pause check and the completion push live
-// here so there is exactly one place a campaign's lifecycle transitions.
+/**
+ * Called after every campaign_items resolution (from the render job handler
+ * and the fal webhook); section 9.8: "failures beyond 20% pause the
+ * campaign and email the merchant" plus "on completion, push one Tryon New
+ * Drop event per shopper." Both the pause check and the completion push live
+ * here so there is exactly one place a campaign's lifecycle transitions.
+ */
 export async function checkCampaignHealth(campaignId: string): Promise<void> {
   const [campaign] = await db.select().from(campaigns).where(eq(campaigns.id, campaignId)).limit(1);
   if (!campaign || campaign.status === 'cancelled' || campaign.status === 'ready') return;
@@ -44,12 +46,14 @@ async function pauseCampaign(
   merchantId: string,
   failureRate: number,
 ): Promise<void> {
-  // DECISION: the campaign_status enum has no dedicated "paused" value
-  // (estimating|rendering|ready|synced|cancelled) — `cancelled` is the
-  // closest fit and stops the drain loop's job handler from doing any more
-  // work for this campaign (see render-item.ts's early-return on a
-  // cancelled campaign). Remaining pending items are released, not left
-  // dangling.
+  /**
+   * DECISION: the campaign_status enum has no dedicated "paused" value
+   * (estimating|rendering|ready|synced|cancelled); `cancelled` is the
+   * closest fit and stops the drain loop's job handler from doing any more
+   * work for this campaign (see render-item.ts's early-return on a
+   * cancelled campaign). Remaining pending items are released, not left
+   * dangling.
+   */
   const pendingItems = await db
     .select({ id: campaignItems.id })
     .from(campaignItems)

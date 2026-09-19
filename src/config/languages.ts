@@ -4,13 +4,15 @@ export interface Language {
   nativeLabel: string;
   rtl?: boolean;
   /** One-line auto-suggest prompt shown when a visitor's browser language
-   * matches this code and no choice has been made yet (section 10.7). */
+   * matches this code and no choice has been made yet. */
   suggestPrompt: string;
 }
 
-// Section 10.7: source language is always English (`en`) — it's the only
-// entry with no suggest prompt, since we never suggest translating *to* the
-// page's own source language.
+/**
+ * source language is always English (`en`); it's the only
+ * entry with no suggest prompt, since we never suggest translating *to* the
+ * page's own source language.
+ */
 export const LANGUAGES: Language[] = [
   { code: 'en', label: 'English', nativeLabel: 'English', suggestPrompt: '' },
   { code: 'fr', label: 'French', nativeLabel: 'Français', suggestPrompt: 'Voir en français ?' },

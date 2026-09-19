@@ -10,12 +10,14 @@ import { QUICK_LINK_DEMO_PER_IP_PER_DAY } from '@/config/limits';
 
 const bodySchema = z.object({ url: z.string().url() });
 
-// Section 8.1: the marketing homepage's live "paste a product URL" demo —
-// no account, watermarked (the system merchant is always `watermarkEnabled`),
-// restricted by platform per spec ("shopify/woo/squarespace/jsonld-generic
-// only"), rate-limited 3/IP/day (section 13) since there's no merchant
-// session to key a limit on. `cors: true` since this is meant to be embed-
-// able from the public marketing page, not just same-origin dashboard code.
+/**
+ * the marketing homepage's live "paste a product URL" demo ;
+ * no account, watermarked (the system merchant is always `watermarkEnabled`),
+ * restricted by platform per spec ("shopify/woo/squarespace/jsonld-generic
+ * only"), rate-limited 3/IP/day since there's no merchant
+ * session to key a limit on. `cors: true` since this is meant to be embed-
+ * able from the public marketing page, not just same-origin dashboard code.
+ */
 export const POST = apiHandler({
   name: 'public.quickLink',
   auth: ['public'],
@@ -29,13 +31,15 @@ export const POST = apiHandler({
     limit: QUICK_LINK_DEMO_PER_IP_PER_DAY,
     windowSeconds: 24 * 60 * 60,
   },
-  // DECISION: the spec's platform restriction ("shopify/woo/squarespace/
-  // jsonld-generic only") is a capability distinction, not a domain string
-  // to match — a hostname alone can't tell us the platform before scraping.
-  // `scrapeUrlToProduct` below already routes through `ScraperRegistry` and
-  // fails cleanly (UNSUPPORTED_PLATFORM/SCRAPE_FAILED) for anything it can't
-  // handle, so the registry is the real gate here, not a hand-listed
-  // hostname check that would just duplicate it.
+  /**
+   * DECISION: the spec's platform restriction ("shopify/woo/squarespace/
+   * jsonld-generic only") is a capability distinction, not a domain string
+   * to match; a hostname alone can't tell us the platform before scraping.
+   * `scrapeUrlToProduct` below already routes through `ScraperRegistry` and
+   * fails cleanly (UNSUPPORTED_PLATFORM/SCRAPE_FAILED) for anything it can't
+   * handle, so the registry is the real gate here, not a hand-listed
+   * hostname check that would just duplicate it.
+   */
   handler: async ({ body, requestId }) => {
     await ensureSystemMerchant();
 

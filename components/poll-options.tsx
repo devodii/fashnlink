@@ -20,8 +20,8 @@ export interface PollOptionsProps {
   className?: string;
 }
 
-/** Section 9.3: shopper-created and merchant-created polls both render
- * through this — animated result bars once `results` is on. */
+/** shopper-created and merchant-created polls both render
+ * through this; animated result bars once `results` is on. */
 export function PollOptions({ options, value, onVote, results, className }: PollOptionsProps) {
   const reduceMotion = useReducedMotion();
   const total = options.reduce((sum, o) => sum + (o.votes ?? 0), 0);

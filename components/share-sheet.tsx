@@ -25,9 +25,9 @@ const CHANNEL_LABEL: Record<ShareChannel, string> = {
   x: 'X',
 };
 
-/** Section 9.1/10.4: Web Share API first (with `files` when available), else
+/** Web Share API first (with `files` when available), else
  * a channel grid in a `ResponsiveDialog`. Every share increments
- * `renders.share_count` server-side — `onShare` is the hook for that. */
+ * `renders.share_count` server-side; `onShare` is the hook for that. */
 export function ShareSheet({
   title,
   url,
@@ -50,7 +50,7 @@ export function ShareSheet({
           onShare('copy');
           return;
         } catch {
-          // user cancelled or share failed — fall through to the channel grid
+          // user cancelled or share failed; fall through to the channel grid
         }
       }
     }

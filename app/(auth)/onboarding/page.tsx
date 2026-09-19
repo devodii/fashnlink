@@ -4,11 +4,13 @@ import { env } from '@/lib/env';
 import { Container } from '@/components/container';
 import { OnboardingWizard } from './onboarding-wizard';
 
-// Section 8.1: runs once after first login. `StepWizard` persists the
-// current step in `?step=` — no server-side "already onboarded" gate is
-// built yet (would need an `onboarded_at`-style column that doesn't exist),
-// so a merchant can always revisit this page; that's an acceptable M5 scope
-// boundary, not a bug.
+/**
+ * runs once after first login. `StepWizard` persists the
+ * current step in `?step=`; no server-side "already onboarded" gate is
+ * built yet (would need an `onboarded_at`-style column that doesn't exist),
+ * so a merchant can always revisit this page; that's an acceptable M5 scope
+ * boundary, not a bug.
+ */
 export default async function OnboardingPage() {
   await requireMerchant();
 

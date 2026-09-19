@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
 
-// DECISION: this is intentionally bare. The component library (StepWizard,
-// Form + RHF field components, AppShell) doesn't exist until M1.5, and the
-// real onboarding-adjacent /login layout is built once it does. This only
-// has to prove magic link + Google sign-in work end to end.
+/**
+ * DECISION: this is intentionally bare. The component library (StepWizard,
+ * Form + RHF field components, AppShell) doesn't exist until M1.5, and the
+ * real onboarding-adjacent /login layout is built once it does. This only
+ * has to prove magic link + Google sign-in work end to end.
+ */
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');

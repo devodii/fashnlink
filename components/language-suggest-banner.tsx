@@ -6,9 +6,9 @@ import { readGoogTransCookie, setLanguage } from '@/lib/google-translate';
 import { InlineAlert } from '@/components/inline-alert';
 import { Button } from '@/components/ui/button';
 
-/** Section 10.7: on first visit, if `navigator.language` matches a supported
+/** on first visit, if `navigator.language` matches a supported
  * language and the visitor hasn't chosen or dismissed one yet, offers a
- * one-line translate prompt — the shopper page (section 8.3) mounts this at
+ * one-line translate prompt; the shopper page mounts this at
  * the top. No widget script is loaded just to show this; the prompt text is
  * a static string per language (`languages.ts`). */
 export function LanguageSuggestBanner() {
@@ -19,7 +19,7 @@ export function LanguageSuggestBanner() {
     try {
       if (localStorage.getItem('langDismissed')) return;
     } catch {
-      // private window — fall through and offer the suggestion anyway
+      // private window; fall through and offer the suggestion anyway
     }
 
     const browserCode = navigator.language.split('-')[0];
@@ -35,7 +35,7 @@ export function LanguageSuggestBanner() {
     try {
       localStorage.setItem('langDismissed', '1');
     } catch {
-      // ignore — worst case the prompt reappears next visit
+      // ignore; worst case the prompt reappears next visit
     }
     setSuggested(null);
   }

@@ -130,7 +130,7 @@ function FilterControl({
   );
 }
 
-/** Section 10.4: inline row on desktop, a `ResponsiveDialog` on mobile. */
+/** inline row on desktop, a `ResponsiveDialog` on mobile. */
 export function FilterBar({ filters, value, onChange, className }: FilterBarProps) {
   const isDesktop = useIsDesktop();
   const [open, setOpen] = React.useState(false);

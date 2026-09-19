@@ -8,9 +8,11 @@ import { deleteObject } from '@/modules/storage';
 
 const paramsSchema = z.object({ id: z.string() });
 
-// Section 8.3 closet ("share, delete, buy" per render) + section 7.4's
-// hard-delete-the-image / tombstone-the-row pattern, same treatment
-// `deleteEverythingForShopper` gives every render, just for one at a time.
+/**
+ * closet ("share, delete, buy" per render) + section 7.4's
+ * hard-delete-the-image / tombstone-the-row pattern, same treatment
+ * `deleteEverythingForShopper` gives every render, just for one at a time.
+ */
 export const DELETE = apiHandler({
   name: 'renders.delete',
   auth: ['shopper_session'],

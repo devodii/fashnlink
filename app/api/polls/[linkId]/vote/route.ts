@@ -8,9 +8,11 @@ import { err, ok } from '@/lib/result';
 
 const bodySchema = z.object({ renderId: z.string().min(1) });
 
-// Section 8.4/9.3: one vote per (link, shopper) — `poll_votes`'s own unique
-// index enforces this at the DB level; a repeat vote from the same shopper
-// is treated as idempotent (return the existing vote) rather than an error.
+/**
+ * one vote per (link, shopper); `poll_votes`'s own unique
+ * index enforces this at the DB level; a repeat vote from the same shopper
+ * is treated as idempotent (return the existing vote) rather than an error.
+ */
 export const POST = apiHandler({
   name: 'polls.vote',
   auth: ['shopper_session'],

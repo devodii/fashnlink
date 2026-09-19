@@ -18,7 +18,7 @@ const MD_COLS: Record<number, string> = {
   6: 'md:grid-cols-6',
 };
 
-/** Section 10.4: responsive grid of `MediaTile`. */
+/** responsive grid of `MediaTile`. */
 export function MediaGrid({
   items,
   columns = { base: 2, md: 4 },

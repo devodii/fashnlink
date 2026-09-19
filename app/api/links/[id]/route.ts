@@ -12,9 +12,11 @@ const bodySchema = z.object({
   garmentCategory: z.enum(garmentCategoryEnum.enumValues).optional(),
 });
 
-// Section 8.2 `/dashboard/links/[id]` — pause/archive the link, and (via the
-// product panel's editable garment-category select) re-route future renders
-// for the product it points at.
+/**
+ * `/dashboard/links/[id]`; pause/archive the link, and (via the
+ * product panel's editable garment-category select) re-route future renders
+ * for the product it points at.
+ */
 export const PATCH = apiHandler({
   name: 'links.update',
   auth: ['merchant_session'],

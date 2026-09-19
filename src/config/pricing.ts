@@ -1,6 +1,8 @@
-// Section 13: single source of truth for pricing. Nothing outside this file
-// hardcodes a credit amount, price, or plan limit — the `credit_ledger`
-// module (M3), billing routes, and any pricing UI all read from here.
+/**
+ * single source of truth for pricing. Nothing outside this file
+ * hardcodes a credit amount, price, or plan limit; the `credit_ledger`
+ * module (M3), billing routes, and any pricing UI all read from here.
+ */
 
 export type PlanKey = 'free' | 'founder' | 'starter' | 'growth';
 
@@ -11,8 +13,8 @@ export const PLANS: Record<
     priceCents: number | null;
     period: 'once' | 'month' | null;
     /** Credits granted immediately on reaching this plan (founder: a single
-     * one-time grant; free: the once-off signup grant, section 13's
-     * "20 once + 10/month" — the monthly free top-up is a cron concern, not
+     * one-time grant (free: the once-off signup grant, section 13's
+     * "20 once + 10/month") the monthly free top-up is a cron concern, not
      * modeled here). */
     creditsOnGrant: number;
     watermark: boolean;
@@ -53,8 +55,10 @@ export const PLANS: Record<
   },
 };
 
-// Section 7.5 (model pack): a one-time, separately-tracked grant so it never
-// eats a merchant's regular render credits.
+/**
+ * a one-time, separately-tracked grant so it never
+ * eats a merchant's regular render credits.
+ */
 export const MODEL_PACK_CREDIT_COST = 15;
 export const MODEL_PACK_MAX_PRODUCTS = 5;
 export const MODEL_PACK_STOCK_MODEL_COUNT = 3;

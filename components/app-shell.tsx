@@ -19,7 +19,7 @@ export interface AppShellProps {
   children: React.ReactNode;
 }
 
-/** Section 10.4: sidebar on desktop, bottom tab bar on mobile. `nav` items
+/** sidebar on desktop, bottom tab bar on mobile. `nav` items
  * decide their own `active` state (the shell doesn't know about routing). */
 export function AppShell({ nav, user, actions, footer, children }: AppShellProps) {
   return (

@@ -15,8 +15,8 @@ export interface UrlFieldProps<
 }
 
 /** Normalizes on blur: trims whitespace and adds `https://` when the value
- * looks like a bare domain/path (section 10.5). Onboarding step 1's paste
- * box (section 8.1) is the main consumer. */
+ * looks like a bare domain/path. Onboarding step 1's paste
+ * box is the main consumer. */
 function normalizeUrl(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return trimmed;

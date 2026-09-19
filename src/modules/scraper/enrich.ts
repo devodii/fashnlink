@@ -22,10 +22,12 @@ export type EnrichedImage = {
 
 const DUPLICATE_HAMMING_THRESHOLD = 4;
 
-// image_kind (wearable gate's Stage 2 taxonomy) -> product_images.role
-// (section 6.6's taxonomy). The gate has no front/back distinction for
-// on-model shots — defaults to front, a human can correct it later; nothing
-// downstream depends on the front/back split yet.
+/**
+ * image_kind (wearable gate's Stage 2 taxonomy) -> product_images.role
+ * (section 6.6's taxonomy). The gate has no front/back distinction for
+ * on-model shots; defaults to front, a human can correct it later; nothing
+ * downstream depends on the front/back split yet.
+ */
 function imageRoleFromVisionKind(kind: string | undefined): ImageRole {
   switch (kind) {
     case 'flat_lay':
@@ -56,11 +58,13 @@ export function detectSizeChart(
   return { hasSizeChartText: inDescription, sizeChartImageUrl: imageHit?.url ?? null };
 }
 
-// Section 6.6 — runs after the wearable gate has already decided eligibility
-// (`gateVerdict`) and, for the top 3 images, already classified each one via
-// vision (`perImageVisionVerdicts`, same order as `product.images.slice(0,3)`).
-// Reusing that vision output avoids a second, redundant vision call per image
-// for role classification — see the `imageRoleFromVisionKind` mapping above.
+/**
+ * ; runs after the wearable gate has already decided eligibility
+ * (`gateVerdict`) and, for the top 3 images, already classified each one via
+ * vision (`perImageVisionVerdicts`, same order as `product.images.slice(0,3)`).
+ * Reusing that vision output avoids a second, redundant vision call per image
+ * for role classification; see the `imageRoleFromVisionKind` mapping above.
+ */
 export async function enrichProduct(
   product: NormalizedProduct,
   storeId: string,
@@ -115,9 +119,11 @@ export async function enrichProduct(
     }
   }
 
-  // If the gate's chosen try-on source got deduped away (identical to an
-  // earlier image), fall back to the first surviving image so a product
-  // never ends up with zero images flagged as its try-on source.
+  /**
+   * If the gate's chosen try-on source got deduped away (identical to an
+   * earlier image), fall back to the first surviving image so a product
+   * never ends up with zero images flagged as its try-on source.
+   */
   if (
     gateVerdict.tryonSourceIndex !== null &&
     !enriched.some((image) => image.isTryonSource) &&

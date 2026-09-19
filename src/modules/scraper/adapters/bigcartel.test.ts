@@ -12,10 +12,12 @@ const FIXTURE_STORES = [
   { name: 'danozzi2', url: 'https://danozzi.bigcartel.com/product/sellout-dad-hat' },
 ];
 
-// Section 6.9: 2 real fixture checkout pages (both from the same real store —
-// only one real, live Big Cartel merchant with wearable products turned up
-// during fixture collection; both products are genuinely distinct real
-// items, a shirt and a hat).
+/**
+ * 2 real fixture checkout pages (both from the same real store ;
+ * only one real, live Big Cartel merchant with wearable products turned up
+ * during fixture collection; both products are genuinely distinct real
+ * items, a shirt and a hat).
+ */
 describe('bigcartel adapter (fixture-based, no network)', () => {
   it('has no listProducts capability (no catalog, section 6.5)', () => {
     expect(bigcartelAdapter.capabilities.has('listProducts')).toBe(false);

@@ -12,7 +12,7 @@ const FIXTURE_STORES = [
   { name: 'seekairun', url: 'https://seekairun.com/Annabelle-navy/' },
 ];
 
-// Section 6.9: 2 real fixture stores, no network in the test suite.
+// 2 real fixture stores, no network in the test suite.
 describe('bigcommerce adapter (fixture-based, no network)', () => {
   it('detects bigcommerce from real homepage signals', () => {
     const html = readFileSync(path.join(FIXTURE_DIR, 'seaboston.homepage.html'), 'utf-8');

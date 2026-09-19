@@ -27,10 +27,6 @@ export async function findEligibleProductsForDrop(merchantId: string, productIds
   return rows;
 }
 
-// Section 9.8: "the number of opted-in shoppers with a ready twin" — a
-// shopper must have live consent (not opted out) AND a default twin that's
-// actually finished generating, or a drop render for them would fail
-// immediately.
 export async function countDropAudience(merchantId: string): Promise<number> {
   const [row] = await db
     .select({ n: count() })

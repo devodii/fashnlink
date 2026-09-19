@@ -16,7 +16,7 @@ export interface SegmentedControlProps {
   className?: string;
 }
 
-/** Section 10.4: animated indicator via `LayoutGroup`/`layoutId` (section
+/** animated indicator via `LayoutGroup`/`layoutId` (section
  * 10.6), collapses to an instant swap under reduced motion. */
 export function SegmentedControl({ options, value, onChange, className }: SegmentedControlProps) {
   const reduceMotion = useReducedMotion();

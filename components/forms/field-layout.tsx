@@ -13,8 +13,8 @@ export interface FieldLayoutProps {
 }
 
 /** Internal layout every `components/forms/*` field shares: label, control,
- * description, and error rendered in one consistent order (section 10.5). Not
- * itself one of the spec's named field components — it's the shared shell
+ * description, and error rendered in one consistent order. Not
+ * itself one of the spec's named field components; it's the shared shell
  * they're all built on, to avoid duplicating this layout in every field. */
 export function FieldLayout({
   htmlFor,

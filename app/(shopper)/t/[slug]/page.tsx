@@ -8,10 +8,12 @@ import { TryOnFlow } from './try-on-flow';
 import { PollFlow } from './poll-flow';
 import { GroupFlow } from './group-flow';
 
-// Section 8.3: `/t/[slug]` — single/poll/group modes (poll/group added M6).
-// Server Component: data loading + composition only, per section 2's "app/
-// routes only, thin" rule — the interactive flow is the colocated client
-// island, one per kind.
+/**
+ * `/t/[slug]`; single/poll/group modes (poll/group added M6).
+ * Server Component: data loading + composition only, per section 2's "app/
+ * routes only, thin" rule; the interactive flow is the colocated client
+ * island, one per kind.
+ */
 export default async function LinkPage({
   params,
   searchParams,
@@ -98,12 +100,14 @@ export default async function LinkPage({
     .from(productVariants)
     .where(eq(productVariants.productId, product.id));
 
-  // DECISION: grouping distinct size/color values across flat
-  // option_size/option_color columns (section 5's product_variants shape)
-  // into VariantPicker's { name, values } options — option_other isn't
-  // surfaced yet, only Size/Color, since that's what VariantPicker's own
-  // section 10.4 spec calls out by name and nothing downstream needs a third
-  // axis yet.
+  /**
+   * DECISION: grouping distinct size/color values across flat
+   * option_size/option_color columns (section 5's product_variants shape)
+   * into VariantPicker's { name, values } options; option_other isn't
+   * surfaced yet, only Size/Color, since that's what VariantPicker's own
+   * section 10.4 spec calls out by name and nothing downstream needs a third
+   * axis yet.
+   */
   const sizeValues = new Map<string, boolean>();
   const colorValues = new Map<string, boolean>();
   for (const variant of variants) {

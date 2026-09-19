@@ -21,18 +21,20 @@ async function skipItem(itemId: string, reason: string): Promise<void> {
     .where(eq(campaignItems.id, itemId));
 }
 
-// Section 9.8: one `campaign.renderItem` job per campaign_items row, drained
-// through the same `jobs` table/loop as every other job type (M1's
-// `cron/jobs`, M6's `store.crawled`). DECISION: this is deliberately NOT a
-// separate priority queue — "priority below live shopper renders" is
-// satisfied simply by these jobs competing for the same drain batch as
-// everything else rather than getting their own faster-polled lane, which
-// is the simplest correct v1 reading, not true scheduling priority.
-//
-// Unlike a normal shopper render (`submitRender`, credit-ledger.ts), this
-// does NOT call `reserveRenderCredit` — the whole campaign's credits were
-// already reserved in bulk when the drop was confirmed (`createDrop`).
-// Deducting again here would double-charge the merchant.
+/**
+ * one `campaign.renderItem` job per campaign_items row, drained
+ * through the same `jobs` table/loop as every other job type (M1's
+ * `cron/jobs`, M6's `store.crawled`). DECISION: this is deliberately NOT a
+ * separate priority queue; "priority below live shopper renders" is
+ * satisfied simply by these jobs competing for the same drain batch as
+ * everything else rather than getting their own faster-polled lane, which
+ * is the simplest correct v1 reading, not true scheduling priority.
+ *
+ * Unlike a normal shopper render (`submitRender`, credit-ledger.ts), this
+ * does NOT call `reserveRenderCredit`; the whole campaign's credits were
+ * already reserved in bulk when the drop was confirmed (`createDrop`).
+ * Deducting again here would double-charge the merchant.
+ */
 registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>> => {
   const parsed = payloadSchema.safeParse(payload);
   if (!parsed.success) {

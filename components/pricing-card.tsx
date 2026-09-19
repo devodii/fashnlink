@@ -15,8 +15,8 @@ export interface PricingCardProps {
   className?: string;
 }
 
-/** Section 10.4/13: one card per plan in `src/config/pricing.ts` — the
- * marketing pricing block (section 8.1) and any in-app upgrade prompt share
+/** one card per plan in `src/config/pricing.ts`; the
+ * marketing pricing block and any in-app upgrade prompt share
  * this. */
 export function PricingCard({
   name,

@@ -1,7 +1,3 @@
-// Section 6.7/14: no inline prompts anywhere else in the codebase — every
-// model prompt lives here so tuning one doesn't mean hunting through adapter
-// or job files.
-
 import type { GarmentCategory } from '@/modules/scraper/types';
 
 export const WEARABLE_GATE = `You are screening product photos for a virtual try-on app. For EACH image, decide whether it shows a single wearable item (something a person wears on their body: clothing, shoes, headwear, eyewear, jewelry, a bag, or another worn accessory) that is clearly usable as a try-on source photo.
@@ -19,29 +15,18 @@ Return one JSON object per image with exactly these fields:
 
 Be conservative: mugs, candles, posters, stickers, gift cards, and other non-worn merchandise are never wearable. A product photo showing several different products together (a lookbook grid, a "shop the look" collage) has subject_count greater than 1 even if every item in it is individually wearable.`;
 
-// Section 7.2 (twin creation), Stage 1: a fast, cheap vision check deciding
-// which of the two twin-generation prompts below applies to a given photo.
+/**
+ * A fast, cheap vision check deciding which of the two twin-generation
+ * prompts below applies to a given photo.
+ */
 export const TWIN_PHOTO_CLASSIFY = `Look at this photo of a person. Return one JSON object with exactly these fields:
 - is_full_body: boolean — true only if the person's full body, head to feet (or at least head to knees), is visible and unobstructed.
 - is_minor_present: boolean — true if the person appears to be under 18.
 - confidence: number between 0 and 1.`;
 
-// Section 7.2: for a full-body photo, keep the person identical and only
-// clean up the background.
 export const TWIN_BACKGROUND_CLEANUP = `Replace the background with a plain neutral light-gray studio backdrop. Keep the person, their pose, their face, their skin tone, and their exact clothing completely unchanged. Do not alter their body shape or proportions.`;
 
-// Section 7.2: for a selfie/half-body photo, generate a full-body studio
-// image that still looks like the same person.
 export const TWIN_STUDIO_GENERATION = `Generate a full-body, head-to-feet photo of this exact person in a standing neutral pose, on a plain neutral light-gray studio backdrop, wearing plain neutral basics (a fitted white t-shirt and gray trousers). Preserve their face, skin tone, hair, and body proportions exactly as shown. Photorealistic, even studio lighting, no props.`;
-
-// ---------- Wearable gate, Stage 1b: Jev (TypeSafe AI), text-only ----------
-// Added mid-build on top of section 6.7's two-stage gate — a fast/cheap
-// text-and-JSON classifier sits between Stage 1's free keyword scoring and
-// Stage 2's OpenAI vision call, resolving from title/tags/description/image
-// alt-text alone what would otherwise need a vision call. See
-// src/modules/scraper/wearable-gate.ts for the full cascade and thresholds.
-// Jev has no image modality — these instructions must never ask it anything
-// that requires seeing the actual photo (that stays Stage 2's job).
 
 export const WEARABLE_GATE_JEV_IS_WEARABLE = `Based only on the product's title, product type, tags, description, and any image alt text/filenames given, is this something a person wears on their body — clothing, shoes, headwear, eyewear, jewelry, a bag, or another worn accessory? Answer false for home goods, mugs, candles, posters, gift cards, digital products/subscriptions, furniture, decor, pet products, or anything not worn on a person's body.`;
 
@@ -49,11 +34,13 @@ export const WEARABLE_GATE_JEV_IS_KIDS = `Based only on the product's title, pro
 
 export const WEARABLE_GATE_JEV_GARMENT_CATEGORY = `Based only on the product's title, product type, tags, description, and any image alt text/filenames given, which category best fits this product?`;
 
-// One short description per db/schema.ts `garmentCategoryEnum` value, used to
-// build Jev's `garment_category` choice criteria in wearable-gate.ts (the
-// enum values themselves are iterated there, not hand-listed a third time —
-// this map only has to stay exhaustive over GarmentCategory, which TypeScript
-// already enforces).
+/**
+ * One short description per db/schema.ts `garmentCategoryEnum` value, used to
+ * build Jev's `garment_category` choice criteria in wearable-gate.ts (the
+ * enum values themselves are iterated there, not hand-listed a third time ;
+ * this map only has to stay exhaustive over GarmentCategory, which TypeScript
+ * already enforces).
+ */
 export const WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS: Record<GarmentCategory, string> = {
   top: 'Shirts, blouses, t-shirts, sweaters, tank tops — worn on the upper body only.',
   bottom: 'Pants, jeans, shorts, skirts — worn on the lower body only.',
@@ -66,9 +53,4 @@ export const WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS: Record<GarmentCate
   unknown: 'Wearable, but none of the above fit, or not enough information to tell.',
 };
 
-// Section 7.1: nano_banana's fallback/accessory render path (routing table,
-// src/config/models.ts) — no dedicated try-on prompt is given in the spec,
-// so this is a first-image-is-the-person, second-image-is-the-item edit
-// instruction, written for nano-banana-2/edit's "describe what changed, keep
-// the rest" style (fal.ai/models/fal-ai/nano-banana-2/edit/api).
 export const NANO_BANANA_TRYON = `The first image shows a person. The second image shows an item they are wearing/carrying. Edit the first image so the person is wearing/carrying the exact item from the second image, in a natural and realistic way. Keep the person's face, body, pose, and background from the first image completely unchanged. Match the item's true color, pattern, and material from the second image exactly.`;

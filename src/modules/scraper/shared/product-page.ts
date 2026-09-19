@@ -14,11 +14,13 @@ import { extractH1, extractMetaTags, extractTitleTag } from './opengraph';
 import { toAbsoluteUrl } from './images';
 import { parsePriceStringToCents } from './price';
 
-// Shared by `generic` and every "thin" platform adapter (wix, bigcommerce,
-// magento, prestashop, salesforce — section 6.5: "thin files that mostly
-// delegate to shared helpers jsonld.ts and sitemap.ts") — one JSON-LD-first,
-// OpenGraph-fallback product page scraper, used everywhere instead of each
-// adapter reimplementing it.
+/**
+ * Shared by `generic` and every "thin" platform adapter (wix, bigcommerce,
+ * magento, prestashop, salesforce; section 6.5: "thin files that mostly
+ * delegate to shared helpers jsonld.ts and sitemap.ts"); one JSON-LD-first,
+ * OpenGraph-fallback product page scraper, used everywhere instead of each
+ * adapter reimplementing it.
+ */
 
 export const productPageRawSchema = z.object({
   url: z.string(),

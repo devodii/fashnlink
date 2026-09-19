@@ -14,7 +14,7 @@ export interface TimelineProps {
   className?: string;
 }
 
-/** Section 10.4: audit-log style history — render status changes, job
+/** audit-log style history; render status changes, job
  * retries, campaign events. */
 export function Timeline({ items, className }: TimelineProps) {
   return (

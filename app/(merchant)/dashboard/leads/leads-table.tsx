@@ -30,9 +30,11 @@ const columns: ColumnDef<LeadRow>[] = [
   },
 ];
 
-// Client-side CSV — no extra API route needed for a table this size (M5
-// scope; a real export endpoint is easy to add later if leads grow past
-// what's comfortable to page fully into the browser).
+/**
+ * Client-side CSV; no extra API route needed for a table this size (M5
+ * scope; a real export endpoint is easy to add later if leads grow past
+ * what's comfortable to page fully into the browser).
+ */
 function downloadCsv(rows: LeadRow[]) {
   const header = ['email', 'product', 'source', 'renders', 'first_render'];
   const lines = rows.map((r) =>

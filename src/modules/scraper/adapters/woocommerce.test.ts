@@ -22,8 +22,10 @@ function readJson(file: string) {
   return JSON.parse(readFileSync(path.join(FIXTURE_DIR, file), 'utf-8'));
 }
 
-// Section 6.9: fixture-based unit tests per adapter (recorded real responses,
-// no network), plus the normalizer property test.
+/**
+ * fixture-based unit tests per adapter (recorded real responses,
+ * no network), plus the normalizer property test.
+ */
 describe('woocommerce adapter (fixture-based, no network)', () => {
   for (const { file, origin } of FIXTURE_STORES) {
     it(`normalizes ${file} into a valid NormalizedProduct`, () => {

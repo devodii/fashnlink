@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { InlineAlert } from '@/components/inline-alert';
 
-// Not signed in -> straight to login, then back here to actually claim
-// (Better Auth session gating happens server-side on the API route).
+/**
+ * Not signed in -> straight to login, then back here to actually claim
+ * (Better Auth session gating happens server-side on the API route).
+ */
 export function ClaimButton({ storeId }: { storeId: string }) {
   const router = useRouter();
   const [error, setError] = React.useState<string | null>(null);

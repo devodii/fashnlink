@@ -13,9 +13,11 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 
-// Every table has id (text, prefixed ulid via src/lib/ids.ts), created_at,
-// updated_at (section 5). Soft delete only where the spec calls for it
-// (shoppers.deleted_at).
+/**
+ * Every table has id (text, prefixed ulid via src/lib/ids.ts), created_at,
+ * updated_at. Soft delete only where the spec calls for it
+ * (shoppers.deleted_at).
+ */
 const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -23,8 +25,10 @@ const timestamps = {
 
 // ---------- Enums ----------
 
-// Shared by merchants.platform, stores.platform, and the ScraperAdapter `key`
-// (section 6.5) — one source of truth for platform identifiers.
+/**
+ * Shared by merchants.platform, stores.platform, and the ScraperAdapter `key`
+ * ; one source of truth for platform identifiers.
+ */
 export const platformEnum = pgEnum('platform', [
   'shopify',
   'woocommerce',
@@ -173,8 +177,10 @@ export const merchants = pgTable('merchants', {
   platform: platformEnum('platform'),
   stripeCustomerId: text('stripe_customer_id'),
   plan: planEnum('plan').notNull().default('free'),
-  // Derived from plan but stored per spec, so a plan change is an explicit
-  // write rather than a lookup every render.
+  /**
+   * Derived from plan but stored per spec, so a plan change is an explicit
+   * write rather than a lookup every render.
+   */
   watermarkEnabled: boolean('watermark_enabled').notNull().default(true),
   settings: jsonb('settings').notNull().default({}),
   ...timestamps,
@@ -184,10 +190,12 @@ export const stores = pgTable(
   'stores',
   {
     id: text('id').primaryKey(),
-    // DECISION: nullable, not notNull — section 9.6 (reverse acquisition)
-    // requires a store to exist and accrue renders BEFORE any merchant claims
-    // it (the marketing quick-link demo, section 8.1, scrapes into a store with
-    // no owner yet). `claims.claimedByMerchantId` is what eventually links one.
+    /**
+     * DECISION: nullable, not notNull; section 9.6 (reverse acquisition)
+     * requires a store to exist and accrue renders BEFORE any merchant claims
+     * it (the marketing quick-link demo, section 8.1, scrapes into a store with
+     * no owner yet). `claims.claimedByMerchantId` is what eventually links one.
+     */
     merchantId: text('merchant_id').references(() => merchants.id),
     domain: text('domain').notNull(),
     platform: platformEnum('platform').notNull(),
@@ -243,13 +251,15 @@ export const productImages = pgTable(
     productId: text('product_id')
       .notNull()
       .references(() => products.id),
-    // DECISION: storage swapped from R2 to UploadThing mid-build; `r2Key`
-    // keeps its name (avoiding a rename migration) but is now provider-
-    // agnostic — it holds our own logical key (UploadThing's `customId`,
-    // used for delete). `url` is required alongside it because — unlike R2's
-    // public-bucket scheme — UploadThing has no way to re-derive a public URL
-    // from just the key later, so the URL returned at upload time must be
-    // persisted directly.
+    /**
+     * DECISION: storage swapped from R2 to UploadThing mid-build; `r2Key`
+     * keeps its name (avoiding a rename migration) but is now provider-
+     * agnostic; it holds our own logical key (UploadThing's `customId`,
+     * used for delete). `url` is required alongside it because; unlike R2's
+     * public-bucket scheme; UploadThing has no way to re-derive a public URL
+     * from just the key later, so the URL returned at upload time must be
+     * persisted directly.
+     */
     r2Key: text('r2_key').notNull(),
     url: text('url').notNull(),
     sourceUrl: text('source_url'),
@@ -285,12 +295,14 @@ export const productVariants = pgTable('product_variants', {
 export const links = pgTable('links', {
   id: text('id').primaryKey(),
   slug: text('slug').notNull().unique(),
-  // DECISION (M6): stays notNull, unlike `stores.merchantId` — the marketing
-  // quick-demo (section 8.1) needs a real owning merchant for its link so the
-  // existing (tested) credit-ledger/leads/fal-webhook pipelines don't all
-  // need a parallel null-merchant code path. It's owned by a seeded "system"
-  // merchant instead (`src/config/system-merchant.ts`), watermarked, and
-  // rate-limited by IP rather than by that merchant's own credit balance.
+  /**
+   * DECISION (M6): stays notNull, unlike `stores.merchantId`; the marketing
+   * quick-demo needs a real owning merchant for its link so the
+   * existing (tested) credit-ledger/leads/fal-webhook pipelines don't all
+   * need a parallel null-merchant code path. It's owned by a seeded "system"
+   * merchant instead (`src/config/system-merchant.ts`), watermarked, and
+   * rate-limited by IP rather than by that merchant's own credit balance.
+   */
   merchantId: text('merchant_id')
     .notNull()
     .references(() => merchants.id),
@@ -310,9 +322,11 @@ export const shoppers = pgTable('shoppers', {
   email: text('email'),
   consentAt: timestamp('consent_at', { withTimezone: true }),
   ageAttestedAt: timestamp('age_attested_at', { withTimezone: true }),
-  // First-touch attribution render id (section 9.2). Forward reference to a
-  // table defined later in this file; the lazy accessor defers resolution
-  // until drizzle builds the schema, same trick used for self-references below.
+  /**
+   * First-touch attribution render id. Forward reference to a
+   * table defined later in this file; the lazy accessor defers resolution
+   * until drizzle builds the schema, same trick used for self-references below.
+   */
   sourceRenderId: text('source_render_id').references((): AnyPgColumn => renders.id),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   ...timestamps,
@@ -323,11 +337,13 @@ export const twins = pgTable('twins', {
   shopperId: text('shopper_id')
     .notNull()
     .references(() => shoppers.id),
-  // DECISION: storage is UploadThing, not R2 (see product_images' identical
-  // note) — `*R2Key` keeps its name but holds our own logical key, and the
-  // sibling `*Url` column holds the URL returned at upload time, which can't
-  // be re-derived later. `twinUrl` is nullable: the twin doesn't exist until
-  // generation finishes (status starts `pending`).
+  /**
+   * DECISION: storage is UploadThing, not R2 (see product_images' identical
+   * note); `*R2Key` keeps its name but holds our own logical key, and the
+   * sibling `*Url` column holds the URL returned at upload time, which can't
+   * be re-derived later. `twinUrl` is nullable: the twin doesn't exist until
+   * generation finishes (status starts `pending`).
+   */
   selfieR2Key: text('selfie_r2_key').notNull(),
   selfieUrl: text('selfie_url').notNull(),
   twinR2Key: text('twin_r2_key'),
@@ -344,11 +360,13 @@ export const renders = pgTable(
   'renders',
   {
     id: text('id').primaryKey(),
-    // Nullable: a campaign-driven render (`via: 'campaign'`, section 9.8) has
-    // no shopper-facing link — it's pushed straight to the shopper's inbox
-    // via the merchant's ESP, never clicked through a public `/t/[slug]`
-    // page. Every other `via` value still always has one; the null case only
-    // ever comes from the drop fan-out job.
+    /**
+     * Nullable: a campaign-driven render (`via: 'campaign'`, section 9.8) has
+     * no shopper-facing link; it's pushed straight to the shopper's inbox
+     * via the merchant's ESP, never clicked through a public `/t/[slug]`
+     * page. Every other `via` value still always has one; the null case only
+     * ever comes from the drop fan-out job.
+     */
     linkId: text('link_id').references(() => links.id),
     productId: text('product_id')
       .notNull()
@@ -363,8 +381,10 @@ export const renders = pgTable(
     provider: text('provider'),
     providerJobId: text('provider_job_id'),
     status: renderStatusEnum('status').notNull().default('queued'),
-    // Same UploadThing url-alongside-key pattern as product_images/twins —
-    // nullable, the output doesn't exist until the fal webhook lands.
+    /**
+     * Same UploadThing url-alongside-key pattern as product_images/twins ;
+     * nullable, the output doesn't exist until the fal webhook lands.
+     */
     outputR2Key: text('output_r2_key'),
     outputUrl: text('output_url'),
     watermarked: boolean('watermarked').notNull().default(false),
@@ -374,11 +394,7 @@ export const renders = pgTable(
     shareCount: integer('share_count').notNull().default(0),
     sourceRenderId: text('source_render_id').references((): AnyPgColumn => renders.id),
     via: renderViaEnum('via').notNull().default('direct'),
-    // Set when the shopper clicks "Buy" (section 8.3); read by the abandoned
-    // try-on cron (section 9.8 Kind A).
     buyClickedAt: timestamp('buy_clicked_at', { withTimezone: true }),
-    // Section 8.3: "the shopper who owns the render can toggle it private
-    // from /me" — /r/[renderId] 404s once this is false, added with M4.
     isPublic: boolean('is_public').notNull().default(true),
     ...timestamps,
   },
@@ -419,10 +435,6 @@ export const groupMembers = pgTable('group_members', {
     .references(() => renders.id),
   chosenVariantId: text('chosen_variant_id').references(() => productVariants.id),
   note: text('note'),
-  // Section 9.4: "Members opt in to show their face to the group" — false by
-  // default, a member is always PART of the group (their size/color pick is
-  // always visible to the merchant) but their twin is only ever rendered in
-  // the group's AvatarStack once they explicitly flip this on.
   showInGroup: boolean('show_in_group').notNull().default(false),
   ...timestamps,
 });
@@ -463,24 +475,28 @@ export const creditLedger = pgTable(
       .references(() => merchants.id),
     delta: integer('delta').notNull(),
     reason: ledgerReasonEnum('reason').notNull(),
-    // DECISION: spec names this field `ref_after` without defining it further
-    // ("Balance is always computed from the ledger, cached on merchant" —
-    // section 5 — but no balance column is listed on `merchants`). Read as the
-    // running balance snapshot immediately after this entry, so the latest
-    // row's ref_after serves as the cheap cached-read path without a second
-    // column elsewhere that could drift out of sync with the ledger.
+    /**
+     * DECISION: spec names this field `ref_after` without defining it further
+     * ("Balance is always computed from the ledger, cached on merchant" ;
+     * section 5; but no balance column is listed on `merchants`). Read as the
+     * running balance snapshot immediately after this entry, so the latest
+     * row's ref_after serves as the cheap cached-read path without a second
+     * column elsewhere that could drift out of sync with the ledger.
+     */
     refAfter: integer('ref_after').notNull(),
     createdAt: timestamps.createdAt,
   },
   (table) => [index('credit_ledger_merchant_created_idx').on(table.merchantId, table.createdAt)],
 );
 
-// DECISION: section 5 spec'd this as `stripe_events` (Stripe-only); renamed
-// to the provider-neutral `payment_events` mid-build when the processor
-// switched from Stripe to Polar, with a `provider` column so switching again
-// later is a new provider string, not another schema rename.
+/**
+ * DECISION: section 5 spec'd this as `stripe_events` (Stripe-only); renamed
+ * to the provider-neutral `payment_events` mid-build when the processor
+ * switched from Stripe to Polar, with a `provider` column so switching again
+ * later is a new provider string, not another schema rename.
+ */
 export const paymentEvents = pgTable('payment_events', {
-  // Primary key is the provider's own event id (section 5), not a generated ulid.
+  // Primary key is the provider's own event id, not a generated ulid.
   id: text('id').primaryKey(),
   provider: text('provider').notNull(),
   type: text('type').notNull(),
@@ -627,11 +643,13 @@ export const platformRequests = pgTable('platform_requests', {
   ...timestamps,
 });
 
-// Backs src/lib/api-handler.ts's Idempotency-Key handling. Not in section 5 of
-// the spec (written before API routes existed) — key is scoped per actor
-// (merchant id, or the literal 'cron'/'webhook'/'public' for non-merchant
-// callers) rather than a generated ulid, since the pair (key, actor) IS the
-// identity being deduplicated.
+/**
+ * Backs src/lib/api-handler.ts's Idempotency-Key handling. Not in section 5 of
+ * the spec (written before API routes existed); key is scoped per actor
+ * (merchant id, or the literal 'cron'/'webhook'/'public' for non-merchant
+ * callers) rather than a generated ulid, since the pair (key, actor) IS the
+ * identity being deduplicated.
+ */
 export const idempotencyKeys = pgTable(
   'idempotency_keys',
   {
