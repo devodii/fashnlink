@@ -2,26 +2,32 @@ import { afterAll, describe, expect, it, vi } from 'vitest';
 
 // Integration test against the REAL local Postgres (docker-compose,
 // `pnpm db:up`) proving the persistence half of the M2 pipeline end to end:
-// enrichment -> product/image/variant rows. Only `putObject` (UploadThing) is
-// mocked — this sandbox has no real UPLOADTHING_TOKEN/OPENAI_API_KEY
-// (`.env.local` has dev placeholders), so the two external SaaS calls
-// (OpenAI vision, UploadThing upload) can't be exercised live end to end.
+// enrichment -> product/image/variant rows. `putObject` (UploadThing) and the
+// image fetch are mocked — this sandbox has no real UPLOADTHING_TOKEN/
+// OPENAI_API_KEY (`.env.local` has dev placeholders), so the two external
+// SaaS calls (OpenAI vision, UploadThing upload) can't be exercised live end
+// to end. The image fetch is mocked too (a real locally-generated PNG, not a
+// network call) — section 6.9/2's "no network in the test suite" rule
+// applies here just as much as to adapter fixtures; an earlier version of
+// this test hit a real `picsum.photos` URL, which worked against this
+// sandbox's network but is exactly the kind of external dependency that made
+// CI flaky/environment-dependent, so it's gone.
 // `scrapeUrl` itself IS proven live in `pnpm demo:scrape` against real
 // stores, up through the wearable gate call — see the M2 report for the
 // `not_wearable` rejection path, which needs no external API key at all and
 // was verified against a real live Shopify store with zero DB rows written.
 vi.mock('@/modules/storage', () => ({
-  putObject: vi.fn(async (key: string, _body: Buffer, _contentType: string) => ({
+  putObject: vi.fn(async (key: string) => ({
     key,
     url: `https://fake.ufs.sh/f/${key}`,
   })),
 }));
 
+import sharp from 'sharp';
 import { db } from '@/db';
 import { products, productImages, productVariants, stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { childLogger } from '@/lib/log';
-import { createFetch } from '@/lib/http';
 import { findOrCreateStore } from '@/db/repos/stores';
 import {
   findProductByExternalId,
@@ -120,11 +126,24 @@ describe('M2 persistence pipeline against a real local Postgres', () => {
       },
     ];
 
+    // A real, tiny, locally-generated PNG — enrichProduct pipes the fetched
+    // bytes through `sharp(bytes).metadata()`, so this has to be a genuinely
+    // valid image, not arbitrary bytes.
+    const fakeImageBytes = await sharp({
+      create: { width: 4, height: 4, channels: 3, background: { r: 200, g: 180, b: 160 } },
+    })
+      .png()
+      .toBuffer();
+
     const ctx = {
       log: childLogger('integration-test'),
       requestId: 'integration-test',
       deadlineMs: Date.now() + 30_000,
-      fetch: createFetch({ log: childLogger('integration-test') }),
+      fetch: (async () =>
+        new Response(fakeImageBytes, {
+          status: 200,
+          headers: { 'content-type': 'image/png' },
+        })) as typeof fetch,
     };
 
     const productId = newId('prod');
