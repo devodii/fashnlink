@@ -1,57 +1,61 @@
 'use client';
 
-import { useState, type SubmitEvent } from 'react';
+import * as React from 'react';
+import { z } from 'zod';
+import { useZodForm } from '@/hooks/use-zod-form';
+import { Form } from '@/components/forms/form';
+import { EmailField } from '@/components/forms/email-field';
+import { LoadingButton } from '@/components/loading-button';
+import { Container } from '@/components/container';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
+import { ok, err, type Result, type AppError } from '@/lib/result';
 
-/**
- * DECISION: this is intentionally bare. The component library (StepWizard,
- * Form + RHF field components, AppShell) doesn't exist until M1.5, and the
- * real onboarding-adjacent /login layout is built once it does. This only
- * has to prove magic link + Google sign-in work end to end.
- */
+const schema = z.object({ email: z.string().email('Enter a valid email') });
+type Values = z.infer<typeof schema>;
+
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [sent, setSent] = React.useState(false);
+  const form = useZodForm(schema, { defaultValues: { email: '' } });
 
-  async function handleMagicLink(formEvent: SubmitEvent<HTMLFormElement>) {
-    formEvent.preventDefault();
-    setStatus('sending');
+  async function handleSubmit({ email }: Values): Promise<Result<undefined, AppError>> {
     const { error } = await authClient.signIn.magicLink({ email, callbackURL: '/dashboard' });
-    setStatus(error ? 'error' : 'sent');
+    if (error) return err({ code: 'INTERNAL', message: 'Something went wrong. Try again.' });
+    setSent(true);
+    return ok(undefined);
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-8">
-      <h1 className="text-lg font-medium text-foreground">Sign in</h1>
+    <main className="flex flex-1 items-center justify-center bg-background">
+      <Container size="sm" className="flex flex-col items-center gap-6 py-16">
+        <h1 className="text-lg font-medium text-foreground">Sign in</h1>
 
-      <form onSubmit={handleMagicLink} className="flex w-full max-w-xs flex-col gap-3">
-        <Input
-          type="email"
-          required
-          placeholder="you@shop.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <Button type="submit" disabled={status === 'sending'}>
-          {status === 'sending' ? 'Sending...' : 'Send magic link'}
-        </Button>
-        {status === 'sent' && (
+        {sent ? (
           <p className="text-sm text-muted-foreground">Check your email for a sign-in link.</p>
+        ) : (
+          <Form form={form} onSubmit={handleSubmit} className="w-full max-w-xs">
+            <EmailField
+              control={form.control}
+              name="email"
+              label="Email"
+              placeholder="you@shop.com"
+            />
+            <LoadingButton type="submit" loading={form.formState.isSubmitting} className="w-full">
+              Send magic link
+            </LoadingButton>
+          </Form>
         )}
-        {status === 'error' && (
-          <p className="text-sm text-destructive">Something went wrong. Try again.</p>
-        )}
-      </form>
 
-      <Button
-        variant="secondary"
-        className="w-full max-w-xs"
-        onClick={() => authClient.signIn.social({ provider: 'google', callbackURL: '/dashboard' })}
-      >
-        Continue with Google
-      </Button>
+        <Button
+          variant="secondary"
+          className="w-full max-w-xs"
+          onClick={() =>
+            authClient.signIn.social({ provider: 'google', callbackURL: '/dashboard' })
+          }
+        >
+          Continue with Google
+        </Button>
+      </Container>
     </main>
   );
 }
