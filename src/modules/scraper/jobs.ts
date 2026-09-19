@@ -11,23 +11,13 @@ import { scraperRegistry } from './index';
 const payloadSchema = z.object({ storeId: z.string() });
 
 /**
- * catalog refresh, reached two ways; reactively, one job
- * per store, enqueued by `scrapeUrl` after any single-product scrape
- * ; and proactively by the `refresh-catalogs` cron
- * (below), which enqueues one per eligible store on a schedule. Both funnel
- * through this one handler so there is exactly one catalog-crawl code path.
- *
- * DECISION: scoped to REFRESHING products that already exist (price,
- * availability, freshness); first page of `listProducts` only, no
- * pagination loop, no new-product discovery. Running the full wearable-gate
- * + vision/Jev enrichment pipeline (`scrapeUrl`'s product-mode path) against
- * an entire catalog on every refresh would be far more expensive than what a
- * "keep known products' live fields current" cron needs, and that pipeline
- * isn't currently factored out into a reusable single-product function this
- * handler could call per catalog item without duplicating it. Discovering
- * brand-new catalog products this way is a real gap, not silently pretended
- * otherwise; it's the same "paste it yourself" path (onboarding / new link)
- * until a future pass extracts that pipeline into something this can reuse.
+ * Scoped to refreshing products that already exist (price, availability,
+ * freshness) from the first page of listProducts only. It does not discover
+ * new catalog products: running the full wearable-gate and vision/Jev
+ * enrichment pipeline against an entire catalog on every refresh would be
+ * far more expensive than this cron needs, and that pipeline is not
+ * currently factored out into a reusable single-product function. New
+ * products still need to be pasted in manually (onboarding / new link).
  */
 registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
   const parsed = payloadSchema.safeParse(payload);
@@ -64,7 +54,7 @@ registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
     const product = normalized.value;
 
     const existing = await findProductByExternalId(store.id, product.externalId);
-    if (!existing) continue; // new-product discovery: see DECISION above
+    if (!existing) continue;
 
     const contentHash = createHash('sha256')
       .update(

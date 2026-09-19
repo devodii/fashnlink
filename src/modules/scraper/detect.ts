@@ -1,16 +1,5 @@
 import type { DetectResult, HomepageProbe, PlatformKey } from './types';
 
-/**
- * Signal table; HTML/header-only checks, cheap, from the
- * single homepage probe every resolution path already fetches. Each
- * platform's signal function is exported individually so it can back BOTH
- * `stores.fingerprint` (`detectPlatformSignals`, every platform, used even
- * for platforms with no adapter yet; section 6.3's "free lead-scoring
- * data") AND that platform's own `ScraperAdapter.detect()` (the thin
- * JSON-LD/sitemap adapters in `shared/thin-adapter.ts`; one signal
- * function, not two separate implementations of the same regexes).
- */
-
 function shopifySignals(html: string, headers: Headers): string[] {
   const signals: string[] = [];
   if (headers.get('x-shopify-stage') || headers.get('x-shopid'))
@@ -83,21 +72,16 @@ const SIGNAL_DETECTORS: Record<PlatformKey, ((html: string, headers: Headers) =>
     magento: magentoSignals,
     prestashop: prestashopSignals,
     salesforce: salesforceSignals,
-    lemonsqueezy: null, // hostPatterns-only — no homepage signal, no browsable homepage at all
+    lemonsqueezy: null, // hostPatterns-only, no browsable homepage at all
     gumroad: null,
     bigcartel: null,
     generic: null,
     manual: null,
   };
 
-/**
- * One HTML/header probe -> a DetectResult, for any platform's own
- * `detect()`. Salesforce gets a flat high confidence on its single signal
- * (section 6.3's table treats `demandware.store` alone as sufficient,
- * unlike woocommerce/prestashop which need two signals before trusting a
- * match); every other platform's confidence scales with how many of its
- * signals matched, capped at 1.
- */
+// Salesforce gets a flat high confidence on its single signal
+// (demandware.store alone is trusted, unlike woocommerce/prestashop which
+// need two signals); every other platform scales with signal count.
 export function detectSignalsFor(platform: PlatformKey, probe: HomepageProbe): DetectResult {
   const detector = SIGNAL_DETECTORS[platform];
   if (!detector) return { match: false, confidence: 0, signals: [] };
@@ -121,10 +105,6 @@ export function detectPlatformSignals(
   return results.sort((a, b) => b.confidence - a.confidence);
 }
 
-/**
- * Closing note; installed-app/pixel fingerprinting, free
- * lead-scoring data stored alongside the platform signals.
- */
 export function fingerprintApps(html: string): Record<string, boolean> {
   return {
     klaviyo: html.includes('klaviyo.js') || /klaviyo/i.test(html),
