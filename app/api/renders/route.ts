@@ -7,6 +7,7 @@ import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
 import { submitRender } from '@/modules/render/submit';
+import { accrueClaimIfUnowned } from '@/db/repos/claims';
 
 const bodySchema = z.object({
   linkId: z.string().min(1),
@@ -119,6 +120,12 @@ export const POST = apiHandler({
       ctx,
     );
     if (!submission.ok) return submission;
+
+    // Section 9.6: a no-op unless this product's store has no owning
+    // merchant — never blocks the render response on this bookkeeping.
+    accrueClaimIfUnowned(product.id).catch((cause) =>
+      log.warn({ cause }, 'failed to accrue claim for unowned store'),
+    );
 
     return ok({ renderId: submission.value.renderId, status: 'queued' as const });
   },
