@@ -14,6 +14,8 @@ import {
   TWIN_PHOTO_CLASSIFY,
   TWIN_STUDIO_GENERATION,
 } from '@/config/prompts';
+import { TWIN_CREATIONS_PER_SHOPPER_PER_DAY } from '@/config/limits';
+import { consumeRateLimit } from '@/lib/rate-limit';
 import { moderateImage } from './moderation';
 import { submitNanoBananaEdit } from './providers/nano-banana';
 
@@ -65,6 +67,15 @@ export async function createTwin(
   input: CreateTwinInput,
   ctx: Ctx,
 ): Promise<Result<{ twinId: string }>> {
+  const rateLimit = await consumeRateLimit(
+    `twin:${input.shopperId}`,
+    TWIN_CREATIONS_PER_SHOPPER_PER_DAY,
+    24 * 60 * 60,
+  );
+  if (!rateLimit.allowed) {
+    return err({ code: 'RATE_LIMITED', message: 'Too many twin creations today.' });
+  }
+
   const moderation = await moderateImage(input.selfieUrl);
   if (!moderation.ok) {
     await deleteObject(input.selfieKey).catch((cause) =>

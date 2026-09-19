@@ -9,7 +9,7 @@ import { idempotencyKeys, merchants } from '@/db/schema';
 import { auth } from '@/modules/auth';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';
-import { redis } from '@/lib/redis';
+import { consumeRateLimit } from '@/lib/rate-limit';
 import type { AppError, Result } from '@/lib/result';
 
 // Every Route Handler in app/api/** is built with apiHandler() instead of a
@@ -210,32 +210,9 @@ function actorIdFor(resolvedAuth: ResolvedAuth): string {
   }
 }
 
-// Fixed-window counter, not a true sliding window.
-// DECISION: simpler to reason about and cheap in Redis (one INCR+EXPIRE per
-// request); a true sliding window can replace this later if a burst right at
-// a window boundary turns out to matter for the limits this protects
-// (renders/twins/scrapes — see section 7.4/13, none of which are precise
-// enough to need sub-window accuracy).
-async function consumeRateLimit(
-  key: string,
-  limit: number,
-  windowSeconds: number,
-): Promise<{ allowed: boolean; limit: number; remaining: number; reset: Date }> {
-  if (!redis)
-    return {
-      allowed: true,
-      limit,
-      remaining: limit,
-      reset: new Date(Date.now() + windowSeconds * 1000),
-    };
-
-  const bucket = `ratelimit:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
-  const count = await redis.incr(bucket);
-  if (count === 1) await redis.expire(bucket, windowSeconds);
-  const ttl = await redis.ttl(bucket);
-  const reset = new Date(Date.now() + Math.max(ttl, 0) * 1000);
-  return { allowed: count <= limit, limit, remaining: Math.max(limit - count, 0), reset };
-}
+// M3: extracted to src/lib/rate-limit.ts so module-level code that isn't
+// behind a Next.js route (render submission, twin creation) can share the
+// same primitive instead of a second implementation.
 
 type IdempotencyLookup = { done: true; status: number; body: unknown } | { done: false } | null;
 
