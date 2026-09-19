@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authClient } from '@/lib/auth-client';
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
-  async function handleMagicLink(formEvent: React.FormEvent) {
+  async function handleMagicLink(formEvent: SubmitEvent<HTMLFormElement>) {
     formEvent.preventDefault();
     setStatus('sending');
     const { error } = await authClient.signIn.magicLink({ email, callbackURL: '/dashboard' });
