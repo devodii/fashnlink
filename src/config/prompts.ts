@@ -2,6 +2,8 @@
 // model prompt lives here so tuning one doesn't mean hunting through adapter
 // or job files.
 
+import type { GarmentCategory } from '@/modules/scraper/types';
+
 export const WEARABLE_GATE = `You are screening product photos for a virtual try-on app. For EACH image, decide whether it shows a single wearable item (something a person wears on their body: clothing, shoes, headwear, eyewear, jewelry, a bag, or another worn accessory) that is clearly usable as a try-on source photo.
 
 Return one JSON object per image with exactly these fields:
@@ -31,6 +33,38 @@ export const TWIN_BACKGROUND_CLEANUP = `Replace the background with a plain neut
 // Section 7.2: for a selfie/half-body photo, generate a full-body studio
 // image that still looks like the same person.
 export const TWIN_STUDIO_GENERATION = `Generate a full-body, head-to-feet photo of this exact person in a standing neutral pose, on a plain neutral light-gray studio backdrop, wearing plain neutral basics (a fitted white t-shirt and gray trousers). Preserve their face, skin tone, hair, and body proportions exactly as shown. Photorealistic, even studio lighting, no props.`;
+
+// ---------- Wearable gate, Stage 1b: Jev (TypeSafe AI), text-only ----------
+// Added mid-build on top of section 6.7's two-stage gate — a fast/cheap
+// text-and-JSON classifier sits between Stage 1's free keyword scoring and
+// Stage 2's OpenAI vision call, resolving from title/tags/description/image
+// alt-text alone what would otherwise need a vision call. See
+// src/modules/scraper/wearable-gate.ts for the full cascade and thresholds.
+// Jev has no image modality — these instructions must never ask it anything
+// that requires seeing the actual photo (that stays Stage 2's job).
+
+export const WEARABLE_GATE_JEV_IS_WEARABLE = `Based only on the product's title, product type, tags, description, and any image alt text/filenames given, is this something a person wears on their body — clothing, shoes, headwear, eyewear, jewelry, a bag, or another worn accessory? Answer false for home goods, mugs, candles, posters, gift cards, digital products/subscriptions, furniture, decor, pet products, or anything not worn on a person's body.`;
+
+export const WEARABLE_GATE_JEV_IS_KIDS = `Based only on the product's title, product type, tags, and description, is this product intended for babies, toddlers, or children rather than adults?`;
+
+export const WEARABLE_GATE_JEV_GARMENT_CATEGORY = `Based only on the product's title, product type, tags, description, and any image alt text/filenames given, which category best fits this product?`;
+
+// One short description per db/schema.ts `garmentCategoryEnum` value, used to
+// build Jev's `garment_category` choice criteria in wearable-gate.ts (the
+// enum values themselves are iterated there, not hand-listed a third time —
+// this map only has to stay exhaustive over GarmentCategory, which TypeScript
+// already enforces).
+export const WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS: Record<GarmentCategory, string> = {
+  top: 'Shirts, blouses, t-shirts, sweaters, tank tops — worn on the upper body only.',
+  bottom: 'Pants, jeans, shorts, skirts — worn on the lower body only.',
+  one_piece: 'Dresses, jumpsuits, rompers — a single garment covering both upper and lower body.',
+  outerwear: 'Jackets, coats, blazers, cardigans — worn over other clothing.',
+  shoes: 'Footwear of any kind.',
+  accessory:
+    'Jewelry, eyewear, headwear, bags, belts, or other worn accessories — not a garment or shoe.',
+  set: 'A matching multi-piece outfit sold as one product (e.g. a top-and-bottom set).',
+  unknown: 'Wearable, but none of the above fit, or not enough information to tell.',
+};
 
 // Section 7.1: nano_banana's fallback/accessory render path (routing table,
 // src/config/models.ts) — no dedicated try-on prompt is given in the spec,
