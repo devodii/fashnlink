@@ -6,22 +6,39 @@ import { z } from 'zod';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
 import { UrlField } from '@/components/forms/url-field';
+import { TextField } from '@/components/forms/text-field';
 import { LoadingButton } from '@/components/loading-button';
 import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
 import { InlineAlert } from '@/components/inline-alert';
+import { SegmentedControl } from '@/components/segmented-control';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-const schema = z.object({ url: z.string().url('Paste a full product URL') });
-type FormValues = z.infer<typeof schema>;
+type Kind = 'single' | 'poll' | 'group';
 
-// Section 8.1/8.2's "paste a URL" flow — the same `POST /api/links` route
-// onboarding step 1 uses (src/modules/links/create-link-from-url.ts), so a
-// link created here and one created during onboarding go through identical
-// scrape -> wearable-gate -> persist logic.
+const singleSchema = z.object({ url: z.string().url('Paste a full product URL') });
+const groupSchema = z.object({
+  url: z.string().url('Paste a full product URL'),
+  groupName: z.string().min(1, 'Give the group a name'),
+  groupNote: z.string().optional(),
+});
+
+// Section 8.1/8.2's "paste a URL" flow — single-kind still goes through the
+// same `POST /api/links` route onboarding step 1 uses. Poll/group (M6) post
+// to their own routes (`/api/links/poll`, `/api/links/group`) since they
+// take a different shape (several URLs, or a group name), but land on the
+// same link-detail page afterward.
 export function NewLinkForm() {
   const router = useRouter();
-  const form = useZodForm(schema, { defaultValues: { url: '' } });
+  const [kind, setKind] = React.useState<Kind>('single');
   const [stage, setStage] = React.useState<'idle' | 'working' | 'error'>('idle');
   const [error, setError] = React.useState<string | null>(null);
+  const [pollUrls, setPollUrls] = React.useState<string[]>(['', '']);
+
+  const singleForm = useZodForm(singleSchema, { defaultValues: { url: '' } });
+  const groupForm = useZodForm(groupSchema, {
+    defaultValues: { url: '', groupName: '', groupNote: '' },
+  });
 
   const steps: ProgressStep[] = [
     {
@@ -38,13 +55,13 @@ export function NewLinkForm() {
     },
   ];
 
-  async function onSubmit(values: FormValues) {
+  async function post(path: string, body: unknown) {
     setStage('working');
     setError(null);
-    const res = await fetch('/api/links', {
+    const res = await fetch(path, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(values),
+      body: JSON.stringify(body),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -57,17 +74,99 @@ export function NewLinkForm() {
 
   return (
     <div className="max-w-md space-y-6">
-      <Form form={form} onSubmit={onSubmit} className="space-y-4">
-        <UrlField
-          control={form.control}
-          name="url"
-          label="Product URL"
-          placeholder="https://yourshop.com/products/linen-shirt"
-        />
-        <LoadingButton type="submit" loading={stage === 'working'} className="w-full">
-          Create link
-        </LoadingButton>
-      </Form>
+      <SegmentedControl
+        value={kind}
+        onChange={(v) => setKind(v as Kind)}
+        options={[
+          { value: 'single', label: 'Single' },
+          { value: 'poll', label: 'Poll' },
+          { value: 'group', label: 'Group' },
+        ]}
+      />
+
+      {kind === 'single' && (
+        <Form form={singleForm} onSubmit={(v) => post('/api/links', v)} className="space-y-4">
+          <UrlField
+            control={singleForm.control}
+            name="url"
+            label="Product URL"
+            placeholder="https://yourshop.com/products/linen-shirt"
+          />
+          <LoadingButton type="submit" loading={stage === 'working'} className="w-full">
+            Create link
+          </LoadingButton>
+        </Form>
+      )}
+
+      {kind === 'poll' && (
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Add 2 or 3 product URLs — shoppers try on all of them.
+          </p>
+          <div className="space-y-2">
+            {pollUrls.map((url, i) => (
+              <Input
+                key={i}
+                type="url"
+                placeholder={`Product ${i + 1} URL`}
+                value={url}
+                onChange={(e) =>
+                  setPollUrls((prev) => prev.map((u, idx) => (idx === i ? e.target.value : u)))
+                }
+              />
+            ))}
+          </div>
+          {pollUrls.length < 3 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPollUrls((p) => [...p, ''])}
+            >
+              Add another
+            </Button>
+          )}
+          <LoadingButton
+            loading={stage === 'working'}
+            className="w-full"
+            disabled={pollUrls.filter(Boolean).length < 2}
+            onClick={() => post('/api/links/poll', { urls: pollUrls.filter(Boolean) })}
+          >
+            Create poll
+          </LoadingButton>
+        </div>
+      )}
+
+      {kind === 'group' && (
+        <Form
+          form={groupForm}
+          onSubmit={(v) =>
+            post('/api/links/group', {
+              url: v.url,
+              groupName: v.groupName,
+              groupNote: v.groupNote || null,
+            })
+          }
+          className="space-y-4"
+        >
+          <UrlField
+            control={groupForm.control}
+            name="url"
+            label="Product URL"
+            placeholder="https://yourshop.com/products/linen-shirt"
+          />
+          <TextField
+            control={groupForm.control}
+            name="groupName"
+            label="Group name"
+            placeholder="Bridesmaids"
+          />
+          <TextField control={groupForm.control} name="groupNote" label="Note (optional)" />
+          <LoadingButton type="submit" loading={stage === 'working'} className="w-full">
+            Create group link
+          </LoadingButton>
+        </Form>
+      )}
 
       {stage !== 'idle' && <ProgressSteps steps={steps} />}
       {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
