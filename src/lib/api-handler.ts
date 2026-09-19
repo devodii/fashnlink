@@ -208,6 +208,18 @@ export function requireShopperSession(
   return { ok: true, value: { shopperId: resolvedAuth.shopperId } };
 }
 
+// M5: the merchant-scoped equivalent of `requireShopperSession` above — same
+// reasoning, one helper instead of copy-pasting the narrowing into every
+// dashboard/onboarding route.
+export function requireMerchantSession(
+  resolvedAuth: ResolvedAuth,
+): Result<{ merchantId: string; email: string }, AppError> {
+  if (resolvedAuth.type !== 'merchant_session') {
+    return { ok: false, error: { code: 'UNAUTHORIZED', message: 'merchant session required' } };
+  }
+  return { ok: true, value: { merchantId: resolvedAuth.merchantId, email: resolvedAuth.email } };
+}
+
 function actorIdFor(resolvedAuth: ResolvedAuth): string {
   switch (resolvedAuth.type) {
     case 'merchant_session':
