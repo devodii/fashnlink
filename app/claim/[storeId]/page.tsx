@@ -10,16 +10,12 @@ import {
 import { Container } from '@/components/container';
 import { ClaimButton } from './claim-button';
 
-/**
- * reverse acquisition; public proof that people are already
- * trying on a store's products, with no merchant account yet.
- */
 export default async function ClaimPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
 
   const [store] = await db.select().from(stores).where(eq(stores.id, storeId)).limit(1);
   if (!store) notFound();
-  if (store.merchantId) notFound(); // already claimed — nothing to show here
+  if (store.merchantId) notFound();
 
   const totalRenders = await totalClaimRenderCount(storeId);
   if (totalRenders < CLAIM_VISIBLE_THRESHOLD) notFound();

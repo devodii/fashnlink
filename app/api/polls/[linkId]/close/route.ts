@@ -6,7 +6,6 @@ import { links } from '@/db/schema';
 import { closePoll } from '@/db/repos/links';
 import { err, ok } from '@/lib/result';
 
-// to arbitrary shoppers.
 export const POST = apiHandler({
   name: 'polls.close',
   auth: ['merchant_session'],

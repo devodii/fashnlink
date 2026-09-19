@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import template from '@/config/esp-templates/klaviyo-abandoned.json';
 
-/**
- * Static file download, not an apiHandler route; no auth, no DB, no
- * per-merchant data (section 8.2's "flow template download").
- */
+/** A static file download, deliberately not an apiHandler route; no auth, no DB, no per-merchant data. */
 export function GET() {
   return NextResponse.json(template, {
     headers: {

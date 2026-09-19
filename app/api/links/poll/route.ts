@@ -8,10 +8,6 @@ import { SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR } from '@/config/limits';
 
 const bodySchema = z.object({ urls: z.array(z.string().url()).min(2).max(3) });
 
-/**
- * merchant-created poll; 2-3 product URLs, one `links` row,
- * `kind: 'poll'`. Same scrape pipeline as `POST /api/links`, just fanned out.
- */
 export const POST = apiHandler({
   name: 'links.createPollFromUrls',
   auth: ['merchant_session'],

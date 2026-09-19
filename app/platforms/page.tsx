@@ -2,10 +2,6 @@ import { scraperRegistry } from '@/modules/scraper';
 import { Container } from '@/components/container';
 import { StatusBadge } from '@/components/status-badge';
 
-/**
- * lists every supported platform (`ScraperRegistry.list()`,
- * M2) with its real capabilities; never a hand-maintained duplicate list.
- */
 export default function PlatformsPage() {
   const adapters = scraperRegistry.list();
 

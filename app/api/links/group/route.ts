@@ -12,10 +12,6 @@ const bodySchema = z.object({
   groupNote: z.string().max(280).nullable().optional(),
 });
 
-/**
- * merchant-created group link; one product, a group name
- * (e.g. "Bridesmaids") and an optional note, `kind: 'group'`.
- */
 export const POST = apiHandler({
   name: 'links.createGroupFromUrl',
   auth: ['merchant_session'],

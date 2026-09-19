@@ -17,7 +17,7 @@ export default async function DropStatusPage({ params }: { params: Promise<{ id:
 
   const counts = await countCampaignItemsByStatus(id);
 
-  // merchant-visible shopper renders outright. This is product titles only.
+  // Never surfaces the actual shopper render images to the merchant, product titles only.
   const previewRows = await db
     .select({ productTitle: products.title })
     .from(campaignItems)

@@ -7,10 +7,6 @@ import { ok } from '@/lib/result';
 
 const bodySchema = z.object({ merchantId: z.string().min(1) });
 
-/**
- * connection; no-op today if `esp_connections` has nothing for this
- * merchant, which is the common case in this sandbox/early merchants.
- */
 export const POST = apiHandler({
   name: 'me.retargetOptOut',
   auth: ['shopper_session'],

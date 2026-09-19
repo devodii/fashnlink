@@ -7,7 +7,6 @@ import { err, ok } from '@/lib/result';
 
 const paramsSchema = z.object({ id: z.string() });
 
-// `GET /api/renders/[id]/status`; polled while `queued`/`running`.
 export const GET = apiHandler({
   name: 'renders.status',
   auth: ['shopper_session'],

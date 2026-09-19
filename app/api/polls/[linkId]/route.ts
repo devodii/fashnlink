@@ -6,10 +6,6 @@ import { links, pollVotes } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 import { isPollClosed } from '@/db/repos/links';
 
-/**
- * Public: live vote counts for `/p/[slug]` and the poll-mode `/t/[slug]`
- * view. No shopper session required to READ a poll's state; only to vote.
- */
 export const GET = apiHandler({
   name: 'polls.state',
   auth: ['public'],
