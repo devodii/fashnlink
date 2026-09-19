@@ -20,18 +20,12 @@ function headers(apiKey: string) {
   };
 }
 
-/**
- * Mailchimp addresses list members by the lowercased MD5 of their email ;
- * not an internal id you look up first.
- */
+// Mailchimp addresses list members by the lowercased MD5 of their email,
+// not an internal id looked up first.
 function subscriberHash(email: string): string {
   return createHash('md5').update(email.trim().toLowerCase()).digest('hex');
 }
 
-/**
- * for that mapping, not this adapter, same separation as Klaviyo's adapter
- * not knowing about Klaviyo-specific property naming either.
- */
 async function upsertMember(
   push: Extract<EspPush, { op: 'event' | 'setProfileProperties' }>,
   ctx: Ctx,

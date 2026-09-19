@@ -16,15 +16,10 @@ export const espRegistry = new AdapterRegistry<EspPush, EspPushResult, 'klaviyo'
 
 export type { EspPush, EspPushResult, EspProviderKey } from './types';
 
-/**
- * The single entry point everywhere else in the app should use; looks up
- * the merchant's active connection, decrypts the key, and dispatches through
- * the registry. Callers never touch `apiKeyEncrypted` or an adapter directly.
- * A plain `Omit<EspPush, ...>` would collapse the discriminated union into
- * one flattened object type, losing the connection between `op` and its
- * matching fields; this distributes the Omit across each union member
- * instead, so callers still get full narrowing on `op`.
- */
+// A plain Omit<EspPush, ...> would collapse this discriminated union into one
+// flattened type, losing the connection between `op` and its matching
+// fields. Distributing the Omit across each union member with a conditional
+// type keeps full narrowing on `op` for callers.
 type EspPushWithoutCredentials<T> = T extends EspPush ? Omit<T, 'apiKey' | 'listId'> : never;
 
 export async function pushToMerchantEsp(

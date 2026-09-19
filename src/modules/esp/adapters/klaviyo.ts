@@ -4,12 +4,10 @@ import type { EspPush, EspPushResult } from '../types';
 
 const API_BASE = 'https://a.klaviyo.com/api';
 /**
- * DECISION: Klaviyo requires a dated revision header on every request. This
- * is the most recent stable revision known at build time; since no real
- * Klaviyo account exists in this sandbox to verify against live, whoever
- * connects a real account first should confirm this against
- * https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation
- * before relying on it in production, and bump it here (one place) if stale.
+ * Klaviyo requires a dated revision header on every request. Verify this
+ * against https://developers.klaviyo.com/en/docs/api_versioning_and_deprecation
+ * before relying on it in production; no live Klaviyo account was available
+ * to confirm it here.
  */
 const REVISION = '2025-07-15';
 
@@ -46,11 +44,8 @@ async function pushEvent(
   return ok({ delivered: true });
 }
 
-/**
- * Profile properties (including the `unsubscribed_tryon` opt-out signal,
- * section 9.8) upsert by email; Klaviyo's profile-import endpoint
- * creates-or-updates rather than erroring on an existing profile.
- */
+// Klaviyo's profile-import endpoint creates-or-updates by email rather than
+// erroring on an existing profile.
 async function setProfileProperties(
   push: Extract<EspPush, { op: 'setProfileProperties' }>,
   ctx: Ctx,
