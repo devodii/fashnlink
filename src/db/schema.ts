@@ -317,8 +317,15 @@ export const twins = pgTable('twins', {
   shopperId: text('shopper_id')
     .notNull()
     .references(() => shoppers.id),
+  // DECISION: storage is UploadThing, not R2 (see product_images' identical
+  // note) — `*R2Key` keeps its name but holds our own logical key, and the
+  // sibling `*Url` column holds the URL returned at upload time, which can't
+  // be re-derived later. `twinUrl` is nullable: the twin doesn't exist until
+  // generation finishes (status starts `pending`).
   selfieR2Key: text('selfie_r2_key').notNull(),
+  selfieUrl: text('selfie_url').notNull(),
   twinR2Key: text('twin_r2_key'),
+  twinUrl: text('twin_url'),
   status: twinStatusEnum('status').notNull().default('pending'),
   provider: text('provider'),
   providerJobId: text('provider_job_id'),
@@ -347,7 +354,10 @@ export const renders = pgTable(
     provider: text('provider'),
     providerJobId: text('provider_job_id'),
     status: renderStatusEnum('status').notNull().default('queued'),
+    // Same UploadThing url-alongside-key pattern as product_images/twins —
+    // nullable, the output doesn't exist until the fal webhook lands.
     outputR2Key: text('output_r2_key'),
+    outputUrl: text('output_url'),
     watermarked: boolean('watermarked').notNull().default(false),
     costCents: integer('cost_cents'),
     latencyMs: integer('latency_ms'),
