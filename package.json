@@ -16,7 +16,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
-    "demo:scrape": "tsx scripts/demo-scrape.ts"
+    "demo:scrape": "tsx scripts/demo-scrape.ts",
+    "acceptance:scrape": "tsx scripts/acceptance-check.ts"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.7.5",
