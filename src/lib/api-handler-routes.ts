@@ -29,3 +29,8 @@ import '@/app/api/shoppers/email/route';
 import '@/app/api/leads/route';
 import '@/app/api/me/route';
 import '@/app/api/og/render/[renderId]/route';
+import '@/app/api/links/route';
+import '@/app/api/links/[id]/route';
+import '@/app/api/merchants/me/route';
+import '@/app/api/platform-requests/route';
+import '@/app/api/webhooks/stripe/route';
