@@ -1,7 +1,3 @@
-import type { espProviderEnum } from '@/db/schema';
-
-export type EspProviderKey = (typeof espProviderEnum.enumValues)[number];
-
 export type EspPush =
   | {
       op: 'event';

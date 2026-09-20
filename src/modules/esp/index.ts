@@ -14,7 +14,7 @@ export const espRegistry = new AdapterRegistry<EspPush, EspPushResult, 'klaviyo'
   mailchimpAdapter,
 ]);
 
-export type { EspPush, EspPushResult, EspProviderKey } from './types';
+export type { EspPush, EspPushResult } from './types';
 
 // A plain Omit<EspPush, ...> would collapse this discriminated union into one
 // flattened type, losing the connection between `op` and its matching
