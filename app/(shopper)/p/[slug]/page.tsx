@@ -4,7 +4,7 @@ import { db } from '@/db';
 import { merchants, products, renders } from '@/db/schema';
 import { retrieveLinks } from '@/actions/links';
 import { retrieveTwins } from '@/actions/twins';
-import { readShopperId } from '@/modules/shoppers';
+import { retrieveShoppers } from '@/actions/shoppers';
 import { PollVoteView } from './poll-vote-view';
 
 export default async function PollPage({
@@ -64,7 +64,7 @@ export default async function PollPage({
     })
     .filter((o): o is NonNullable<typeof o> => !!o);
 
-  const viewerShopperId = await readShopperId();
+  const { shopperId: viewerShopperId } = await retrieveShoppers({ cookieOnly: true });
   const [resolvedViewerTwin] = viewerShopperId
     ? await retrieveTwins({ shopperIds: [viewerShopperId], isDefault: true })
     : [];

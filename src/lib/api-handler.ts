@@ -7,7 +7,7 @@ import type { z } from 'zod';
 import { db } from '@/db';
 import { idempotencyKeys, merchants } from '@/db/schema';
 import { auth } from '@/modules/auth';
-import { getOrCreateShopperId } from '@/modules/shoppers';
+import { createShoppers } from '@/actions/shoppers';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';
 import { consumeRateLimit } from '@/lib/rate-limit';
@@ -148,7 +148,7 @@ async function resolveAuth<TBody, TParams, TQuery>(
     if (scope === 'public') return { type: 'public' };
 
     if (scope === 'shopper_session') {
-      const shopperId = await getOrCreateShopperId();
+      const shopperId = await createShoppers();
       return { type: 'shopper_session', shopperId };
     }
 

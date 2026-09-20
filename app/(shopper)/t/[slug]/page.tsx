@@ -2,7 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { links, merchants, productImages, productVariants, products } from '@/db/schema';
-import { readShopperId } from '@/modules/shoppers';
+import { retrieveShoppers } from '@/actions/shoppers';
 import { retrieveTwins } from '@/actions/twins';
 import type { MerchantSettings } from '@/actions/merchants';
 import { TryOnFlow } from './try-on-flow';
@@ -29,7 +29,7 @@ export default async function LinkPage({
     .limit(1);
   const settings = (merchant?.settings ?? {}) as MerchantSettings;
 
-  const shopperId = await readShopperId();
+  const { shopperId } = await retrieveShoppers({ cookieOnly: true });
   const [resolvedTwin] = shopperId
     ? await retrieveTwins({ shopperIds: [shopperId], isDefault: true })
     : [];

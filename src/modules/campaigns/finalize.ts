@@ -1,7 +1,8 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
-import { campaignItems, campaigns, merchants, products, renders, shoppers } from '@/db/schema';
+import { campaignItems, campaigns, merchants, products, renders } from '@/db/schema';
 import { retrieveCampaigns } from '@/actions/campaigns';
+import { retrieveShoppers } from '@/actions/shoppers';
 import { releaseCredits } from '@/modules/render/credit-ledger';
 import { pushToMerchantEsp } from '@/modules/esp';
 import { sendEmail } from '@/lib/email';
@@ -105,12 +106,7 @@ async function finalizeCampaign(
   const productIds = [...new Set(renderedItems.map((item) => item.productId))];
 
   const [shopperRows, renderRows, productRows] = await Promise.all([
-    shopperIds.length > 0
-      ? db
-          .select({ id: shoppers.id, email: shoppers.email })
-          .from(shoppers)
-          .where(inArray(shoppers.id, shopperIds))
-      : [],
+    shopperIds.length > 0 ? retrieveShoppers({ ids: shopperIds }) : [],
     renderIds.length > 0
       ? db
           .select({ id: renders.id, outputUrl: renders.outputUrl })

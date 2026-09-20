@@ -1,12 +1,10 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
-import { db } from '@/db';
-import { shoppers } from '@/db/schema';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { ok } from '@/lib/result';
 import { createTwins } from '@/actions/twins';
+import { updateShoppers } from '@/actions/shoppers';
 
 const bodySchema = z.object({
   selfieKey: z.string().min(1),
@@ -22,10 +20,7 @@ export const POST = apiHandler({
   handler: async ({ body, shopper, requestId }) => {
     const { shopperId } = shopper;
 
-    await db
-      .update(shoppers)
-      .set({ consentAt: new Date(), ageAttestedAt: new Date() })
-      .where(eq(shoppers.id, shopperId));
+    await updateShoppers([shopperId], { consentAt: new Date(), ageAttestedAt: new Date() });
 
     const log = childLogger(requestId, { route: 'twins.create', shopperId });
     const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };

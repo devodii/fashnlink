@@ -1,9 +1,7 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
-import { db } from '@/db';
-import { shoppers } from '@/db/schema';
 import { ok } from '@/lib/result';
+import { updateShoppers } from '@/actions/shoppers';
 
 const bodySchema = z.object({ email: z.email() });
 
@@ -12,7 +10,7 @@ export const POST = apiHandler({
   auth: ['shopper_session'],
   schema: { body: bodySchema },
   handler: async ({ body, shopper }) => {
-    await db.update(shoppers).set({ email: body.email }).where(eq(shoppers.id, shopper.shopperId));
+    await updateShoppers([shopper.shopperId], { email: body.email });
 
     return ok({ recorded: true });
   },

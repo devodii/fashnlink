@@ -2,9 +2,10 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
-import { leads, links, renders, retargetOptins, shoppers } from '@/db/schema';
+import { leads, links, renders, retargetOptins } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { err, ok } from '@/lib/result';
+import { updateShoppers } from '@/actions/shoppers';
 
 const bodySchema = z.object({
   email: z.email(),
@@ -51,7 +52,7 @@ export const POST = apiHandler({
         set: { email: body.email, renderId: body.renderId },
       });
 
-    await db.update(shoppers).set({ email: body.email }).where(eq(shoppers.id, shopperId));
+    await updateShoppers([shopperId], { email: body.email });
 
     if (body.retargetOptIn) {
       await db

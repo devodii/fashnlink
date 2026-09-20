@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { links, merchants, products, renders, retargetOptins, shoppers } from '@/db/schema';
-import { readShopperId } from '@/modules/shoppers';
+import { links, merchants, products, renders, retargetOptins } from '@/db/schema';
+import { retrieveShoppers } from '@/actions/shoppers';
 import { retrieveTwins } from '@/actions/twins';
 import { Container } from '@/components/container';
 import { EmptyState } from '@/components/empty-state';
@@ -10,7 +10,7 @@ import { Closet } from './closet';
 import { RetargetOptins } from './retarget-optins';
 
 export default async function ClosetPage() {
-  const shopperId = await readShopperId();
+  const { shopperId } = await retrieveShoppers({ cookieOnly: true });
 
   if (!shopperId) {
     return (
@@ -47,11 +47,7 @@ export default async function ClosetPage() {
     isDefault: twin.isDefault,
   }));
 
-  const [shopper] = await db
-    .select({ email: shoppers.email })
-    .from(shoppers)
-    .where(eq(shoppers.id, shopperId))
-    .limit(1);
+  const [shopper] = await retrieveShoppers({ ids: [shopperId] });
 
   const optins = await db
     .select({ merchantId: retargetOptins.merchantId, merchantName: merchants.name })
