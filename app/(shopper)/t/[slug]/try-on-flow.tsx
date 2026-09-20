@@ -10,6 +10,7 @@ import { ImageReveal } from '@/components/image-reveal';
 import { VariantPicker, type VariantOption } from '@/components/variant-picker';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
+import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { ShareSheet } from '@/components/share-sheet';
 import { Container } from '@/components/container';
 import { usePolling } from '@/hooks/use-polling';
@@ -252,6 +253,15 @@ export function TryOnFlow({
   const messageHref = contactHref(contactChannel, productTitle, pageUrl);
   const price = formatPriceCents(priceCents, currency);
 
+  const dialogOpen = stage !== 'idle' && stage !== 'result';
+
+  function handleDialogOpenChange(open: boolean) {
+    if (open || stage === 'result') return;
+    setStage('idle');
+    setSelfie(null);
+    setErrorMessage(null);
+  }
+
   return (
     <Container
       size="sm"
@@ -286,55 +296,63 @@ export function TryOnFlow({
         />
       )}
 
-      {(stage === 'twin-pending' || stage === 'render-pending') && (
-        <ProgressSteps steps={steps} orientation="vertical" />
-      )}
+      <ResponsiveDialog
+        open={dialogOpen}
+        onOpenChange={handleDialogOpenChange}
+        title="See it on you"
+      >
+        <div className="flex flex-col gap-4">
+          {stage === 'consent' && (
+            <div className="space-y-4">
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="consent"
+                  checked={consent}
+                  onCheckedChange={(checked) => setConsent(checked === true)}
+                />
+                <Label htmlFor="consent" className="text-sm leading-snug font-normal">
+                  I consent to my photo being used to generate a try-on render of myself.
+                </Label>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="age"
+                  checked={ageAttested}
+                  onCheckedChange={(checked) => setAgeAttested(checked === true)}
+                />
+                <Label htmlFor="age" className="text-sm leading-snug font-normal">
+                  I am 18 or older and this is a photo of me.
+                </Label>
+              </div>
+              {consent && ageAttested ? (
+                <UploadDropzone capture="user" onFiles={handleSelfieFiles} />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Check both boxes to take or upload a photo.
+                </p>
+              )}
+            </div>
+          )}
 
-      {stage === 'consent' && (
-        <div className="space-y-4 rounded-md border border-border bg-card p-4">
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="consent"
-              checked={consent}
-              onCheckedChange={(checked) => setConsent(checked === true)}
-            />
-            <Label htmlFor="consent" className="text-sm leading-snug font-normal">
-              I consent to my photo being used to generate a try-on render of myself.
-            </Label>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="age"
-              checked={ageAttested}
-              onCheckedChange={(checked) => setAgeAttested(checked === true)}
-            />
-            <Label htmlFor="age" className="text-sm leading-snug font-normal">
-              I am 18 or older and this is a photo of me.
-            </Label>
-          </div>
-          {consent && ageAttested ? (
-            <UploadDropzone capture="user" onFiles={handleSelfieFiles} />
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Check both boxes to take or upload a photo.
-            </p>
+          {(stage === 'twin-pending' || stage === 'render-pending') && (
+            <ProgressSteps steps={steps} orientation="vertical" />
+          )}
+
+          {(stage === 'blocked' || stage === 'error') && errorMessage && (
+            <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
+          )}
+          {stage === 'blocked' && (
+            <Button variant="outline" onClick={() => setStage('consent')}>
+              Try another photo
+            </Button>
+          )}
+          {stage === 'error' && (
+            <Button variant="outline" onClick={() => setStage('idle')}>
+              Try again
+            </Button>
           )}
         </div>
-      )}
-
-      {(stage === 'blocked' || stage === 'error') && errorMessage && (
-        <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
-      )}
-      {stage === 'blocked' && (
-        <Button variant="outline" onClick={() => setStage('consent')}>
-          Try another photo
-        </Button>
-      )}
-      {stage === 'error' && (
-        <Button variant="outline" onClick={() => setStage('idle')}>
-          Try again
-        </Button>
-      )}
+      </ResponsiveDialog>
 
       {stage === 'result' && renderOutputUrl && (
         <div className="flex flex-wrap items-center gap-2">
