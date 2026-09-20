@@ -8,10 +8,7 @@ import { CreditMeter } from '@/components/credit-meter';
 import { KpiRow } from '@/components/kpi-row';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { env } from '@/lib/env';
-import { PLANS } from '@/config/pricing';
 import { LinksTable } from './links/links-table';
-import { BuyFoundingPassButton } from './billing/buy-founding-pass-button';
 
 export default async function DashboardOverviewPage() {
   const merchant = await requireMerchant();
@@ -21,23 +18,15 @@ export default async function DashboardOverviewPage() {
     findLinksWithProductByMerchant(merchant.id),
   ]);
 
-  const canBuyFoundingPass = Boolean(env.POLAR_FOUNDING_PASS_PRODUCT_ID);
-
   return (
     <div className="space-y-8 p-4 md:p-8">
       <PageHeader
         title="Overview"
         description="Your links, renders, and credits at a glance."
         actions={
-          merchant.plan === 'free' && canBuyFoundingPass ? (
-            <BuyFoundingPassButton
-              label={`Buy founding pass — ${PLANS.founder.priceCents ? `$${PLANS.founder.priceCents / 100}` : ''}`}
-            />
-          ) : (
-            <Badge variant="secondary" className="capitalize">
-              {merchant.plan}
-            </Badge>
-          )
+          <Badge variant="secondary" className="capitalize">
+            {merchant.plan}
+          </Badge>
         }
       />
 

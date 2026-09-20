@@ -28,10 +28,12 @@ export function DashboardNav({
   children,
   actions,
   user,
+  banner,
 }: {
   children: React.ReactNode;
   actions?: React.ReactNode;
   user: { name: string; email: string; logoUrl?: string | null };
+  banner?: React.ReactNode;
 }) {
   const pathname = usePathname();
   const nav: NavItem[] = BASE_ITEMS.map((item) => ({
@@ -40,7 +42,7 @@ export function DashboardNav({
   }));
 
   return (
-    <AppShell nav={nav} actions={actions} user={user}>
+    <AppShell nav={nav} actions={actions} user={user} banner={banner}>
       {children}
     </AppShell>
   );
