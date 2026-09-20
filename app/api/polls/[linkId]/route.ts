@@ -4,14 +4,14 @@ import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { pollVotes } from '@/db/schema';
 import { err, ok } from '@/lib/result';
-import { readLink } from '@/actions/links';
+import { retrieveLinks } from '@/actions/links';
 
 export const GET = apiHandler({
   name: 'polls.state',
   auth: ['public'],
   schema: { params: z.object({ linkId: z.string() }) },
   handler: async ({ params }) => {
-    const link = await readLink({ id: params.linkId });
+    const [link] = await retrieveLinks({ ids: [params.linkId] });
     if (!link || link.kind !== 'poll') return err({ code: 'NOT_FOUND', message: 'poll not found' });
 
     const votes = await db.select().from(pollVotes).where(eq(pollVotes.linkId, link.id));

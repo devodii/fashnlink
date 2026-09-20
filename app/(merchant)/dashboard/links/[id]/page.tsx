@@ -3,8 +3,8 @@ import { desc, eq } from 'drizzle-orm';
 import { requireMerchant } from '@/modules/auth/require-merchant';
 import { db } from '@/db';
 import { products, renders, leads } from '@/db/schema';
-import { readLink } from '@/actions/links';
-import { readProduct } from '@/actions/products';
+import { retrieveLinks } from '@/actions/links';
+import { retrieveProducts } from '@/actions/products';
 import { env } from '@/lib/env';
 import { PageHeader } from '@/components/page-header';
 import { Section } from '@/components/section';
@@ -29,7 +29,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
   const merchant = await requireMerchant();
   const { id } = await params;
 
-  const link = await readLink({ id });
+  const [link] = await retrieveLinks({ ids: [id] });
   if (!link || link.merchantId !== merchant.id) notFound();
 
   const productId = link.productIds[0];
@@ -37,7 +37,10 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
     ? await db.select().from(products).where(eq(products.id, productId)).limit(1)
     : [null];
 
-  const images = productId ? await readProduct({ productId, imagesOnly: true }) : [];
+  const [resolvedProduct] = productId
+    ? await retrieveProducts({ ids: [productId], withImages: true })
+    : [];
+  const images = resolvedProduct?.images ?? [];
 
   const linkRenders = await db
     .select({

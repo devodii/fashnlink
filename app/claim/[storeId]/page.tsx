@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { stores } from '@/db/schema';
-import { readClaim, CLAIM_VISIBLE_THRESHOLD } from '@/actions/claims';
+import { retrieveClaims, CLAIM_VISIBLE_THRESHOLD } from '@/actions/claims';
 import { Container } from '@/components/container';
 import { ClaimButton } from './claim-button';
 
@@ -13,10 +13,9 @@ export default async function ClaimPage({ params }: { params: Promise<{ storeId:
   if (!store) notFound();
   if (store.merchantId) notFound();
 
-  const totalRenders = await readClaim({ storeId, totalOnly: true });
+  const claimRows = await retrieveClaims({ storeIds: [storeId] });
+  const totalRenders = claimRows.reduce((sum, row) => sum + row.renderCount, 0);
   if (totalRenders < CLAIM_VISIBLE_THRESHOLD) notFound();
-
-  const claimRows = await readClaim({ storeId });
 
   return (
     <Container size="sm" className="flex-1 space-y-6 py-16 text-center">
@@ -33,9 +32,9 @@ export default async function ClaimPage({ params }: { params: Promise<{ storeId:
       <div className="grid grid-cols-3 gap-3">
         {claimRows.slice(0, 6).map((row) => (
           <div
-            key={row.claim.id}
+            key={row.id}
             className="aspect-[3/4] rounded-md bg-muted blur-md"
-            aria-label={row.productTitle}
+            aria-label={row.productTitle ?? undefined}
           />
         ))}
       </div>

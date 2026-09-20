@@ -4,8 +4,8 @@ import { err, ok, type Result } from '@/lib/result';
 import { registerJobHandler } from '@/modules/jobs/registry';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
-import { readStore, updateStore } from '@/actions/stores';
-import { readProduct, updateProduct } from '@/actions/products';
+import { retrieveStores, updateStores } from '@/actions/stores';
+import { retrieveProducts, updateProducts } from '@/actions/products';
 import { scraperRegistry } from './index';
 
 const payloadSchema = z.object({ storeId: z.string() });
@@ -24,12 +24,12 @@ registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
   if (!parsed.success)
     return err({ code: 'INVALID_INPUT', message: 'invalid store.crawled payload' });
 
-  const store = await readStore({ id: parsed.data.storeId });
+  const [store] = await retrieveStores({ ids: [parsed.data.storeId] });
   if (!store) return err({ code: 'NOT_FOUND', message: 'store not found' });
 
   const adapter = scraperRegistry.get(store.platform);
   if (!adapter?.listProducts) {
-    await updateStore(store.id, { lastCrawledAt: new Date() });
+    await updateStores([store.id], { lastCrawledAt: new Date() });
     return ok(undefined);
   }
 
@@ -53,7 +53,10 @@ registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
     if (!normalized.ok) continue;
     const product = normalized.value;
 
-    const existing = await readProduct({ storeId: store.id, externalId: product.externalId });
+    const [existing] = await retrieveProducts({
+      storeIds: [store.id],
+      externalIds: [product.externalId],
+    });
     if (!existing) continue;
 
     const contentHash = createHash('sha256')
@@ -67,7 +70,7 @@ registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
       .digest('hex');
     if (contentHash === existing.contentHash) continue;
 
-    await updateProduct(existing.id, {
+    await updateProducts([existing.id], {
       title: product.title,
       priceCents: product.priceCents,
       currency: product.currency,
@@ -77,6 +80,6 @@ registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
     });
   }
 
-  await updateStore(store.id, { lastCrawledAt: new Date() });
+  await updateStores([store.id], { lastCrawledAt: new Date() });
   return ok(undefined);
 });

@@ -1,47 +1,41 @@
-import { desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { leads, products, renders } from '@/db/schema';
+import type { ResolvedLead } from '@/db/schema';
 
-export async function readLead(params: { linkId: string; countOnly: true }): Promise<number>;
-export async function readLead(params: {
-  merchantId: string;
-}): Promise<
-  { email: string; productTitle: string; source: string; createdAt: Date; count: number }[]
->;
-export async function readLead(params: {
+export async function retrieveLeads(filters: {
   merchantId?: string;
-  linkId?: string;
-  countOnly?: boolean;
-}): Promise<unknown> {
-  if (params.linkId && params.countOnly) {
-    const [row] = await db
-      .select({ count: sql<number>`count(*)::int` })
+  linkIds?: string[];
+}): Promise<ResolvedLead[]> {
+  if (filters.linkIds?.length) {
+    const rows = await db
+      .select({ lead: leads })
       .from(leads)
       .innerJoin(renders, eq(renders.id, leads.renderId))
-      .where(eq(renders.linkId, params.linkId));
-    return row?.count ?? 0;
+      .where(inArray(renders.linkId, filters.linkIds))
+      .orderBy(desc(leads.createdAt));
+    return rows.map(({ lead }) => ({ ...lead }));
   }
 
-  if (params.merchantId) {
-    // `count` is how many lead rows share this email, a proxy for
-    // engagement, not an exact count of renders.
+  if (filters.merchantId) {
     const rows = await db
-      .select({
-        email: leads.email,
-        productTitle: products.title,
-        source: leads.source,
-        createdAt: leads.createdAt,
-      })
+      .select({ lead: leads, productTitle: products.title })
       .from(leads)
       .innerJoin(products, eq(products.id, leads.productId))
-      .where(eq(leads.merchantId, params.merchantId))
+      .where(eq(leads.merchantId, filters.merchantId))
       .orderBy(desc(leads.createdAt));
 
     const countByEmail = new Map<string, number>();
-    for (const row of rows) countByEmail.set(row.email, (countByEmail.get(row.email) ?? 0) + 1);
+    for (const { lead } of rows) {
+      countByEmail.set(lead.email, (countByEmail.get(lead.email) ?? 0) + 1);
+    }
 
-    return rows.map((row) => ({ ...row, count: countByEmail.get(row.email) ?? 1 }));
+    return rows.map(({ lead, productTitle }) => ({
+      ...lead,
+      productTitle,
+      count: countByEmail.get(lead.email) ?? 1,
+    }));
   }
 
-  return null;
+  return [];
 }

@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { requireMerchant } from '@/modules/auth/require-merchant';
 import { currentBalance } from '@/modules/render/credit-ledger';
-import { readLink } from '@/actions/links';
-import { readDashboard } from '@/actions/dashboard';
+import { retrieveLinks } from '@/actions/links';
+import { retrieveDashboard } from '@/actions/dashboard';
 import { PageHeader } from '@/components/page-header';
 import { Section } from '@/components/section';
 import { CreditMeter } from '@/components/credit-meter';
@@ -13,11 +13,15 @@ import { LinksTable } from './links/links-table';
 
 export default async function DashboardOverviewPage() {
   const merchant = await requireMerchant();
-  const [balance, stats, links] = await Promise.all([
+  const [balance, stats, resolvedLinks] = await Promise.all([
     currentBalance(merchant.id),
-    readDashboard(merchant.id),
-    readLink({ merchantId: merchant.id, withProduct: true }),
+    retrieveDashboard(merchant.id),
+    retrieveLinks({ merchantId: merchant.id, withProduct: true }),
   ]);
+  const links = resolvedLinks.map((link) => ({
+    link,
+    productTitle: link.product?.title ?? null,
+  }));
 
   return (
     <div className="space-y-8 p-4 md:p-8">

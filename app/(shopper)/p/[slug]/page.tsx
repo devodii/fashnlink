@@ -2,7 +2,7 @@ import { and, desc, eq, inArray } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { merchants, products, renders, twins } from '@/db/schema';
-import { readLink } from '@/actions/links';
+import { retrieveLinks } from '@/actions/links';
 import { readShopperId } from '@/modules/shoppers';
 import { PollVoteView } from './poll-vote-view';
 
@@ -16,7 +16,7 @@ export default async function PollPage({
   const { slug } = await params;
   const { s: creatorShopperId } = await searchParams;
 
-  const link = await readLink({ slug });
+  const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.kind !== 'poll' || link.status === 'archived') notFound();
 
   const [merchant] = await db

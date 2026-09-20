@@ -1,11 +1,15 @@
 import { requireMerchant } from '@/modules/auth/require-merchant';
-import { readProduct } from '@/actions/products';
+import { retrieveProducts } from '@/actions/products';
 import { PageHeader } from '@/components/page-header';
 import { ProductsTable } from './products-table';
 
 export default async function ProductsPage() {
   const merchant = await requireMerchant();
-  const rows = await readProduct({ merchantId: merchant.id });
+  const resolvedProducts = await retrieveProducts({ merchantId: merchant.id });
+  const rows = resolvedProducts.map((product) => ({
+    product,
+    hasTryonImage: product.hasTryonImage ?? false,
+  }));
 
   return (
     <div className="space-y-6 p-4 md:p-8">

@@ -1,119 +1,101 @@
-import { desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
-import { links, products, linkKindEnum, linkStatusEnum } from '@/db/schema';
+import { links, products } from '@/db/schema';
+import type { Link, ResolvedLink } from '@/db/schema';
 import { newId, newSlug } from '@/lib/ids';
-
-type LinkKind = (typeof linkKindEnum.enumValues)[number];
-type LinkStatus = (typeof linkStatusEnum.enumValues)[number];
 
 const POLL_AUTO_CLOSE_MS = 48 * 60 * 60 * 1000;
 
-// Not a CRUD verb itself, so it stays as an unexported helper folded into
-// readLink rather than its own export.
-function isPollClosed(link: { createdAt: Date; settings: unknown }): boolean {
-  const settings = (link.settings ?? {}) as Record<string, unknown>;
-  if (settings.closedAt) return true;
-  return Date.now() - link.createdAt.getTime() >= POLL_AUTO_CLOSE_MS;
-}
+type CreateLinkInput = Pick<Link, 'merchantId' | 'kind'> & {
+  productIds: string[];
+  title?: string | null;
+  settings?: Record<string, unknown>;
+};
 
-export async function createLink(
-  input:
-    | { kind: 'single'; merchantId: string; productId: string }
-    | {
-        kind: 'poll' | 'group';
-        merchantId: string;
-        productIds: string[];
-        title?: string | null;
-        settings?: Record<string, unknown>;
-      },
-) {
-  const productIds = input.kind === 'single' ? [input.productId] : input.productIds;
-  const [created] = await db
+export async function createLinks(inputs: CreateLinkInput[]): Promise<Link[]> {
+  if (inputs.length === 0) return [];
+  return db
     .insert(links)
-    .values({
-      id: newId('link'),
-      slug: newSlug(),
-      merchantId: input.merchantId,
-      kind: input.kind,
-      title: input.kind === 'single' ? null : (input.title ?? null),
-      productIds,
-      settings: input.kind === 'single' ? {} : (input.settings ?? {}),
-    })
+    .values(
+      inputs.map((input) => ({
+        id: newId('link'),
+        slug: newSlug(),
+        merchantId: input.merchantId,
+        kind: input.kind,
+        title: input.title ?? null,
+        productIds: input.productIds,
+        settings: input.settings ?? {},
+      })),
+    )
     .returning();
-  return created ?? null;
 }
 
-export async function readLink(params: {
-  id: string;
-}): Promise<(typeof links.$inferSelect & { isClosed?: boolean }) | null>;
-export async function readLink(params: {
-  slug: string;
-}): Promise<(typeof links.$inferSelect & { isClosed?: boolean }) | null>;
-export async function readLink(params: {
-  merchantId: string;
-  withProduct: true;
-}): Promise<{ link: typeof links.$inferSelect; productTitle: string | null }[]>;
-export async function readLink(params: {
-  merchantId: string;
-}): Promise<(typeof links.$inferSelect)[]>;
-export async function readLink(params: {
-  id?: string;
-  slug?: string;
+function resolveLink(link: Link, product?: { title: string | null } | null): ResolvedLink {
+  const resolved: ResolvedLink = { ...link };
+  if (product !== undefined) resolved.product = product;
+  if (link.kind === 'poll') {
+    const settings = (link.settings ?? {}) as Record<string, unknown>;
+    resolved.isClosed =
+      Boolean(settings.closedAt) || Date.now() - link.createdAt.getTime() >= POLL_AUTO_CLOSE_MS;
+  }
+  return resolved;
+}
+
+export async function retrieveLinks(filters: {
+  ids?: string[];
+  slugs?: string[];
   merchantId?: string;
   withProduct?: boolean;
-}): Promise<unknown> {
-  if (params.id || params.slug) {
-    const condition = params.id ? eq(links.id, params.id) : eq(links.slug, params.slug!);
-    const [link] = await db.select().from(links).where(condition).limit(1);
-    if (!link) return null;
-    if (link.kind === 'poll') return { ...link, isClosed: isPollClosed(link) };
-    return link;
-  }
+}): Promise<ResolvedLink[]> {
+  const conditions = [
+    filters.ids?.length ? inArray(links.id, filters.ids) : undefined,
+    filters.slugs?.length ? inArray(links.slug, filters.slugs) : undefined,
+    filters.merchantId ? eq(links.merchantId, filters.merchantId) : undefined,
+  ].filter((c): c is NonNullable<typeof c> => Boolean(c));
+  if (conditions.length === 0) return [];
 
-  if (params.merchantId) {
-    if (params.withProduct) {
-      return db
-        .select({ link: links, productTitle: products.title })
-        .from(links)
-        .leftJoin(products, eq(products.id, sql`${links.productIds}[1]`))
-        .where(eq(links.merchantId, params.merchantId))
-        .orderBy(desc(links.createdAt));
-    }
-
-    return db
-      .select()
+  if (filters.withProduct) {
+    const rows = await db
+      .select({ link: links, productTitle: products.title })
       .from(links)
-      .where(eq(links.merchantId, params.merchantId))
+      .leftJoin(products, eq(products.id, sql`${links.productIds}[1]`))
+      .where(and(...conditions))
       .orderBy(desc(links.createdAt));
+    return rows.map(({ link, productTitle }) => resolveLink(link, { title: productTitle }));
   }
 
-  return null;
+  const rows = await db
+    .select()
+    .from(links)
+    .where(and(...conditions))
+    .orderBy(desc(links.createdAt));
+  return rows.map((link) => resolveLink(link));
 }
 
-export async function updateLink(
-  id: string,
-  patch: { status?: LinkStatus; settings?: Record<string, unknown> },
-) {
-  const set: Record<string, unknown> = {};
-
-  if (patch.status !== undefined) {
-    set.status = patch.status;
-  }
+export async function updateLinks(
+  ids: string[],
+  patch: Partial<Pick<Link, 'status'>> & { settings?: Record<string, unknown> },
+): Promise<Link[]> {
+  if (ids.length === 0) return [];
 
   if (patch.settings !== undefined) {
-    // Merges into the existing row's settings rather than overwriting it, so
-    // e.g. closing a poll (settings.closedAt/decidedBy) doesn't clobber other
-    // settings keys already on the link.
-    const [existing] = await db.select().from(links).where(eq(links.id, id)).limit(1);
-    if (!existing) return null;
-    set.settings = { ...(existing.settings as Record<string, unknown>), ...patch.settings };
+    const existingRows = await db.select().from(links).where(inArray(links.id, ids));
+    const updated = await Promise.all(
+      existingRows.map(async (row) => {
+        const [result] = await db
+          .update(links)
+          .set({
+            ...(patch.status !== undefined ? { status: patch.status } : {}),
+            settings: { ...(row.settings as Record<string, unknown>), ...patch.settings },
+          })
+          .where(eq(links.id, row.id))
+          .returning();
+        return result;
+      }),
+    );
+    return updated.filter((r): r is Link => Boolean(r));
   }
 
-  const [updated] = await db.update(links).set(set).where(eq(links.id, id)).returning();
-  return updated ?? null;
+  if (patch.status === undefined) return [];
+  return db.update(links).set({ status: patch.status }).where(inArray(links.id, ids)).returning();
 }
-
-// links never had a hard-delete: they're only ever archived via
-// updateLink(id, { status: 'archived' }), so there's no deleteLink export.
-
-export type { LinkKind, LinkStatus };

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { requireMerchant } from '@/modules/auth/require-merchant';
 import type { MerchantSettings } from '@/actions/merchants';
-import { readMerchant } from '@/actions/merchants';
+import { retrieveMerchants } from '@/actions/merchants';
 import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/config/pricing';
 import { env } from '@/lib/env';
 import { FoundingPassBanner } from '@/components/founding-pass-banner';
@@ -17,8 +17,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     merchant.plan === 'free' && Boolean(env.POLAR_FOUNDING_PASS_PRODUCT_ID);
   let banner: React.ReactNode = null;
   if (canBuyFoundingPass) {
-    const founderCount = await readMerchant({ countByPlan: 'founder' });
-    const seatsRemaining = Math.max(FOUNDING_PASS_SEATS_TOTAL - founderCount, 0);
+    const founders = await retrieveMerchants({ plan: 'founder' });
+    const seatsRemaining = Math.max(FOUNDING_PASS_SEATS_TOTAL - founders.length, 0);
     if (seatsRemaining > 0) {
       banner = (
         <FoundingPassBanner

@@ -3,9 +3,9 @@ import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { redis } from '@/lib/redis';
 import { newId } from '@/lib/ids';
-import { createStore, updateStore } from '@/actions/stores';
-import { createPlatformRequest } from '@/actions/platform-requests';
-import { createProduct, readProduct, updateProduct } from '@/actions/products';
+import { createStores, updateStores } from '@/actions/stores';
+import { createPlatformRequests } from '@/actions/platform-requests';
+import { createProducts, retrieveProducts, updateProducts } from '@/actions/products';
 import { enqueueJob } from '@/modules/jobs';
 import { ScraperRegistry, probeHomepage } from './registry';
 import { shopifyAdapter } from './adapters/shopify';
@@ -113,14 +113,16 @@ export async function scrapeUrl(
   mark('fetch', t);
   if (!rawResult.ok) {
     if (adapter.key === 'generic') {
-      await createPlatformRequest({
-        kind: 'scraped',
-        hostname: url.hostname,
-        sampleUrl: url.toString(),
-        detectedPlatform: null,
-        signals: buildStoreFingerprint(probe),
-        merchantId: opts.merchantId,
-      });
+      await createPlatformRequests([
+        {
+          kind: 'scraped',
+          hostname: url.hostname,
+          sampleUrl: url.toString(),
+          detectedPlatform: null,
+          signals: buildStoreFingerprint(probe),
+          merchantId: opts.merchantId,
+        },
+      ]);
     }
     return rawResult;
   }
@@ -158,17 +160,16 @@ export async function scrapeUrl(
   }
 
   t = Date.now();
-  const store = await createStore({
-    domain: url.hostname,
-    platform: adapter.key,
-    fingerprint: buildStoreFingerprint(probe),
-  });
+  const [store] = await createStores([
+    { domain: url.hostname, platform: adapter.key, fingerprint: buildStoreFingerprint(probe) },
+  ]);
   if (!store) return err({ code: 'INTERNAL', message: 'Failed to create or find store' });
   mark('store', t);
 
-  // Determined up front, not returned from the insert below: enrichment
-  // needs the product id to build image storage keys before the row exists.
-  const existingProduct = await readProduct({ storeId: store.id, externalId: product.externalId });
+  const [existingProduct] = await retrieveProducts({
+    storeIds: [store.id],
+    externalIds: [product.externalId],
+  });
   const productId = existingProduct?.id ?? newId('prod');
 
   t = Date.now();
@@ -194,20 +195,22 @@ export async function scrapeUrl(
     .digest('hex');
 
   t = Date.now();
-  const savedProduct = await createProduct({
-    id: productId,
-    storeId: store.id,
-    normalized: product,
-    garmentCategory,
-    wearableType: verdict.wearableType,
-    eligibility: verdict.eligibility,
-    eligibilityReason: verdict.eligibilityReason,
-    genderHint: null,
-    contentHash,
-  });
+  const [savedProduct] = await createProducts([
+    {
+      id: productId,
+      storeId: store.id,
+      normalized: product,
+      garmentCategory,
+      wearableType: verdict.wearableType,
+      eligibility: verdict.eligibility,
+      eligibilityReason: verdict.eligibilityReason,
+      genderHint: null,
+      contentHash,
+    },
+  ]);
   if (!savedProduct) return err({ code: 'INTERNAL', message: 'Failed to persist product' });
 
-  await updateProduct(savedProduct.id, {
+  await updateProducts([savedProduct.id], {
     ...(enrichedImages.length ? { images: enrichedImages } : {}),
     variants: product.variants.map((v) => ({
       externalId: v.externalId,
@@ -222,7 +225,7 @@ export async function scrapeUrl(
   mark('persist', t);
 
   await enqueueJob('store.crawled', { storeId: store.id });
-  await updateStore(store.id, { lastCrawledAt: new Date() });
+  await updateStores([store.id], { lastCrawledAt: new Date() });
 
   return ok({
     store: {

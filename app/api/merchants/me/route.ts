@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { apiHandler } from '@/lib/api-handler';
 import { ok, err } from '@/lib/result';
 import { contactChannelSchema } from '@/config/contact-channel';
-import { updateMerchant, readMerchant } from '@/actions/merchants';
+import { updateMerchants, retrieveMerchants } from '@/actions/merchants';
 
 const bodySchema = z.object({
   name: z.string().min(1).max(80).optional(),
@@ -16,11 +16,11 @@ export const PATCH = apiHandler({
   auth: ['merchant_session'],
   schema: { body: bodySchema },
   handler: async ({ body, merchant }) => {
-    if (body.name) await updateMerchant(merchant.merchantId, { name: body.name });
+    if (body.name) await updateMerchants([merchant.merchantId], { name: body.name });
 
     const { logoUrl, accentToken, contactChannel } = body;
     if (logoUrl || accentToken || contactChannel) {
-      await updateMerchant(merchant.merchantId, {
+      await updateMerchants([merchant.merchantId], {
         settings: {
           ...(logoUrl && { logoUrl }),
           ...(accentToken && { accentToken }),
@@ -29,7 +29,7 @@ export const PATCH = apiHandler({
       });
     }
 
-    const updated = await readMerchant({ id: merchant.merchantId });
+    const [updated] = await retrieveMerchants({ ids: [merchant.merchantId] });
     if (!updated) return err({ code: 'INTERNAL', message: 'Merchant not found after update' });
     return ok({ id: updated.id, name: updated.name, settings: updated.settings });
   },

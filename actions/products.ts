@@ -1,136 +1,98 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { productImages, productVariants, products, stores } from '@/db/schema';
+import type { Product, ProductImage, ProductVariant, ResolvedProduct } from '@/db/schema';
 import { newId } from '@/lib/ids';
-import type {
-  Eligibility,
-  GarmentCategory,
-  ImageRole,
-  WearableType,
-} from '@/modules/scraper/types';
 import type { NormalizedProduct } from '@/modules/scraper/schema';
 
-export type CreateProductInput = {
-  // Caller-supplied: image storage keys are built from this id before the
-  // row exists.
-  id: string;
-  storeId: string;
+type CreateProductInput = Pick<
+  Product,
+  | 'id'
+  | 'storeId'
+  | 'garmentCategory'
+  | 'wearableType'
+  | 'eligibility'
+  | 'eligibilityReason'
+  | 'genderHint'
+  | 'contentHash'
+> & {
   normalized: NormalizedProduct;
-  garmentCategory: GarmentCategory;
-  wearableType: WearableType;
-  eligibility: Eligibility;
-  eligibilityReason: string | null;
-  genderHint: string | null;
-  contentHash: string;
 };
 
-export type ProductRow = typeof products.$inferSelect;
-export type ProductImageRow = typeof productImages.$inferSelect;
+export async function createProducts(inputs: CreateProductInput[]): Promise<Product[]> {
+  const results = await Promise.all(
+    inputs.map(async (input) => {
+      const { normalized } = input;
+      const [existing] = await retrieveProducts({
+        storeIds: [input.storeId],
+        externalIds: [normalized.externalId],
+      });
 
-export async function createProduct(input: CreateProductInput) {
-  const { normalized } = input;
-  const existing = await readProduct({ storeId: input.storeId, externalId: normalized.externalId });
+      const values = {
+        storeId: input.storeId,
+        externalId: normalized.externalId,
+        handle: normalized.handle,
+        title: normalized.title,
+        url: normalized.url,
+        buyUrl: normalized.buyUrl,
+        brand: normalized.brand,
+        productType: normalized.productType,
+        garmentCategory: input.garmentCategory,
+        wearableType: input.wearableType,
+        eligibility: input.eligibility,
+        eligibilityReason: input.eligibilityReason,
+        genderHint: input.genderHint,
+        descriptionText: normalized.descriptionText,
+        tags: normalized.tags,
+        priceCents: normalized.priceCents,
+        currency: normalized.currency,
+        available: normalized.available,
+        raw: normalized.raw,
+        externalUpdatedAt: normalized.externalUpdatedAt
+          ? new Date(normalized.externalUpdatedAt)
+          : null,
+        contentHash: input.contentHash,
+        updatedAt: new Date(),
+      };
 
-  const values = {
-    storeId: input.storeId,
-    externalId: normalized.externalId,
-    handle: normalized.handle,
-    title: normalized.title,
-    url: normalized.url,
-    buyUrl: normalized.buyUrl,
-    brand: normalized.brand,
-    productType: normalized.productType,
-    garmentCategory: input.garmentCategory,
-    wearableType: input.wearableType,
-    eligibility: input.eligibility,
-    eligibilityReason: input.eligibilityReason,
-    genderHint: input.genderHint,
-    descriptionText: normalized.descriptionText,
-    tags: normalized.tags,
-    priceCents: normalized.priceCents,
-    currency: normalized.currency,
-    available: normalized.available,
-    raw: normalized.raw,
-    externalUpdatedAt: normalized.externalUpdatedAt ? new Date(normalized.externalUpdatedAt) : null,
-    contentHash: input.contentHash,
-    updatedAt: new Date(),
-  };
+      if (existing) {
+        const [updated] = await db
+          .update(products)
+          .set(values)
+          .where(eq(products.id, existing.id))
+          .returning();
+        return updated;
+      }
 
-  if (existing) {
-    const [updated] = await db
-      .update(products)
-      .set(values)
-      .where(eq(products.id, existing.id))
-      .returning();
-    return updated;
-  }
-
-  const [created] = await db
-    .insert(products)
-    .values({ id: input.id, ...values })
-    .returning();
-  return created;
+      const [created] = await db
+        .insert(products)
+        .values({ id: input.id, ...values })
+        .returning();
+      return created;
+    }),
+  );
+  return results.filter((r): r is Product => Boolean(r));
 }
 
-export async function readProduct(params: {
-  productId: string;
-  imagesOnly: true;
-}): Promise<ProductImageRow[]>;
-export async function readProduct(params: {
-  storeId: string;
-  externalId: string;
-}): Promise<ProductRow | null>;
-export async function readProduct(params: {
-  merchantId: string;
-  ids: string[];
-  eligibleOnly: true;
-}): Promise<{ id: string; title: string }[]>;
-export async function readProduct(params: {
-  merchantId: string;
-}): Promise<{ product: ProductRow; hasTryonImage: boolean }[]>;
-export async function readProduct(params: {
-  storeId?: string;
-  externalId?: string;
-  merchantId?: string;
+export async function retrieveProducts(filters: {
   ids?: string[];
+  storeIds?: string[];
+  externalIds?: string[];
+  merchantId?: string;
   eligibleOnly?: boolean;
-  productId?: string;
-  imagesOnly?: boolean;
-}): Promise<unknown> {
-  if (params.productId && params.imagesOnly) {
-    return db
-      .select()
-      .from(productImages)
-      .where(eq(productImages.productId, params.productId))
-      .orderBy(productImages.position);
-  }
+  withImages?: boolean;
+}): Promise<ResolvedProduct[]> {
+  const conditions = [
+    filters.ids?.length ? inArray(products.id, filters.ids) : undefined,
+    filters.storeIds?.length ? inArray(products.storeId, filters.storeIds) : undefined,
+    filters.externalIds?.length ? inArray(products.externalId, filters.externalIds) : undefined,
+    filters.eligibleOnly ? eq(products.eligibility, 'eligible') : undefined,
+  ].filter((c): c is NonNullable<typeof c> => Boolean(c));
 
-  if (params.storeId && params.externalId) {
-    const [existing] = await db
-      .select()
-      .from(products)
-      .where(and(eq(products.storeId, params.storeId), eq(products.externalId, params.externalId)))
-      .limit(1);
-    return existing ?? null;
-  }
+  let rows: { product: Product; hasTryonImage?: boolean }[];
 
-  if (params.merchantId && params.ids && params.eligibleOnly) {
-    if (params.ids.length === 0) return [];
-    return db
-      .select({ id: products.id, title: products.title })
-      .from(products)
-      .innerJoin(stores, eq(stores.id, products.storeId))
-      .where(
-        and(
-          eq(stores.merchantId, params.merchantId),
-          eq(products.eligibility, 'eligible'),
-          inArray(products.id, params.ids),
-        ),
-      );
-  }
-
-  if (params.merchantId) {
-    return db
+  if (filters.merchantId) {
+    rows = await db
       .select({
         product: products,
         hasTryonImage: sql<boolean>`exists (
@@ -141,72 +103,114 @@ export async function readProduct(params: {
       })
       .from(products)
       .innerJoin(stores, eq(stores.id, products.storeId))
-      .where(eq(stores.merchantId, params.merchantId))
+      .where(and(eq(stores.merchantId, filters.merchantId), ...conditions))
       .orderBy(products.title);
+  } else {
+    if (conditions.length === 0) return [];
+    rows = (
+      await db
+        .select()
+        .from(products)
+        .where(and(...conditions))
+    ).map((product) => ({
+      product,
+    }));
   }
 
-  return null;
+  return Promise.all(
+    rows.map(async ({ product, hasTryonImage }) => {
+      const resolved: ResolvedProduct = { ...product };
+      if (hasTryonImage !== undefined) resolved.hasTryonImage = hasTryonImage;
+      if (filters.withImages) {
+        resolved.images = await db
+          .select()
+          .from(productImages)
+          .where(eq(productImages.productId, product.id))
+          .orderBy(productImages.position);
+      }
+      return resolved;
+    }),
+  );
 }
 
-export async function updateProduct(
-  id: string,
-  patch: {
-    title?: string;
-    priceCents?: number | null;
-    currency?: string | null;
-    available?: boolean;
-    externalUpdatedAt?: Date | null;
-    contentHash?: string;
-    images?: {
-      r2Key: string;
-      url: string;
-      sourceUrl: string | null;
-      width: number | null;
-      height: number | null;
-      phash: string | null;
-      alt: string | null;
-      position: number;
-      role: ImageRole;
-      isTryonSource: boolean;
-      variantIds: string[];
-    }[];
-    variants?: {
-      externalId: string;
-      sku: string | null;
-      optionSize: string | null;
-      optionColor: string | null;
-      optionOther: string | null;
-      priceCents: number | null;
-      available: boolean;
-    }[];
-  },
-) {
+type UpdateProductPatch = Partial<
+  Pick<
+    Product,
+    'title' | 'priceCents' | 'currency' | 'available' | 'externalUpdatedAt' | 'contentHash'
+  >
+> & {
+  images?: Partial<
+    Pick<
+      ProductImage,
+      | 'r2Key'
+      | 'url'
+      | 'sourceUrl'
+      | 'width'
+      | 'height'
+      | 'phash'
+      | 'alt'
+      | 'position'
+      | 'role'
+      | 'isTryonSource'
+      | 'variantIds'
+    >
+  >[];
+  variants?: Partial<
+    Pick<
+      ProductVariant,
+      | 'externalId'
+      | 'sku'
+      | 'optionSize'
+      | 'optionColor'
+      | 'optionOther'
+      | 'priceCents'
+      | 'available'
+    >
+  >[];
+};
+
+export async function updateProducts(ids: string[], patch: UpdateProductPatch): Promise<Product[]> {
+  if (ids.length === 0) return [];
   const { images, variants, ...liveFields } = patch;
 
+  let updated: Product[] = [];
   if (Object.keys(liveFields).length > 0) {
-    // Live fields only; never touches garment/eligibility classification,
-    // which came from a real vision/Jev call this refresh does not re-run.
-    await db
+    updated = await db
       .update(products)
       .set({ ...liveFields, updatedAt: new Date() })
-      .where(eq(products.id, id));
+      .where(inArray(products.id, ids))
+      .returning();
   }
 
   if (images) {
-    await db.delete(productImages).where(eq(productImages.productId, id));
+    await db.delete(productImages).where(inArray(productImages.productId, ids));
     if (images.length > 0) {
       await db
         .insert(productImages)
-        .values(images.map((image) => ({ id: newId('img'), productId: id, ...image })));
+        .values(
+          ids.flatMap((id) =>
+            images.map((image) => ({ id: newId('img'), productId: id, ...image })),
+          ) as (typeof productImages.$inferInsert)[],
+        );
     }
   }
 
   if (variants) {
-    await db.delete(productVariants).where(eq(productVariants.productId, id));
+    await db.delete(productVariants).where(inArray(productVariants.productId, ids));
     if (variants.length > 0) {
       await db
         .insert(productVariants)
-        .values(variants.map((variant) => ({ id: newId('variant'), productId: id, ...variant })));
+        .values(
+          ids.flatMap((id) =>
+            variants.map((variant) => ({ id: newId('variant'), productId: id, ...variant })),
+          ) as (typeof productVariants.$inferInsert)[],
+        );
     }
   }
+
+  if (updated.length === 0 && (images !== undefined || variants !== undefined)) {
+    updated = await db.select().from(products).where(inArray(products.id, ids));
+  }
+
+  return updated;
 }

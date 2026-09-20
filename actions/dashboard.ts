@@ -2,10 +2,10 @@ import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { leads, links, renders } from '@/db/schema';
 
-// Spans links + renders + leads for a whole merchant, not any single table's
-// row shape, so it gets its own file instead of living under one domain's
-// CRUD verbs.
-export async function readDashboard(merchantId: string, sinceDays = 30) {
+export async function retrieveDashboard(
+  merchantId: string,
+  sinceDays = 30,
+): Promise<{ links: number; renders: number; shares: number; leads: number }> {
   const since = new Date(Date.now() - sinceDays * 24 * 60 * 60 * 1000);
 
   const [[linkCount], [renderCount], [shareCount], [leadCount]] = await Promise.all([

@@ -1,13 +1,13 @@
 import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/config/pricing';
-import { readMerchant } from '@/actions/merchants';
+import { retrieveMerchants } from '@/actions/merchants';
 import { Container } from '@/components/container';
 import { Section } from '@/components/section';
 import { PricingCard } from '@/components/pricing-card';
 import { QuickDemoForm } from './quick-demo-form';
 
 export default async function Home() {
-  const founderCount = await readMerchant({ countByPlan: 'founder' });
-  const seatsRemaining = Math.max(FOUNDING_PASS_SEATS_TOTAL - founderCount, 0);
+  const founders = await retrieveMerchants({ plan: 'founder' });
+  const seatsRemaining = Math.max(FOUNDING_PASS_SEATS_TOTAL - founders.length, 0);
 
   return (
     <main className="flex-1 bg-background">

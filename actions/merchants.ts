@@ -1,6 +1,7 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
-import { merchants, planEnum } from '@/db/schema';
+import { merchants } from '@/db/schema';
+import type { Merchant, Plan } from '@/db/schema';
 import type { ContactChannel } from '@/config/contact-channel';
 
 export type MerchantSettings = {
@@ -9,53 +10,49 @@ export type MerchantSettings = {
   logoUrl?: string;
 };
 
-type MerchantPlan = (typeof planEnum.enumValues)[number];
-
-export async function readMerchant(params: { countByPlan: MerchantPlan }): Promise<number>;
-export async function readMerchant(params: {
-  id: string;
-}): Promise<typeof merchants.$inferSelect | null>;
-export async function readMerchant(params: {
-  id?: string;
-  countByPlan?: MerchantPlan;
-}): Promise<unknown> {
-  if (params.countByPlan) {
-    const [row] = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(merchants)
-      .where(eq(merchants.plan, params.countByPlan));
-    return row?.count ?? 0;
-  }
-
-  if (params.id) {
-    const [merchant] = await db
-      .select()
-      .from(merchants)
-      .where(eq(merchants.id, params.id))
-      .limit(1);
-    return merchant ?? null;
-  }
-
-  return null;
+export async function retrieveMerchants(filters: {
+  ids?: string[];
+  plan?: Plan;
+}): Promise<Merchant[]> {
+  const conditions = [
+    filters.ids?.length ? inArray(merchants.id, filters.ids) : undefined,
+    filters.plan ? eq(merchants.plan, filters.plan) : undefined,
+  ].filter((c): c is NonNullable<typeof c> => Boolean(c));
+  if (conditions.length === 0) return [];
+  return db
+    .select()
+    .from(merchants)
+    .where(and(...conditions));
 }
 
-export async function updateMerchant(
-  id: string,
-  patch: { name?: string; settings?: Partial<MerchantSettings> },
-) {
-  if (patch.name !== undefined) {
-    await db.update(merchants).set({ name: patch.name }).where(eq(merchants.id, id));
-  }
+export async function updateMerchants(
+  ids: string[],
+  patch: Partial<Pick<Merchant, 'name'>> & { settings?: Partial<MerchantSettings> },
+): Promise<Merchant[]> {
+  if (ids.length === 0) return [];
 
   if (patch.settings !== undefined) {
-    const [current] = await db.select().from(merchants).where(eq(merchants.id, id)).limit(1);
-    if (current) {
-      const nextSettings = { ...(current.settings as MerchantSettings), ...patch.settings };
-      await db.update(merchants).set({ settings: nextSettings }).where(eq(merchants.id, id));
-    }
+    const existingRows = await db.select().from(merchants).where(inArray(merchants.id, ids));
+    const updated = await Promise.all(
+      existingRows.map(async (row) => {
+        const [result] = await db
+          .update(merchants)
+          .set({
+            ...(patch.name !== undefined ? { name: patch.name } : {}),
+            settings: { ...(row.settings as MerchantSettings), ...patch.settings },
+          })
+          .where(eq(merchants.id, row.id))
+          .returning();
+        return result;
+      }),
+    );
+    return updated.filter((r): r is Merchant => Boolean(r));
   }
-}
 
-// merchants repo never had create/delete verbs (accounts are created via
-// better-auth and deleted via src/modules/auth/delete-account.ts, both out
-// of this refactor's scope), so no createMerchant/deleteMerchant here.
+  if (patch.name === undefined) return [];
+  return db
+    .update(merchants)
+    .set({ name: patch.name })
+    .where(inArray(merchants.id, ids))
+    .returning();
+}

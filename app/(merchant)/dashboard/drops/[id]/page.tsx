@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { requireMerchant } from '@/modules/auth/require-merchant';
-import { readCampaign } from '@/actions/campaigns';
+import { retrieveCampaigns } from '@/actions/campaigns';
 import { db } from '@/db';
 import { campaignItems, products } from '@/db/schema';
 import { and, eq } from 'drizzle-orm';
@@ -12,10 +12,11 @@ import { StatusBadge } from '@/components/status-badge';
 export default async function DropStatusPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const merchant = await requireMerchant();
-  const campaign = await readCampaign({ id, merchantId: merchant.id });
+  const [campaign] = await retrieveCampaigns({ ids: [id], merchantId: merchant.id });
   if (!campaign) notFound();
 
-  const counts = await readCampaign({ id, itemCountsOnly: true });
+  const [withCounts] = await retrieveCampaigns({ ids: [id], withItemCounts: true });
+  const counts = withCounts?.itemCounts ?? { pending: 0, rendered: 0, failed: 0, skipped: 0 };
 
   // Never surfaces the actual shopper render images to the merchant, product titles only.
   const previewRows = await db

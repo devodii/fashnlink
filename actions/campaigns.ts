@@ -1,125 +1,100 @@
-import { and, count, eq, isNull } from 'drizzle-orm';
+import { and, count, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
 import { campaignItems, campaigns, retargetOptins, shoppers, twins } from '@/db/schema';
+import type { Campaign, ResolvedCampaign, ResolvedShopper } from '@/db/schema';
 import { newId } from '@/lib/ids';
 
-export async function createCampaign(input: {
-  merchantId: string;
-  productIds: string[];
-  audienceCount: number;
-  estimatedCredits: number;
+type CreateCampaignInput = Pick<
+  Campaign,
+  'merchantId' | 'productIds' | 'audienceCount' | 'estimatedCredits'
+> & {
   items?: { shopperId: string; productId: string }[];
-}) {
-  const campaignId = newId('campaign');
-  await db.insert(campaigns).values({
-    id: campaignId,
+};
+
+// itemIds isn't a schema column; it's the create-time ids of the campaign
+// items inserted alongside each campaign, needed by callers to enqueue jobs.
+export async function createCampaigns(
+  inputs: CreateCampaignInput[],
+): Promise<(Campaign & { itemIds: string[] })[]> {
+  if (inputs.length === 0) return [];
+
+  const rows = inputs.map((input) => ({
+    id: newId('campaign'),
     merchantId: input.merchantId,
-    kind: 'new_drop',
-    status: 'rendering',
+    kind: 'new_drop' as const,
+    status: 'rendering' as const,
     productIds: input.productIds,
     audienceCount: input.audienceCount,
     estimatedCredits: input.estimatedCredits,
-  });
-
-  if (!input.items || input.items.length === 0) {
-    return { campaignId, itemIds: [] as string[] };
-  }
-
-  const values = input.items.map((item) => ({
-    id: newId('citem'),
-    campaignId,
-    ...item,
-    status: 'pending' as const,
   }));
-  await db.insert(campaignItems).values(values);
+  const created = await db.insert(campaigns).values(rows).returning();
 
-  return { campaignId, itemIds: values.map((v) => v.id) };
+  const itemsByCampaign = new Map<string, string[]>();
+  const itemRows = inputs.flatMap((input, i) => {
+    const campaignId = rows[i].id;
+    const items = (input.items ?? []).map((item) => ({
+      id: newId('citem'),
+      campaignId,
+      ...item,
+      status: 'pending' as const,
+    }));
+    itemsByCampaign.set(
+      campaignId,
+      items.map((item) => item.id),
+    );
+    return items;
+  });
+  if (itemRows.length > 0) await db.insert(campaignItems).values(itemRows);
+
+  return created.map((campaign) => ({
+    ...campaign,
+    itemIds: itemsByCampaign.get(campaign.id) ?? [],
+  }));
 }
 
-export async function readCampaign(params: {
-  audienceForMerchantId: string;
-  audienceCountOnly: true;
-}): Promise<number>;
-export async function readCampaign(params: {
-  audienceForMerchantId: string;
-}): Promise<
-  { shopperId: string; shopperEmail: string | null; twinId: string; twinUrl: string | null }[]
->;
-export async function readCampaign(params: {
-  id: string;
-  itemCountsOnly: true;
-}): Promise<{ pending: number; rendered: number; failed: number; skipped: number }>;
-export async function readCampaign(params: {
-  id: string;
+export async function retrieveCampaigns(filters: {
+  ids?: string[];
   merchantId?: string;
-}): Promise<typeof campaigns.$inferSelect | null>;
-export async function readCampaign(params: {
-  id?: string;
-  merchantId?: string;
-  itemCountsOnly?: boolean;
-  audienceForMerchantId?: string;
-  audienceCountOnly?: boolean;
-}): Promise<unknown> {
-  // Audience sizing for a not-yet-created drop campaign: no campaigns.ts
-  // table owns shoppers/twins/retargetOptins, and this data only ever
-  // exists to support campaign creation/estimation, so it lives here rather
-  // than in a one-off new domain file.
-  if (params.audienceForMerchantId) {
-    const audienceCondition = and(
-      eq(retargetOptins.merchantId, params.audienceForMerchantId),
-      isNull(retargetOptins.optedOutAt),
-    );
-    const twinCondition = and(
-      eq(twins.shopperId, shoppers.id),
-      eq(twins.isDefault, true),
-      eq(twins.status, 'ready'),
-    );
+  withItemCounts?: boolean;
+}): Promise<ResolvedCampaign[]> {
+  const conditions = [
+    filters.ids?.length ? inArray(campaigns.id, filters.ids) : undefined,
+    filters.merchantId ? eq(campaigns.merchantId, filters.merchantId) : undefined,
+  ].filter((c): c is NonNullable<typeof c> => Boolean(c));
+  if (conditions.length === 0) return [];
 
-    if (params.audienceCountOnly) {
-      const [row] = await db
-        .select({ n: count() })
-        .from(retargetOptins)
-        .innerJoin(shoppers, eq(shoppers.id, retargetOptins.shopperId))
-        .innerJoin(twins, twinCondition)
-        .where(audienceCondition);
-      return row?.n ?? 0;
-    }
+  const rows = await db
+    .select()
+    .from(campaigns)
+    .where(and(...conditions));
+  if (!filters.withItemCounts) return rows;
 
-    return db
-      .select({
-        shopperId: shoppers.id,
-        shopperEmail: shoppers.email,
-        twinId: twins.id,
-        twinUrl: twins.twinUrl,
-      })
-      .from(retargetOptins)
-      .innerJoin(shoppers, eq(shoppers.id, retargetOptins.shopperId))
-      .innerJoin(twins, twinCondition)
-      .where(audienceCondition);
-  }
-
-  if (params.id && params.itemCountsOnly) {
-    const rows = await db
-      .select({ status: campaignItems.status, n: count() })
-      .from(campaignItems)
-      .where(eq(campaignItems.campaignId, params.id))
-      .groupBy(campaignItems.status);
-    const counts = { pending: 0, rendered: 0, failed: 0, skipped: 0 };
-    for (const r of rows) counts[r.status] = r.n;
-    return counts;
-  }
-
-  if (params.id) {
-    const condition = params.merchantId
-      ? and(eq(campaigns.id, params.id), eq(campaigns.merchantId, params.merchantId))
-      : eq(campaigns.id, params.id);
-    const [row] = await db.select().from(campaigns).where(condition).limit(1);
-    return row ?? null;
-  }
-
-  return null;
+  return Promise.all(
+    rows.map(async (campaign) => {
+      const statusRows = await db
+        .select({ status: campaignItems.status, n: count() })
+        .from(campaignItems)
+        .where(eq(campaignItems.campaignId, campaign.id))
+        .groupBy(campaignItems.status);
+      const itemCounts = { pending: 0, rendered: 0, failed: 0, skipped: 0 };
+      for (const r of statusRows) itemCounts[r.status] = r.n;
+      return { ...campaign, itemCounts };
+    }),
+  );
 }
 
-// campaigns repo never had its own update/delete verb (status transitions
-// live directly in src/modules/campaigns/finalize.ts, out of this
-// refactor's scope), so no updateCampaign/deleteCampaign here.
+// Temporary: audience sizing queries shoppers/twins/retargetOptins, none of
+// which this file owns. Flagged to relocate into actions/shoppers.ts in the
+// next pass rather than live here permanently as a 3rd export.
+export async function retrieveCampaignAudience(merchantId: string): Promise<ResolvedShopper[]> {
+  const rows = await db
+    .select({ shopper: shoppers, twinId: twins.id, twinUrl: twins.twinUrl })
+    .from(retargetOptins)
+    .innerJoin(shoppers, eq(shoppers.id, retargetOptins.shopperId))
+    .innerJoin(
+      twins,
+      and(eq(twins.shopperId, shoppers.id), eq(twins.isDefault, true), eq(twins.status, 'ready')),
+    )
+    .where(and(eq(retargetOptins.merchantId, merchantId), isNull(retargetOptins.optedOutAt)));
+  return rows.map(({ shopper, twinId, twinUrl }) => ({ ...shopper, twinId, twinUrl }));
+}
