@@ -65,9 +65,50 @@ The original pasted spec text is not saved anywhere in this repo or in my memory
 - [ ] Cut filler phrasing in user-facing text
 
 ## 10. Deliverables for the user
-- [ ] How to test as a shopper (step by step)
-- [ ] How to test as a merchant (step by step)
-- [ ] Full page inventory: every route, what it is, who can access it, how it connects to the rest
+
+### How to test as a merchant
+1. Go to `/login`, sign in with a magic link (or Google, if configured). A fresh account auto-creates a merchant row with a placeholder name.
+2. First login redirects to `/onboarding` (enforced: no `settings.contactChannel` yet means no dashboard access). Paste a product URL, set your brand name and accent color, pick a contact channel (WhatsApp/Instagram/email), finish the wizard.
+3. You land on `/dashboard`. Test each nav item: Links, Products, Leads, Retargeting, Billing, Settings.
+4. Create a link from `/dashboard/links/new`, confirm it shows up in the links table and works when opened as a shopper (below).
+5. Settings: change accent color, logo, contact channel, confirm it reflects on your public `/t/[slug]` pages.
+6. Billing: the founding pass banner should show at the top of the dashboard shell if you're on the free plan and seats remain (not per-page anymore).
+7. Toggle light/dark via the theme toggle in the dashboard header, confirm it persists across a reload.
+8. Sign out via the icon button next to your avatar in the sidebar footer (no dropdown anymore).
+
+### How to test as a shopper
+1. Open a merchant's `/t/[slug]` link in a private/incognito window (no login required).
+2. Click "See it on you", accept the consent checkboxes, upload or take a selfie.
+3. Wait for the twin build and render (needs real `FAL_KEY`/`OPENAI_API_KEY` and, in local dev, `TUNNEL_URL` pointed at a tunnel so fal's webhook can reach you).
+4. Confirm the result screen: share sheet, buy button, "message the shop" link (if a contact channel is set).
+5. Visit `/me` afterward (same browser, same shopper cookie) to see your closet history.
+6. Try a poll link and a group link too (`link.kind === 'poll' | 'group'`), they're separate flows (`poll-flow.tsx`, `group-flow.tsx`) from the main try-on flow.
+7. Try the homepage quick-demo (`/`): paste a URL, it scrapes it under a system merchant and takes you straight to a real `/t/[slug]` link, no separate processing page anymore.
+8. Test the language picker (top right of the try-on page) and the auto-suggest banner if your browser language differs from the shop's.
+
+### Full page inventory
+| Route | Access | What it is |
+|---|---|---|
+| `/` | Public | Marketing homepage, quick-demo paste-a-link form, pricing |
+| `/login` | Public | Magic link + Google sign-in |
+| `/onboarding` | Merchant session, redirected here until contact channel is set | 3-step wizard: product, brand, first link |
+| `/dashboard` | Merchant session + onboarded | Overview: credits, stats, recent links |
+| `/dashboard/links`, `/dashboard/links/new`, `/dashboard/links/[id]` | Merchant | Manage try-on links |
+| `/dashboard/products` | Merchant | Synced product catalog |
+| `/dashboard/leads` | Merchant | Shoppers who left an email |
+| `/dashboard/drops/new`, `/dashboard/drops/[id]` | Merchant | Retargeting campaign drops |
+| `/dashboard/retargeting` | Merchant | ESP connection, abandoned-cart settings |
+| `/dashboard/billing` | Merchant | Credits, ledger, plan |
+| `/dashboard/settings` | Merchant | Brand, contact, logo, accent color |
+| `/t/[slug]` | Public | The core try-on flow (or poll/group flow depending on link kind) |
+| `/p/[slug]` | Public (unguessable `?s=` share link) | Poll voting view |
+| `/r/[renderId]` | Public if `isPublic` | Shared render page (OG image, share target) |
+| `/me` | Shopper cookie, scoped to that cookie only | Shopper's own closet history |
+| `/claim/[storeId]` | Public (teaser), claim action needs merchant session | Claim a store that was scraped under the anonymous system merchant |
+| `/platforms` | Public | Supported platform list |
+| `/legal/privacy`, `/legal/terms` | Public | Static legal pages |
+
+Every merchant route is gated by `app/(merchant)/dashboard/layout.tsx` calling `requireMerchant()` (redirects to `/login`) then checking `settings.contactChannel` (redirects to `/onboarding`). Every API route declares an explicit `auth` scope in `apiHandler` (`merchant_session`, `shopper_session`, `cron`, `webhook`, or `public`), verified in the route-protection audit above.
 
 ---
 
