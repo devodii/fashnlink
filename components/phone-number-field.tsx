@@ -168,7 +168,11 @@ export function PhoneNumberField({
 
   return (
     <InputGroup
-      className={cn('h-10 w-full rounded-md border border-input bg-transparent', className)}
+      className={cn(
+        'h-10 w-full rounded-md border border-input bg-transparent transition-[color,box-shadow]',
+        'has-[input:focus-visible]:border-ring has-[input:focus-visible]:ring-[3px] has-[input:focus-visible]:ring-ring/50',
+        className,
+      )}
     >
       <Popover open={open} onOpenChange={setOpen} modal={false}>
         <PopoverTrigger asChild>

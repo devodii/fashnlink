@@ -13,6 +13,7 @@ import { LoadingButton } from '@/components/loading-button';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { MediaTile } from '@/components/media-tile';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { SplitPane } from '@/components/split-pane';
 import { Button } from '@/components/ui/button';
 
 const schema = z.object({
@@ -70,52 +71,68 @@ export function SettingsForm({
   }
 
   return (
-    <div className="max-w-md space-y-10">
-      <div className="space-y-1">
-        <p className="text-sm font-medium text-foreground">Store domain</p>
-        <p className="text-sm text-muted-foreground">{storeDomain ?? 'Not connected yet'}</p>
-      </div>
+    <div className="max-w-3xl space-y-10">
+      <Form form={form} onSubmit={onSubmit}>
+        <SplitPane
+          start={
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">Store domain</p>
+                <p className="text-sm text-muted-foreground">
+                  {storeDomain ?? 'Not connected yet'}
+                </p>
+              </div>
 
-      <Form form={form} onSubmit={onSubmit} className="space-y-4">
-        <TextField control={form.control} name="name" label="Brand name" />
+              <TextField control={form.control} name="name" label="Brand name" />
 
-        {logo ? (
-          <MediaTile src={logo.url} alt="Logo" aspect="1/1" className="size-20" />
-        ) : (
-          <UploadDropzone accept="image/*" onFiles={(files) => setLogo(files[0] ?? null)} />
-        )}
+              {logo ? (
+                <MediaTile src={logo.url} alt="Logo" aspect="1/1" className="size-20" />
+              ) : (
+                <UploadDropzone
+                  accept="image/*"
+                  aspect="1/1"
+                  className="w-32"
+                  onFiles={(files) => setLogo(files[0] ?? null)}
+                />
+              )}
+            </div>
+          }
+          end={
+            <div className="space-y-4">
+              <SwatchField
+                control={form.control}
+                name="accentToken"
+                label="Accent color"
+                options={[1, 2, 3, 4, 5, 6].map((n) => ({ id: String(n), token: `brand-${n}` }))}
+              />
 
-        <SwatchField
-          control={form.control}
-          name="accentToken"
-          label="Accent color"
-          options={[1, 2, 3, 4, 5, 6].map((n) => ({ id: String(n), token: `brand-${n}` }))}
+              <SegmentedField
+                control={form.control}
+                name="contactType"
+                label="Contact channel"
+                options={[
+                  { value: 'whatsapp', label: 'WhatsApp' },
+                  { value: 'instagram', label: 'Instagram' },
+                  { value: 'email', label: 'Email' },
+                ]}
+              />
+              {contactType === 'whatsapp' ? (
+                <PhoneField control={form.control} name="contactValue" label="Contact detail" />
+              ) : (
+                <TextField
+                  control={form.control}
+                  name="contactValue"
+                  label="Contact detail"
+                  placeholder={contactType === 'instagram' ? '@yourstore' : 'you@yourstore.com'}
+                />
+              )}
+
+              <LoadingButton type="submit" loading={form.formState.isSubmitting}>
+                Save
+              </LoadingButton>
+            </div>
+          }
         />
-
-        <SegmentedField
-          control={form.control}
-          name="contactType"
-          label="Contact channel"
-          options={[
-            { value: 'whatsapp', label: 'WhatsApp' },
-            { value: 'instagram', label: 'Instagram' },
-            { value: 'email', label: 'Email' },
-          ]}
-        />
-        {contactType === 'whatsapp' ? (
-          <PhoneField control={form.control} name="contactValue" label="Contact detail" />
-        ) : (
-          <TextField
-            control={form.control}
-            name="contactValue"
-            label="Contact detail"
-            placeholder={contactType === 'instagram' ? '@yourstore' : 'you@yourstore.com'}
-          />
-        )}
-
-        <LoadingButton type="submit" loading={form.formState.isSubmitting}>
-          Save
-        </LoadingButton>
       </Form>
 
       <div className="space-y-2 border-t border-border pt-6">

@@ -12,11 +12,17 @@ export interface UploadedFile {
   name: string;
 }
 
+const ASPECT_CLASS = {
+  '3/4': 'aspect-[3/4]',
+  '1/1': 'aspect-square',
+} as const;
+
 export interface UploadDropzoneProps {
   accept?: string;
   maxSizeMb?: number;
   capture?: 'user' | 'environment';
   multiple?: boolean;
+  aspect?: keyof typeof ASPECT_CLASS;
   onFiles: (files: UploadedFile[]) => void;
   preview?: string | null;
   progress?: number | null;
@@ -29,6 +35,7 @@ export function UploadDropzone({
   maxSizeMb = 10,
   capture,
   multiple = false,
+  aspect = '3/4',
   onFiles,
   preview,
   progress: progressProp,
@@ -94,7 +101,8 @@ export function UploadDropzone({
           handleFiles(e.dataTransfer.files);
         }}
         className={cn(
-          'relative flex aspect-[3/4] w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted text-muted-foreground transition-colors',
+          'relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted text-muted-foreground transition-colors',
+          ASPECT_CLASS[aspect],
           dragActive && 'border-ring bg-accent',
         )}
       >

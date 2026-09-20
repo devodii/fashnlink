@@ -22,7 +22,10 @@ export function SegmentedControl({ options, value, onChange, className }: Segmen
 
   return (
     <div
-      className={cn('inline-flex items-center gap-1 rounded-md bg-muted p-1', className)}
+      className={cn(
+        'inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 p-1',
+        className,
+      )}
       role="radiogroup"
     >
       {options.map((option) => {
@@ -35,14 +38,14 @@ export function SegmentedControl({ options, value, onChange, className }: Segmen
             aria-checked={active}
             onClick={() => onChange(option.value)}
             className={cn(
-              'relative rounded-sm px-3 py-1.5 text-sm font-medium transition-colors',
-              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+              'relative rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors',
+              active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
           >
             {active && (
               <motion.span
                 layoutId={`segmented-indicator-${layoutId}`}
-                className="absolute inset-0 rounded-sm bg-background shadow-sm"
+                className="absolute inset-0 rounded-full bg-primary shadow-sm"
                 transition={reduceMotion ? { duration: 0 } : { type: 'tween', duration: 0.2 }}
               />
             )}

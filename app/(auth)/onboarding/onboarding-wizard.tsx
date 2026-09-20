@@ -205,7 +205,12 @@ function BrandStep({
       {logo ? (
         <MediaTile src={logo.url} alt="Logo" aspect="1/1" className="size-20" />
       ) : (
-        <UploadDropzone accept="image/*" onFiles={(files) => onLogo(files[0] ?? null)} />
+        <UploadDropzone
+          accept="image/*"
+          aspect="1/1"
+          className="w-32"
+          onFiles={(files) => onLogo(files[0] ?? null)}
+        />
       )}
 
       <SwatchField
