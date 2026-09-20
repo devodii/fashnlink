@@ -14,6 +14,8 @@ import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { ShareSheet } from '@/components/share-sheet';
 import { Container } from '@/components/container';
 import { SplitPane } from '@/components/split-pane';
+import { LanguagePicker } from '@/components/language-picker';
+import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { formatPriceCents } from '@/lib/format';
@@ -415,11 +417,15 @@ export function TryOnFlow({
         data-brand={accentToken ?? undefined}
         className="flex flex-1 flex-col gap-4 py-10"
       >
+        <div className="flex justify-end">
+          <LanguagePicker compact />
+        </div>
         {preview && (
           <InlineAlert tone="warning" title="Preview">
-            This is a merchant preview — nothing here counts as a real visit.
+            This is a merchant preview, nothing here counts as a real visit.
           </InlineAlert>
         )}
+        <LanguageSuggestBanner />
 
         <SplitPane
           start={productImage}
@@ -453,11 +459,15 @@ export function TryOnFlow({
       data-brand={accentToken ?? undefined}
       className="flex flex-1 flex-col gap-4 py-6 pb-28"
     >
+      <div className="flex justify-end">
+        <LanguagePicker compact />
+      </div>
       {preview && (
         <InlineAlert tone="warning" title="Preview">
-          This is a merchant preview — nothing here counts as a real visit.
+          This is a merchant preview, nothing here counts as a real visit.
         </InlineAlert>
       )}
+      <LanguageSuggestBanner />
 
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">{merchantName}</p>
