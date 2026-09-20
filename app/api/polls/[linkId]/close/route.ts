@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { links } from '@/db/schema';
-import { closePoll } from '@/db/repos/links';
+import { updateLink } from '@/actions/links';
 import { err, ok } from '@/lib/result';
 
 export const POST = apiHandler({
@@ -17,7 +17,12 @@ export const POST = apiHandler({
       return err({ code: 'FORBIDDEN', message: 'not your poll' });
     }
 
-    const updated = await closePoll(link.id, 'creator');
+    // Closing writes settings.closedAt rather than archiving the link:
+    // /p/[slug] still needs to render the final results page after close. The
+    // 48h auto-close is a read-time check (see readLink), not a cron job.
+    const updated = await updateLink(link.id, {
+      settings: { closedAt: new Date().toISOString(), decidedBy: 'creator' },
+    });
     if (!updated) return err({ code: 'INTERNAL', message: 'failed to close poll' });
 
     return ok({ closed: true });

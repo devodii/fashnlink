@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { requireMerchant } from '@/modules/auth/require-merchant';
 import { currentBalance } from '@/modules/render/credit-ledger';
-import { dashboardStats, findLinksWithProductByMerchant } from '@/db/repos/links';
+import { readLink } from '@/actions/links';
+import { readDashboard } from '@/actions/dashboard';
 import { PageHeader } from '@/components/page-header';
 import { Section } from '@/components/section';
 import { CreditMeter } from '@/components/credit-meter';
@@ -14,8 +15,8 @@ export default async function DashboardOverviewPage() {
   const merchant = await requireMerchant();
   const [balance, stats, links] = await Promise.all([
     currentBalance(merchant.id),
-    dashboardStats(merchant.id),
-    findLinksWithProductByMerchant(merchant.id),
+    readDashboard(merchant.id),
+    readLink({ merchantId: merchant.id, withProduct: true }),
   ]);
 
   return (

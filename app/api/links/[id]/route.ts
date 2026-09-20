@@ -4,7 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { products, garmentCategoryEnum } from '@/db/schema';
 import { err, ok } from '@/lib/result';
-import { findLinkById, updateLinkStatus } from '@/db/repos/links';
+import { readLink, updateLink } from '@/actions/links';
 
 const paramsSchema = z.object({ id: z.string() });
 const bodySchema = z.object({
@@ -17,12 +17,12 @@ export const PATCH = apiHandler({
   auth: ['merchant_session'],
   schema: { params: paramsSchema, body: bodySchema },
   handler: async ({ params, body, merchant }) => {
-    const link = await findLinkById(params.id);
+    const link = await readLink({ id: params.id });
     if (!link || link.merchantId !== merchant.merchantId) {
       return err({ code: 'NOT_FOUND', message: 'Link not found' });
     }
 
-    if (body.status) await updateLinkStatus(link.id, body.status);
+    if (body.status) await updateLink(link.id, { status: body.status });
 
     if (body.garmentCategory) {
       const productId = link.productIds[0];

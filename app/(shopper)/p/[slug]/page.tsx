@@ -1,8 +1,8 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { links, merchants, products, renders, twins } from '@/db/schema';
-import { isPollClosed } from '@/db/repos/links';
+import { merchants, products, renders, twins } from '@/db/schema';
+import { readLink } from '@/actions/links';
 import { readShopperId } from '@/modules/shoppers';
 import { PollVoteView } from './poll-vote-view';
 
@@ -16,7 +16,7 @@ export default async function PollPage({
   const { slug } = await params;
   const { s: creatorShopperId } = await searchParams;
 
-  const [link] = await db.select().from(links).where(eq(links.slug, slug)).limit(1);
+  const link = await readLink({ slug });
   if (!link || link.kind !== 'poll' || link.status === 'archived') notFound();
 
   const [merchant] = await db
@@ -79,7 +79,7 @@ export default async function PollPage({
       linkId={link.id}
       merchantName={merchant?.name ?? 'This shop'}
       options={options}
-      closed={isPollClosed(link)}
+      closed={link.isClosed ?? false}
       defaultTwin={viewerTwin}
     />
   );

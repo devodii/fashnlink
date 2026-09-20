@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { requireMerchant } from '@/modules/auth/require-merchant';
-import { findLinksWithProductByMerchant } from '@/db/repos/links';
+import { readLink } from '@/actions/links';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { LinksTable } from './links-table';
 
 export default async function LinksPage() {
   const merchant = await requireMerchant();
-  const links = await findLinksWithProductByMerchant(merchant.id);
+  const links = await readLink({ merchantId: merchant.id, withProduct: true });
 
   return (
     <div className="space-y-6 p-4 md:p-8">
