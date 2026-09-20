@@ -66,7 +66,7 @@ type Story = StoryObj<typeof DataTable<DemoRow, unknown>>;
 export const Default: Story = {};
 
 export const Loading: Story = {
-  args: { loading: true },
+  args: { isLoading: true },
 };
 
 export const Empty: Story = {

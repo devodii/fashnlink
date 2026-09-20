@@ -67,7 +67,7 @@ interface DataTableProps<TData, TValue>
   onSelectionChange?: (rows: TData[]) => void;
   onRowClick?: (row: TData) => void;
   emptyState: React.ReactNode;
-  loading?: boolean;
+  isLoading?: boolean;
   skeletonRowCount?: number;
   toolbar?: React.ReactNode;
   mobileCard?: (row: TData) => React.ReactNode;
@@ -85,7 +85,7 @@ export function DataTable<TData, TValue>({
   onSelectionChange,
   onRowClick,
   emptyState,
-  loading,
+  isLoading,
   skeletonRowCount = 5,
   toolbar,
   mobileCard,
@@ -203,8 +203,8 @@ export function DataTable<TData, TValue>({
 
   const rows = table.getRowModel().rows;
 
-  if (loading) {
-    return <DataTableSkeleton columns={tableColumns.length} rowCount={skeletonRowCount} />;
+  if (isLoading) {
+    return <DataTableSkeleton columns={tableColumns} rowCount={skeletonRowCount} />;
   }
 
   const canPrev = pagination
@@ -332,16 +332,34 @@ export function DataTable<TData, TValue>({
   );
 }
 
-function DataTableSkeleton({ columns, rowCount }: { columns: number; rowCount: number }) {
+function DataTableSkeleton<TData, TValue>({
+  columns,
+  rowCount,
+}: {
+  columns: ColumnDef<TData, TValue>[];
+  rowCount: number;
+}) {
   return (
     <div className="rounded-md border border-border">
       <div className="overflow-x-auto">
         <Table>
+          <TableHeader>
+            <TableRow>
+              {columns.map((column, colIndex) => (
+                <TableHead
+                  key={column.id ?? colIndex}
+                  style={{ width: (column.size as number) !== 150 ? column.size : undefined }}
+                >
+                  <Skeleton className="h-4 w-20" />
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
           <TableBody>
             {Array.from({ length: rowCount }).map((_, rowIndex) => (
               <TableRow key={rowIndex}>
-                {Array.from({ length: columns }).map((_, colIndex) => (
-                  <TableCell key={colIndex}>
+                {columns.map((column, colIndex) => (
+                  <TableCell key={column.id ?? colIndex}>
                     <Skeleton
                       className="h-4"
                       style={{ width: `${60 + ((rowIndex * 7 + colIndex * 11) % 40)}%` }}

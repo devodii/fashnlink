@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
@@ -6,7 +7,12 @@ import { auth } from './auth';
 import { db } from '@/db';
 import { merchants } from '@/db/schema';
 
-export async function requireMerchant() {
+/**
+ * Both the dashboard layout and every dashboard page call this; `cache`
+ * dedupes it to one session check + one DB lookup per request instead of
+ * one per component.
+ */
+export const requireMerchant = cache(async () => {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.email) redirect('/login');
 
@@ -18,4 +24,4 @@ export async function requireMerchant() {
 
   if (!merchant) redirect('/login');
   return merchant;
-}
+});
