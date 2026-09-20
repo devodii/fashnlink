@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Globe } from '@phosphor-icons/react/ssr';
+import { GlobeIcon } from '@phosphor-icons/react/ssr';
 import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/config/languages';
 import { getCurrentLanguageCode, setLanguage } from '@/lib/google-translate';
 import { useIsDesktop } from '@/hooks/use-media-query';
@@ -48,7 +48,7 @@ export function LanguagePicker({ compact, className }: LanguagePickerProps) {
 
   const trigger = (
     <Button type="button" variant="outline" size={compact ? 'icon' : 'sm'} className={className}>
-      <Globe className="size-4" />
+      <GlobeIcon className="size-4" />
       {!compact && <span translate="no">{current.nativeLabel}</span>}
     </Button>
   );

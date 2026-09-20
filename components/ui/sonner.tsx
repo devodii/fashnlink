@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Info, XCircle, Warning } from '@phosphor-icons/react/ssr';
+import { CheckCircleIcon, InfoIcon, XCircleIcon, WarningIcon } from '@phosphor-icons/react/ssr';
 import { useTheme } from 'next-themes';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 import { Spinner } from '@/components/spinner';
@@ -13,10 +13,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps['theme']}
       className="toaster group"
       icons={{
-        success: <CheckCircle className="size-4" />,
-        info: <Info className="size-4" />,
-        warning: <Warning className="size-4" />,
-        error: <XCircle className="size-4" />,
+        success: <CheckCircleIcon className="size-4" />,
+        info: <InfoIcon className="size-4" />,
+        warning: <WarningIcon className="size-4" />,
+        error: <XCircleIcon className="size-4" />,
         loading: <Spinner size={16} />,
       }}
       style={

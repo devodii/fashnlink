@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Link, TShirt, Sparkle } from '@phosphor-icons/react/ssr';
+import { LinkIcon, TShirtIcon, SparkleIcon } from '@phosphor-icons/react/ssr';
 import { cn } from 'cn';
 import { PhoneFrame } from '@/components/phone-frame';
 import { Reveal } from '@/components/motion/reveal';
@@ -12,7 +12,7 @@ function LinkScreen() {
   return (
     <div className="flex size-full flex-col items-center justify-center gap-4 bg-muted p-6 text-center">
       <div className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs text-muted-foreground">
-        <Link className="size-3.5" />
+        <LinkIcon className="size-3.5" />
         yourshop.com/products/...
       </div>
       <p className="text-xs text-muted-foreground">Paste a product link</p>
@@ -24,10 +24,10 @@ function TryonScreen() {
   return (
     <div className="flex size-full flex-col items-center justify-center gap-4 bg-muted p-6 text-center">
       <div className="flex size-20 items-center justify-center rounded-full bg-secondary">
-        <TShirt className="size-9 text-secondary-foreground" strokeWidth={1.25} />
+        <TShirtIcon className="size-9 text-secondary-foreground" strokeWidth={1.25} />
       </div>
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Sparkle className="size-3.5" />
+        <SparkleIcon className="size-3.5" />
         See it on you
       </div>
     </div>

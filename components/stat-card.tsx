@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { ArrowDown, ArrowUp } from '@phosphor-icons/react/ssr';
+import { ArrowDownIcon, ArrowUpIcon } from '@phosphor-icons/react/ssr';
 import { CountUp } from '@/components/count-up';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -48,7 +48,7 @@ export function StatCard({
               delta >= 0 ? 'text-success' : 'text-destructive',
             )}
           >
-            {delta >= 0 ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />}
+            {delta >= 0 ? <ArrowUpIcon className="size-3" /> : <ArrowDownIcon className="size-3" />}
             {Math.abs(delta)}%
           </span>
         )}

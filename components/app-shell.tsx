@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
-import { SignOut } from '@phosphor-icons/react/ssr';
+import { SignOutIcon } from '@phosphor-icons/react/ssr';
 import { authClient } from '@/lib/auth-client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -72,7 +72,7 @@ function SidebarUserMenu({ name, email, logoUrl }: NonNullable<AppShellProps['us
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top" className="w-56">
         <DropdownMenuItem onClick={handleSignOut}>
-          <SignOut />
+          <SignOutIcon />
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -5,7 +5,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import { StatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
-import { Link as LinkIcon } from '@phosphor-icons/react/ssr';
+import { LinkIcon } from '@phosphor-icons/react/ssr';
 
 type LinkRow = {
   link: {

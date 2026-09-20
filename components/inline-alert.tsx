@@ -2,16 +2,16 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Warning, CheckCircle, Info, X } from '@phosphor-icons/react/ssr';
+import { WarningIcon, CheckCircleIcon, InfoIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export type InlineAlertTone = 'neutral' | 'success' | 'warning' | 'destructive';
 
 const TONE_ICON: Record<InlineAlertTone, React.ComponentType<{ className?: string }>> = {
-  neutral: Info,
-  success: CheckCircle,
-  warning: Warning,
-  destructive: Warning,
+  neutral: InfoIcon,
+  success: CheckCircleIcon,
+  warning: WarningIcon,
+  destructive: WarningIcon,
 };
 
 const TONE_CLASS: Record<InlineAlertTone, string> = {
@@ -52,7 +52,7 @@ export function InlineAlert({
           aria-label="Dismiss"
           className="absolute top-3 right-3 text-current opacity-60 transition-opacity hover:opacity-100"
         >
-          <X className="size-4" />
+          <XIcon className="size-4" />
         </button>
       )}
     </Alert>

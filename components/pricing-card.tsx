@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check } from '@phosphor-icons/react/ssr';
+import { CheckIcon } from '@phosphor-icons/react/ssr';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -46,7 +46,7 @@ export function PricingCard({
       <ul className="flex-1 space-y-2">
         {features.map((feature) => (
           <li key={feature} className="flex items-start gap-2 text-sm text-muted-foreground">
-            <Check className="mt-0.5 size-4 shrink-0 text-foreground" />
+            <CheckIcon className="mt-0.5 size-4 shrink-0 text-foreground" />
             {feature}
           </li>
         ))}

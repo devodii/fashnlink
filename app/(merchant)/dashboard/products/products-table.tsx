@@ -6,7 +6,7 @@ import { DataTable } from '@/components/data-table';
 import { StatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { InlineAlert } from '@/components/inline-alert';
-import { Package } from '@phosphor-icons/react/ssr';
+import { PackageIcon } from '@phosphor-icons/react/ssr';
 
 type ProductRow = {
   product: {
@@ -74,7 +74,7 @@ export function ProductsTable({ rows }: { rows: ProductRow[] }) {
       getRowId={(row) => row.product.id}
       emptyState={
         <EmptyState
-          icon={Package}
+          icon={PackageIcon}
           title="No products yet"
           description="Create a link from a product URL to start your catalog."
         />

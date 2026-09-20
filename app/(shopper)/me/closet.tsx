@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { Images, Trash } from '@phosphor-icons/react/ssr';
+import { ImagesIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { MediaGrid } from '@/components/media-grid';
 import { EmptyState } from '@/components/empty-state';
 import { ShareSheet } from '@/components/share-sheet';
@@ -96,7 +96,7 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
 
       {grouped.length === 0 ? (
         <EmptyState
-          icon={Images}
+          icon={ImagesIcon}
           title="Nothing here yet"
           description="Try something on from a shop's link and it'll show up here."
         />
@@ -144,7 +144,7 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
                       variant="secondary"
                       onClick={() => handleDelete(render.renderId)}
                     >
-                      <Trash className="size-3.5" />
+                      <TrashIcon className="size-3.5" />
                     </Button>
                   </div>
                 ),

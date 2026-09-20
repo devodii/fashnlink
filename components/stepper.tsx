@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Minus, Plus } from '@phosphor-icons/react/ssr';
+import { MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
 import { Button } from '@/components/ui/button';
 
 export interface StepperProps {
@@ -32,7 +32,7 @@ export function Stepper({
         onClick={() => onChange(Math.max(min, value - step))}
         disabled={value <= min}
       >
-        <Minus className="size-3.5" />
+        <MinusIcon className="size-3.5" />
       </Button>
       <span className="w-6 text-center text-sm font-medium tabular-nums">{value}</span>
       <Button
@@ -43,7 +43,7 @@ export function Stepper({
         onClick={() => onChange(Math.min(max, value + step))}
         disabled={value >= max}
       >
-        <Plus className="size-3.5" />
+        <PlusIcon className="size-3.5" />
       </Button>
     </div>
   );

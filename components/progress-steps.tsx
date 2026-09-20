@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check, X } from '@phosphor-icons/react/ssr';
+import { CheckIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { Spinner } from '@/components/spinner';
 
 export type ProgressStepState = 'pending' | 'active' | 'done' | 'error';
@@ -19,8 +19,8 @@ export interface ProgressStepsProps {
 const ICON: Record<ProgressStepState, React.ReactNode> = {
   pending: <span className="size-1.5 rounded-full bg-muted-foreground" />,
   active: <Spinner size={14} />,
-  done: <Check className="size-3.5" />,
-  error: <X className="size-3.5" />,
+  done: <CheckIcon className="size-3.5" />,
+  error: <XIcon className="size-3.5" />,
 };
 
 const CIRCLE_CLASS: Record<ProgressStepState, string> = {

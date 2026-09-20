@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { TShirt } from '@phosphor-icons/react/ssr';
+import { TShirtIcon } from '@phosphor-icons/react/ssr';
 import { cn } from 'cn';
 
 export interface ShimmerCardProps {
@@ -32,7 +32,7 @@ export function ShimmerCard({ aspect = '3/4', className }: ShimmerCardProps) {
           animate={reduceMotion ? undefined : { scale: [1, 1.06, 1], opacity: [0.5, 0.7, 0.5] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <TShirt className="size-16 text-muted-foreground/40" strokeWidth={1} />
+          <TShirtIcon className="size-16 text-muted-foreground/40" strokeWidth={1} />
         </motion.div>
       </div>
 

@@ -2,26 +2,26 @@
 
 import { usePathname } from 'next/navigation';
 import {
-  SquaresFour,
-  Link,
-  Package,
-  Users,
-  Sparkle,
-  CreditCard,
-  Gear,
-  Envelope,
+  SquaresFourIcon,
+  LinkIcon,
+  PackageIcon,
+  UsersIcon,
+  SparkleIcon,
+  CreditCardIcon,
+  GearIcon,
+  EnvelopeIcon,
 } from '@phosphor-icons/react/ssr';
 import { AppShell, type NavItem } from '@/components/app-shell';
 
 const BASE_ITEMS: Omit<NavItem, 'active'>[] = [
-  { label: 'Overview', href: '/dashboard', icon: SquaresFour },
-  { label: 'Links', href: '/dashboard/links', icon: Link },
-  { label: 'Products', href: '/dashboard/products', icon: Package },
-  { label: 'Leads', href: '/dashboard/leads', icon: Users },
-  { label: 'Model pack', href: '/dashboard/model-pack', icon: Sparkle },
-  { label: 'Retargeting', href: '/dashboard/retargeting', icon: Envelope },
-  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { label: 'Settings', href: '/dashboard/settings', icon: Gear },
+  { label: 'Overview', href: '/dashboard', icon: SquaresFourIcon },
+  { label: 'Links', href: '/dashboard/links', icon: LinkIcon },
+  { label: 'Products', href: '/dashboard/products', icon: PackageIcon },
+  { label: 'Leads', href: '/dashboard/leads', icon: UsersIcon },
+  { label: 'Model pack', href: '/dashboard/model-pack', icon: SparkleIcon },
+  { label: 'Retargeting', href: '/dashboard/retargeting', icon: EnvelopeIcon },
+  { label: 'Billing', href: '/dashboard/billing', icon: CreditCardIcon },
+  { label: 'Settings', href: '/dashboard/settings', icon: GearIcon },
 ];
 
 export function DashboardNav({

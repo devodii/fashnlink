@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { X } from '@phosphor-icons/react/ssr';
+import { XIcon } from '@phosphor-icons/react/ssr';
 
 export interface TagInputProps {
   value: string[];
@@ -38,7 +38,7 @@ export function TagInput({ value, onChange, placeholder, className }: TagInputPr
         >
           {tag}
           <button type="button" onClick={() => remove(tag)} aria-label={`Remove ${tag}`}>
-            <X className="size-3" />
+            <XIcon className="size-3" />
           </button>
         </span>
       ))}

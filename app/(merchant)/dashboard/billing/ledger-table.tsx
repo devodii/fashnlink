@@ -3,7 +3,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
-import { Receipt } from '@phosphor-icons/react/ssr';
+import { ReceiptIcon } from '@phosphor-icons/react/ssr';
 
 type LedgerRow = { delta: number; reason: string; refAfter: number; createdAt: Date };
 
@@ -37,7 +37,7 @@ export function LedgerTable({ rows }: { rows: LedgerRow[] }) {
       columns={columns}
       data={rows}
       getRowId={(row) => `${row.createdAt.toString()}-${row.reason}-${row.delta}`}
-      emptyState={<EmptyState icon={Receipt} title="No credit activity yet" />}
+      emptyState={<EmptyState icon={ReceiptIcon} title="No credit activity yet" />}
       mobileCard={(row) => (
         <div className="flex items-center justify-between rounded-md border border-border p-3 text-sm">
           <span className="capitalize">{row.reason.replace(/_/g, ' ')}</span>

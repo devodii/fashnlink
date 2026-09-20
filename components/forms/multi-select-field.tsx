@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as RHF from 'react-hook-form';
 import { cn } from 'cn';
-import { Check, CaretUpDown, X } from '@phosphor-icons/react/ssr';
+import { CheckIcon, CaretUpDownIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -85,7 +85,7 @@ export function MultiSelectField<TValues extends RHF.FieldValues, TName extends 
                         .join(', ')
                     )}
                   </span>
-                  <CaretUpDown className="size-4 shrink-0 opacity-50" />
+                  <CaretUpDownIcon className="size-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
@@ -96,7 +96,7 @@ export function MultiSelectField<TValues extends RHF.FieldValues, TName extends 
                     <CommandGroup>
                       {options.map((option) => (
                         <CommandItem key={option.value} onSelect={() => toggle(option.value)}>
-                          <Check
+                          <CheckIcon
                             className={cn(
                               'size-4',
                               selected.includes(option.value) ? 'opacity-100' : 'opacity-0',
@@ -125,7 +125,7 @@ export function MultiSelectField<TValues extends RHF.FieldValues, TName extends 
                         onClick={() => toggle(o.value)}
                         aria-label={`Remove ${o.label}`}
                       >
-                        <X className="size-3" />
+                        <XIcon className="size-3" />
                       </button>
                     </span>
                   ))}

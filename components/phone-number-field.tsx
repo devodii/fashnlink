@@ -5,7 +5,7 @@ import { type TCountryCode, getCountryData } from 'countries-list';
 import { countries } from 'country-flag-icons';
 import * as CountryFlags from 'country-flag-icons/react/3x2';
 import { AsYouType, type CountryCode, parsePhoneNumberWithError } from 'libphonenumber-js';
-import { Check } from '@phosphor-icons/react/ssr';
+import { CheckIcon } from '@phosphor-icons/react/ssr';
 import { z } from 'zod';
 import { cn } from 'cn';
 import { Button } from '@/components/ui/button';
@@ -212,7 +212,7 @@ export function PhoneNumberField({
                       {country.prefix}
                     </span>
                     {value.countryCode === country.countryCode && (
-                      <Check className="ml-auto size-4" />
+                      <CheckIcon className="ml-auto size-4" />
                     )}
                   </CommandItem>
                 ))}

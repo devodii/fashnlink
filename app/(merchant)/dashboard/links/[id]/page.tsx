@@ -13,7 +13,7 @@ import { PhoneFrame } from '@/components/phone-frame';
 import { StatusBadge } from '@/components/status-badge';
 import { MediaGrid } from '@/components/media-grid';
 import { EmptyState } from '@/components/empty-state';
-import { Image } from '@phosphor-icons/react/ssr';
+import { ImageIcon } from '@phosphor-icons/react/ssr';
 import { PauseArchiveButtons, GarmentCategoryField } from './link-actions';
 
 const RENDER_STATUS_MAP = {
@@ -83,7 +83,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
                   aspect: '3/4' as const,
                 }))}
                 columns={{ base: 3 }}
-                emptyState={<EmptyState icon={Image} title="No images" />}
+                emptyState={<EmptyState icon={ImageIcon} title="No images" />}
               />
             </>
           )}
@@ -95,7 +95,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
         description="Shopper renders are private — thumbnails only, never downloadable."
       >
         {linkRenders.length === 0 ? (
-          <EmptyState icon={Image} title="No renders yet" />
+          <EmptyState icon={ImageIcon} title="No renders yet" />
         ) : (
           <div className="divide-y divide-border rounded-md border border-border">
             {linkRenders.map((r) => (

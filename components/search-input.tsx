@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { MagnifyingGlass, X } from '@phosphor-icons/react/ssr';
+import { MagnifyingGlassIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { Input } from '@/components/ui/input';
 
 export interface SearchInputProps {
@@ -35,7 +35,7 @@ export function SearchInput({
 
   return (
     <div className={cn('relative', className)}>
-      <MagnifyingGlass className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+      <MagnifyingGlassIcon className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
@@ -49,7 +49,7 @@ export function SearchInput({
           aria-label="Clear"
           className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
         >
-          <X className="size-4" />
+          <XIcon className="size-4" />
         </button>
       )}
     </div>

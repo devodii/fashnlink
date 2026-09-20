@@ -4,7 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
-import { Users, Download } from '@phosphor-icons/react/ssr';
+import { UsersIcon, DownloadIcon } from '@phosphor-icons/react/ssr';
 
 type LeadRow = {
   email: string;
@@ -57,7 +57,7 @@ export function LeadsTable({ rows }: { rows: LeadRow[] }) {
           onClick={() => downloadCsv(rows)}
           disabled={rows.length === 0}
         >
-          <Download className="size-4" />
+          <DownloadIcon className="size-4" />
           Export CSV
         </Button>
       </div>
@@ -65,7 +65,7 @@ export function LeadsTable({ rows }: { rows: LeadRow[] }) {
         columns={columns}
         data={rows}
         getRowId={(row) => `${row.email}:${row.productTitle}`}
-        emptyState={<EmptyState icon={Users} title="No leads yet" />}
+        emptyState={<EmptyState icon={UsersIcon} title="No leads yet" />}
         mobileCard={(row) => (
           <div className="space-y-1 rounded-md border border-border p-3 text-sm">
             <p className="font-medium text-foreground">{row.email}</p>

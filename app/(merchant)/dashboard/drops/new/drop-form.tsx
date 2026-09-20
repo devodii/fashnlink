@@ -8,7 +8,7 @@ import { LoadingButton } from '@/components/loading-button';
 import { InlineAlert } from '@/components/inline-alert';
 import { StatCard } from '@/components/stat-card';
 import { EmptyState } from '@/components/empty-state';
-import { Package } from '@phosphor-icons/react/ssr';
+import { PackageIcon } from '@phosphor-icons/react/ssr';
 import { MAX_DROP_PRODUCTS } from '@/config/limits';
 
 type Estimate = { audienceCount: number; itemCount: number; estimatedCredits: number };
@@ -71,7 +71,7 @@ export function DropForm({ products }: { products: { id: string; title: string }
   if (products.length === 0) {
     return (
       <EmptyState
-        icon={Package}
+        icon={PackageIcon}
         title="No eligible products yet"
         description="Products need a usable try-on image before they can be part of a drop."
       />

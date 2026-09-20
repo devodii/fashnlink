@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { CaretLeft, CaretRight } from '@phosphor-icons/react/ssr';
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react/ssr';
 import { Button } from '@/components/ui/button';
 
 export interface PaginationProps {
@@ -24,7 +24,7 @@ export function Pagination({ pageIndex, pageCount, onPageChange, className }: Pa
         onClick={() => onPageChange(pageIndex - 1)}
         disabled={pageIndex <= 0}
       >
-        <CaretLeft className="size-4" />
+        <CaretLeftIcon className="size-4" />
       </Button>
       <div className="hidden items-center gap-1 sm:flex">
         {pages.map((p, i) => (
@@ -53,7 +53,7 @@ export function Pagination({ pageIndex, pageCount, onPageChange, className }: Pa
         onClick={() => onPageChange(pageIndex + 1)}
         disabled={pageIndex >= pageCount - 1}
       >
-        <CaretRight className="size-4" />
+        <CaretRightIcon className="size-4" />
       </Button>
     </div>
   );

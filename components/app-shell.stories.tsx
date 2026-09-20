@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Package, ShoppingBag } from '@phosphor-icons/react/ssr';
+import { PackageIcon, ShoppingBagIcon } from '@phosphor-icons/react/ssr';
 import { AppShell, type NavItem } from './app-shell';
 
 const NAV: NavItem[] = [
-  { label: 'Dashboard', href: '#dashboard', icon: ShoppingBag, active: true },
-  { label: 'Products', href: '#products', icon: Package },
+  { label: 'Dashboard', href: '#dashboard', icon: ShoppingBagIcon, active: true },
+  { label: 'Products', href: '#products', icon: PackageIcon },
 ];
 
 const meta: Meta<typeof AppShell> = {

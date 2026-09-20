@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { CaretRight } from '@phosphor-icons/react/ssr';
+import { CaretRightIcon } from '@phosphor-icons/react/ssr';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Breadcrumb {
@@ -49,7 +49,7 @@ export function PageHeader({
         >
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={crumb.label}>
-              {i > 0 && <CaretRight className="size-3.5" />}
+              {i > 0 && <CaretRightIcon className="size-3.5" />}
               {crumb.href ? (
                 <a href={crumb.href} className="hover:text-foreground">
                   {crumb.label}

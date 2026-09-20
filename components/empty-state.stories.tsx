@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Package } from '@phosphor-icons/react/ssr';
+import { PackageIcon } from '@phosphor-icons/react/ssr';
 import { EmptyState } from './empty-state';
 import { Button } from './ui/button';
 
@@ -7,7 +7,7 @@ const meta: Meta<typeof EmptyState> = {
   component: EmptyState,
   title: 'components/EmptyState',
   tags: ['ai-generated'],
-  args: { icon: Package, title: 'No products yet' },
+  args: { icon: PackageIcon, title: 'No products yet' },
 };
 export default meta;
 

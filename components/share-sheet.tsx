@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Copy, Download, ChatCircle, Share } from '@phosphor-icons/react/ssr';
+import { CopyIcon, DownloadIcon, ChatCircleIcon, ShareIcon } from '@phosphor-icons/react/ssr';
 import { useCopy } from '@/hooks/use-copy';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
@@ -80,7 +80,7 @@ export function ShareSheet({
       <span onClick={handleOpen}>
         {trigger ?? (
           <Button type="button">
-            <Share className="size-4" /> Share
+            <ShareIcon className="size-4" /> Share
           </Button>
         )}
       </span>
@@ -93,12 +93,12 @@ export function ShareSheet({
               onClick={() => handleChannel(channel)}
               className="justify-start"
             >
-              {channel === 'copy' && <Copy className="size-4" />}
-              {channel === 'download' && <Download className="size-4" />}
+              {channel === 'copy' && <CopyIcon className="size-4" />}
+              {channel === 'download' && <DownloadIcon className="size-4" />}
               {(channel === 'whatsapp' || channel === 'instagram') && (
-                <ChatCircle className="size-4" />
+                <ChatCircleIcon className="size-4" />
               )}
-              {channel === 'x' && <Share className="size-4" />}
+              {channel === 'x' && <ShareIcon className="size-4" />}
               {CHANNEL_LABEL[channel]}
             </Button>
           ))}

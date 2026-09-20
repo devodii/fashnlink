@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check } from '@phosphor-icons/react/ssr';
+import { CheckIcon } from '@phosphor-icons/react/ssr';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Pressable } from '@/components/motion/pressable';
 import { Presence } from '@/components/motion/presence';
@@ -51,7 +51,7 @@ export function ChipSelect({ options, value, onChange, className }: ChipSelectPr
                     transition={{ duration: reduceMotion ? 0 : 0.15 }}
                     className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground"
                   >
-                    <Check className="size-2.5" />
+                    <CheckIcon className="size-2.5" />
                   </motion.span>
                 )}
               </Presence>

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Funnel } from '@phosphor-icons/react/ssr';
+import { FunnelIcon } from '@phosphor-icons/react/ssr';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -152,7 +152,7 @@ export function FilterBar({ filters, value, onChange, className }: FilterBarProp
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)} className={className}>
-        <Funnel className="size-3.5" />
+        <FunnelIcon className="size-3.5" />
         Filters{activeCount > 0 && ` (${activeCount})`}
       </Button>
       <ResponsiveDialog open={open} onOpenChange={setOpen} title="Filters">

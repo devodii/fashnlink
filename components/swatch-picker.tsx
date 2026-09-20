@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check } from '@phosphor-icons/react/ssr';
+import { CheckIcon } from '@phosphor-icons/react/ssr';
 
 export interface SwatchOption {
   id: string;
@@ -33,7 +33,7 @@ export function SwatchPicker({ options, value, onChange, className }: SwatchPick
           )}
           style={{ backgroundColor: `var(--${option.token})` }}
         >
-          {value === option.id && <Check className="size-4 text-primary-foreground" />}
+          {value === option.id && <CheckIcon className="size-4 text-primary-foreground" />}
         </button>
       ))}
     </div>

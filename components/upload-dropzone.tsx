@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { ImageIcon, ArrowUpIcon, WarningIcon, X } from '@phosphor-icons/react/ssr';
+import { ImageIcon, ArrowUpIcon, WarningIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { Spinner } from '@/components/spinner';
 import { useUploadThing } from '@/lib/uploadthing-client';
 
@@ -135,7 +135,7 @@ export function UploadDropzone({
                 }}
                 className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm"
               >
-                <X className="size-4" />
+                <XIcon className="size-4" />
               </span>
             )}
           </>

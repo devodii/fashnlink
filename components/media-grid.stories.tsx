@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Package } from '@phosphor-icons/react/ssr';
+import { PackageIcon } from '@phosphor-icons/react/ssr';
 import { MediaGrid } from './media-grid';
 import { EmptyState } from './empty-state';
 
@@ -25,7 +25,7 @@ export const Default: Story = {
 export const Empty: Story = {
   args: {
     items: [],
-    emptyState: <EmptyState icon={Package} title="No products yet" />,
+    emptyState: <EmptyState icon={PackageIcon} title="No products yet" />,
   },
 };
 

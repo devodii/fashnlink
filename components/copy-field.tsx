@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check, Copy } from '@phosphor-icons/react/ssr';
+import { CheckIcon, CopyIcon } from '@phosphor-icons/react/ssr';
 import { useCopy } from '@/hooks/use-copy';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +38,7 @@ export function CopyField({ value, label, truncate, className }: CopyFieldProps)
           onClick={() => copy(value)}
           aria-label="Copy"
         >
-          {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+          {copied ? <CheckIcon className="size-4" /> : <CopyIcon className="size-4" />}
         </Button>
       </div>
     </div>

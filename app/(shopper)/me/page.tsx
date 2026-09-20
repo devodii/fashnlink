@@ -4,7 +4,7 @@ import { links, merchants, products, renders, retargetOptins, shoppers, twins } 
 import { readShopperId } from '@/modules/shoppers';
 import { Container } from '@/components/container';
 import { EmptyState } from '@/components/empty-state';
-import { Images } from '@phosphor-icons/react/ssr';
+import { ImagesIcon } from '@phosphor-icons/react/ssr';
 import { Closet } from './closet';
 import { RetargetOptins } from './retarget-optins';
 
@@ -15,7 +15,7 @@ export default async function ClosetPage() {
     return (
       <Container size="sm" className="flex flex-1 items-center justify-center py-16">
         <EmptyState
-          icon={Images}
+          icon={ImagesIcon}
           title="Nothing here yet"
           description="Try something on from a shop's link and it'll show up here."
         />
