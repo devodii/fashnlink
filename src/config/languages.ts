@@ -42,7 +42,3 @@ export const LANGUAGES: Language[] = [
 ];
 
 export const SOURCE_LANGUAGE_CODE = 'en';
-
-export function getLanguage(code: string): Language | undefined {
-  return LANGUAGES.find((l) => l.code === code);
-}
