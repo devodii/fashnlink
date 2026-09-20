@@ -25,7 +25,7 @@ import { assessWearability } from './wearable-gate';
 import { enrichProduct } from './enrich';
 import { WEARABLE_TYPE_CATEGORY } from '@/config/wearable-rules';
 import { buildStoreFingerprint } from './detect';
-import type { NormalizedProduct, ScrapeResult } from './schema';
+import type { ScrapeResult } from './schema';
 import type { HomepageProbe, ScraperAdapter } from './types';
 
 export const scraperRegistry = new ScraperRegistry([
@@ -236,6 +236,3 @@ export async function scrapeUrl(
     timings,
   });
 }
-
-export { scraperRegistry as registry };
-export type { NormalizedProduct, ScrapeResult };
