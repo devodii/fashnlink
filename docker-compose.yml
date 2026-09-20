@@ -21,5 +21,36 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    ports:
+      - '6389:6379'
+    volumes:
+      - fashnlink_redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis-http:
+    # @upstash/redis only speaks Upstash's HTTP REST API, not the raw Redis
+    # protocol; this proxy (tested nightly against @upstash/redis upstream)
+    # fronts the plain `redis` service above with that same REST contract, so
+    # the app's one Redis client works unchanged in dev and prod.
+    image: hiett/serverless-redis-http:latest
+    restart: unless-stopped
+    ports:
+      - '8079:80'
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: dev-local-redis-token
+      SRH_CONNECTION_STRING: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
   fashnlink_postgres_data:
+  fashnlink_redis_data:
