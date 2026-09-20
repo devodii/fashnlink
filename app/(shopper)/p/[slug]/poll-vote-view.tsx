@@ -50,10 +50,10 @@ export function PollVoteView({
     if (closed || myVote) return;
     setMyVote(renderId);
     setVotes((prev) => ({ ...prev, [renderId]: (prev[renderId] ?? 0) + 1 }));
-    await fetch(`/api/polls/${linkId}/vote`, {
+    await fetch(`/api/polls/${linkId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ renderId }),
+      body: JSON.stringify({ action: 'vote', renderId }),
     }).catch(() => {});
   }
 
