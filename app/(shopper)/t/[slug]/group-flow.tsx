@@ -11,6 +11,8 @@ import { UploadDropzone } from '@/components/upload-dropzone';
 import { VariantPicker, type VariantOption } from '@/components/variant-picker';
 import { AvatarStack } from '@/components/avatar-stack';
 import { Container } from '@/components/container';
+import { LanguagePicker } from '@/components/language-picker';
+import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useShopperTwin, type ShopperTwin } from '../../use-shopper-twin';
 
@@ -121,6 +123,10 @@ export function GroupFlow({
 
   return (
     <Container size="sm" className="flex flex-1 flex-col gap-4 py-6 pb-10">
+      <div className="flex justify-end">
+        <LanguagePicker compact />
+      </div>
+      <LanguageSuggestBanner />
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">{merchantName}</p>
         <h1 className="text-lg font-medium text-foreground">{groupName}</h1>
