@@ -7,7 +7,7 @@ import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
 import { submitRender } from '@/modules/render/submit';
-import { accrueClaimIfUnowned } from '@/db/repos/claims';
+import { createClaim } from '@/actions/claims';
 
 const bodySchema = z.object({
   linkId: z.string().min(1),
@@ -110,7 +110,7 @@ export const POST = apiHandler({
     );
     if (!submission.ok) return submission;
 
-    accrueClaimIfUnowned(product.id).catch((cause) =>
+    createClaim(product.id).catch((cause) =>
       log.warn({ cause }, 'failed to accrue claim for unowned store'),
     );
 

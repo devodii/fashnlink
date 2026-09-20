@@ -2,11 +2,7 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { stores } from '@/db/schema';
-import {
-  findClaimsForStore,
-  totalClaimRenderCount,
-  CLAIM_VISIBLE_THRESHOLD,
-} from '@/db/repos/claims';
+import { readClaim, CLAIM_VISIBLE_THRESHOLD } from '@/actions/claims';
 import { Container } from '@/components/container';
 import { ClaimButton } from './claim-button';
 
@@ -17,10 +13,10 @@ export default async function ClaimPage({ params }: { params: Promise<{ storeId:
   if (!store) notFound();
   if (store.merchantId) notFound();
 
-  const totalRenders = await totalClaimRenderCount(storeId);
+  const totalRenders = await readClaim({ storeId, totalOnly: true });
   if (totalRenders < CLAIM_VISIBLE_THRESHOLD) notFound();
 
-  const claimRows = await findClaimsForStore(storeId);
+  const claimRows = await readClaim({ storeId });
 
   return (
     <Container size="sm" className="flex-1 space-y-6 py-16 text-center">

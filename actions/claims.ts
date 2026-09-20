@@ -3,7 +3,9 @@ import { db } from '@/db';
 import { claims, products, stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
 
-export async function accrueClaimIfUnowned(productId: string): Promise<void> {
+export const CLAIM_VISIBLE_THRESHOLD = 3;
+
+export async function createClaim(productId: string): Promise<void> {
   const [row] = await db
     .select({ storeId: stores.id, merchantId: stores.merchantId })
     .from(products)
@@ -34,21 +36,24 @@ export async function accrueClaimIfUnowned(productId: string): Promise<void> {
   });
 }
 
-const CLAIM_VISIBLE_THRESHOLD = 3;
-
-export async function findClaimsForStore(storeId: string) {
+export async function readClaim(params: { storeId: string; totalOnly: true }): Promise<number>;
+export async function readClaim(params: {
+  storeId: string;
+}): Promise<{ claim: typeof claims.$inferSelect; productTitle: string }[]>;
+export async function readClaim(params: {
+  storeId: string;
+  totalOnly?: boolean;
+}): Promise<unknown> {
   const rows = await db
     .select({ claim: claims, productTitle: products.title })
     .from(claims)
     .innerJoin(products, eq(products.id, claims.productId))
-    .where(eq(claims.storeId, storeId))
+    .where(eq(claims.storeId, params.storeId))
     .orderBy(desc(claims.renderCount));
+
+  if (params.totalOnly) return rows.reduce((sum, r) => sum + r.claim.renderCount, 0);
   return rows;
 }
 
-export async function totalClaimRenderCount(storeId: string): Promise<number> {
-  const rows = await findClaimsForStore(storeId);
-  return rows.reduce((sum, r) => sum + r.claim.renderCount, 0);
-}
-
-export { CLAIM_VISIBLE_THRESHOLD };
+// claims table has no update/delete verb used anywhere in the app beyond
+// the increment folded into createClaim above, so no updateClaim/deleteClaim.
