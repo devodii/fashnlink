@@ -10,6 +10,7 @@ Flat, generic, reusable — no feature-scoped folders (section 1/14 of the build
 - **Section** — `{ title?, description?, aside? }`. Vertical rhythm owner; pages are stacks of these. `<Section title="Recent links">…</Section>`
 - **SplitPane** — `{ ratio?: '1:1'|'1:2'|'2:1', start, end }`. Two columns, stacks on mobile. `<SplitPane start={<A/>} end={<B/>} />`
 - **ResponsiveDialog** — `{ open, onOpenChange, title, description?, footer?, trigger?, children }`. Dialog on `md+`, Drawer on mobile — every modal in the app. `<ResponsiveDialog title="Confirm" ...>…</ResponsiveDialog>`
+- **AuthShowcasePanel** — `{ className? }`. The right-hand panel on `/login`; a `PhoneFrame` cycling between two illustrative screens via `Reveal`. `<AuthShowcasePanel className="hidden md:flex" />`
 
 ## Data display
 
@@ -83,6 +84,3 @@ Every primitive reads `useReducedMotion` and collapses to an instant state — n
 
 Section 10.7 — cookie-driven Google Translate widget, driven entirely by `LanguagePicker`/`LanguageSuggestBanner`, never Google's own UI (hidden globally in `app/globals.css`). `TranslateProvider` is mounted once in `app/layout.tsx`; it lazy-loads the widget script only when the `googtrans` cookie is already set, and contains the one class-component error boundary in the codebase (a `removeChild` mitigation). Cookie/localStorage helpers live in `src/lib/google-translate.ts`; the supported-language list and per-language suggest copy in `src/config/languages.ts`.
 
-## Dev-only
-
-- **`app/dev/components/page.tsx`** — a Server Component gate (`notFound()` outside development); the actual gallery is `DevComponentsGallery` in `components/dev-components-gallery.tsx` so the 404 works (a `'use client'` module can't gate itself).
