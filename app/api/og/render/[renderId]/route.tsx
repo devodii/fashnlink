@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { links, merchants, products, renders } from '@/db/schema';
-import { env } from '@/lib/env';
+import { publicUrl } from '@/lib/env';
 import { formatPriceCents } from '@/lib/format';
 import { err } from '@/lib/result';
 
@@ -43,7 +43,7 @@ export const GET = apiHandler({
 
     const { width, height } = SIZES[query.format];
     const panelHeight = Math.round(height / 3);
-    const shortUrl = `${env.NEXT_PUBLIC_APP_URL.replace(/^https?:\/\//, '')}/r/${params.renderId}`;
+    const shortUrl = `${publicUrl.replace(/^https?:\/\//, '')}/r/${params.renderId}`;
     const price = formatPriceCents(row.priceCents, row.currency);
 
     return new ImageResponse(

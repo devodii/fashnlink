@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { links, merchants, products, renders } from '@/db/schema';
-import { env } from '@/lib/env';
+import { publicUrl } from '@/lib/env';
 import { formatPriceCents } from '@/lib/format';
 import { Container } from '@/components/container';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,7 @@ export async function generateMetadata({
   const row = await loadRender(renderId);
   if (!row || !row.outputUrl || !row.isPublic) return {};
 
-  const ogUrl = `${env.NEXT_PUBLIC_APP_URL}/api/og/render/${renderId}?format=link`;
+  const ogUrl = `${publicUrl}/api/og/render/${renderId}?format=link`;
   const title = `${row.productTitle} — See it on you`;
   return {
     title,

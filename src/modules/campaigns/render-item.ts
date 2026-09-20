@@ -9,7 +9,7 @@ import { submitWithRouting } from '@/modules/render';
 import type { RenderInput } from '@/modules/render/types';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
-import { env } from '@/lib/env';
+import { env, publicUrl } from '@/lib/env';
 import { checkCampaignHealth } from './finalize';
 
 const payloadSchema = z.object({ campaignItemId: z.string() });
@@ -113,7 +113,7 @@ registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>>
     category: product.garmentCategory,
     garmentPhotoType,
   };
-  const webhookUrl = `${env.NEXT_PUBLIC_APP_URL}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
+  const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
 
   const submission = await submitWithRouting(product.garmentCategory, renderInput, webhookUrl, ctx);
   if (!submission.ok) {

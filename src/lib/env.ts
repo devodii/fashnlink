@@ -28,6 +28,7 @@ const prodOnlyRequired = z.object({
 
 const optional = z.object({
   NEXT_PUBLIC_APP_URL: z.string().default('http://localhost:3000'),
+  TUNNEL_URL: z.string().optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL_UNPOOLED: z.string().optional(),
   BETTER_AUTH_URL: z.string().default('http://localhost:3000'),
@@ -71,3 +72,10 @@ function loadEnv() {
 
 export const env = loadEnv();
 export type Env = typeof env;
+
+/**
+ * TUNNEL_URL overrides NEXT_PUBLIC_APP_URL wherever a URL must be reachable
+ * from outside localhost — fal webhook callbacks, OG image crawlers — so
+ * local dev behind ngrok (or similar) actually receives those calls back.
+ */
+export const publicUrl = env.TUNNEL_URL || env.NEXT_PUBLIC_APP_URL;

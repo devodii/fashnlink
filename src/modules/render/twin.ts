@@ -7,7 +7,7 @@ import { newId } from '@/lib/ids';
 import { err, ok, type Result } from '@/lib/result';
 import type { Ctx } from '@/lib/adapter';
 import { openai } from '@/lib/openai';
-import { env } from '@/lib/env';
+import { env, publicUrl } from '@/lib/env';
 import { deleteObject } from '@/modules/storage';
 import {
   TWIN_BACKGROUND_CLEANUP,
@@ -100,7 +100,7 @@ export async function createTwin(
   const prompt = classification.value.is_full_body
     ? TWIN_BACKGROUND_CLEANUP
     : TWIN_STUDIO_GENERATION;
-  const webhookUrl = `${env.NEXT_PUBLIC_APP_URL}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=twin&id=${twinId}`;
+  const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=twin&id=${twinId}`;
 
   const submission = await submitNanoBananaEdit(prompt, [input.selfieUrl], webhookUrl, ctx);
   if (!submission.ok) {

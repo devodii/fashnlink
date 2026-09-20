@@ -3,7 +3,7 @@ import { db } from '@/db';
 import { renders } from '@/db/schema';
 import { err, ok, type Result } from '@/lib/result';
 import type { Ctx } from '@/lib/adapter';
-import { env } from '@/lib/env';
+import { env, publicUrl } from '@/lib/env';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import { RENDERS_PER_LINK_SHOPPER_PER_DAY } from '@/config/limits';
 import type { GarmentCategory } from '@/modules/scraper/types';
@@ -38,7 +38,7 @@ export async function submitRender(
   if (!reservation.ok) return reservation;
 
   const { renderId } = reservation.value;
-  const webhookUrl = `${env.NEXT_PUBLIC_APP_URL}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
+  const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
 
   const renderInput: RenderInput = {
     twinUrl: input.twinUrl,
