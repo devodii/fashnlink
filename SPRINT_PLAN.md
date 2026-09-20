@@ -2,7 +2,13 @@
 
 Working list for the final pre-launch pass. Items get struck through as they land, each as its own atomic commit.
 
-Note on item 3 (re-audit against the original build spec): the original pasted spec text is not saved anywhere in this repo or in my memory of this session, only milestone/module references. I am auditing against what the actual codebase demonstrates (scraper adapters, render providers, DB schema, milestone folder structure) rather than a literal text diff, since I cannot recover the original wording. Flagging this so it is not mistaken for a full line-by-line spec check.
+## 3. Re-audit against the original build spec
+
+The original pasted spec text is not saved anywhere in this repo or in my memory of this session, only milestone/module references, so this is not a literal line-by-line diff, I cannot recover the exact original wording. Verified the concrete, checkable claims instead:
+- [x] 11 named scraper platform adapters (`src/modules/scraper/adapters/`): bigcartel, bigcommerce, gumroad, lemonsqueezy, magento, prestashop, salesforce, shopify, squarespace, wix, woocommerce, plus `generic.ts` and `manual.ts` as fallbacks (not counted as named platforms). Matches "11 platforms" exactly.
+- [x] 28-table schema: 24 app tables in `src/db/schema.ts` + 4 auth tables in `src/db/auth-schema.ts` (user, session, account, verification) = 28.
+- [x] Render engine with provider fallback: 3 providers (`fashn`, `nano_banana`, `openai_image`) routed with fallback in `src/config/models.ts` (Kling was intentionally dropped earlier this session, deprecated upstream).
+- [x] Viral growth mechanics all present and wired: poll links, group links, the claim flow, retargeting/ESP push, share sheet.
 
 ## 1. Theme migration (new design system, light + dark)
 - [x] Replace `app/globals.css` tokens with the provided oklch design system (background, card, popover, primary, secondary, muted, accent, destructive, border, input, ring, chart-1..5, sidebar-*, shadows, radius, tracking, Outfit font)
