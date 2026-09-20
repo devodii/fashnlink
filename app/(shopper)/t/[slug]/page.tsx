@@ -1,8 +1,9 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { links, merchants, productImages, productVariants, products, twins } from '@/db/schema';
+import { links, merchants, productImages, productVariants, products } from '@/db/schema';
 import { readShopperId } from '@/modules/shoppers';
+import { retrieveTwins } from '@/actions/twins';
 import type { MerchantSettings } from '@/actions/merchants';
 import { TryOnFlow } from './try-on-flow';
 import { PollFlow } from './poll-flow';
@@ -29,14 +30,11 @@ export default async function LinkPage({
   const settings = (merchant?.settings ?? {}) as MerchantSettings;
 
   const shopperId = await readShopperId();
-  const defaultTwin = shopperId
-    ? await db
-        .select({ id: twins.id, status: twins.status, twinUrl: twins.twinUrl })
-        .from(twins)
-        .where(and(eq(twins.shopperId, shopperId), eq(twins.isDefault, true)))
-        .orderBy(desc(twins.createdAt))
-        .limit(1)
-        .then((rows) => rows[0] ?? null)
+  const [resolvedTwin] = shopperId
+    ? await retrieveTwins({ shopperIds: [shopperId], isDefault: true })
+    : [];
+  const defaultTwin = resolvedTwin
+    ? { id: resolvedTwin.id, status: resolvedTwin.status, twinUrl: resolvedTwin.twinUrl }
     : null;
 
   if (link.kind === 'poll') {

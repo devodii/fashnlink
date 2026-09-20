@@ -1,7 +1,8 @@
 import { and, desc, eq, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { links, merchants, products, renders, retargetOptins, shoppers, twins } from '@/db/schema';
+import { links, merchants, products, renders, retargetOptins, shoppers } from '@/db/schema';
 import { readShopperId } from '@/modules/shoppers';
+import { retrieveTwins } from '@/actions/twins';
 import { Container } from '@/components/container';
 import { EmptyState } from '@/components/empty-state';
 import { ImagesIcon } from '@phosphor-icons/react/ssr';
@@ -40,10 +41,11 @@ export default async function ClosetPage() {
     .where(eq(renders.shopperId, shopperId))
     .orderBy(desc(renders.createdAt));
 
-  const shopperTwins = await db
-    .select({ id: twins.id, twinUrl: twins.twinUrl, isDefault: twins.isDefault })
-    .from(twins)
-    .where(eq(twins.shopperId, shopperId));
+  const shopperTwins = (await retrieveTwins({ shopperIds: [shopperId] })).map((twin) => ({
+    id: twin.id,
+    twinUrl: twin.twinUrl,
+    isDefault: twin.isDefault,
+  }));
 
   const [shopper] = await db
     .select({ email: shoppers.email })

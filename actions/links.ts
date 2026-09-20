@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { links, products } from '@/db/schema';

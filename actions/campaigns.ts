@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { and, count, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
 import { campaignItems, campaigns, retargetOptins, shoppers, twins } from '@/db/schema';

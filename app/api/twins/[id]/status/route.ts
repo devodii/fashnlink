@@ -1,9 +1,7 @@
 import { z } from 'zod';
-import { and, eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
-import { db } from '@/db';
-import { twins } from '@/db/schema';
 import { err, ok } from '@/lib/result';
+import { retrieveTwins } from '@/actions/twins';
 
 const paramsSchema = z.object({ id: z.string() });
 
@@ -13,14 +11,10 @@ export const GET = apiHandler({
   auth: ['shopper_session'],
   schema: { params: paramsSchema },
   handler: async ({ params, shopper }) => {
-    const [twin] = await db
-      .select({ status: twins.status, twinUrl: twins.twinUrl, isDefault: twins.isDefault })
-      .from(twins)
-      .where(and(eq(twins.id, params.id), eq(twins.shopperId, shopper.shopperId)))
-      .limit(1);
+    const [twin] = await retrieveTwins({ ids: [params.id], shopperIds: [shopper.shopperId] });
 
     if (!twin) return err({ code: 'NOT_FOUND', message: 'twin not found' });
 
-    return ok(twin);
+    return ok({ status: twin.status, twinUrl: twin.twinUrl, isDefault: twin.isDefault });
   },
 });

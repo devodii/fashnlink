@@ -6,7 +6,7 @@ import { shoppers } from '@/db/schema';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { ok } from '@/lib/result';
-import { createTwin } from '@/modules/render/twin';
+import { createTwins } from '@/actions/twins';
 
 const bodySchema = z.object({
   selfieKey: z.string().min(1),
@@ -30,8 +30,8 @@ export const POST = apiHandler({
     const log = childLogger(requestId, { route: 'twins.create', shopperId });
     const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };
 
-    const result = await createTwin(
-      { shopperId, selfieKey: body.selfieKey, selfieUrl: body.selfieUrl },
+    const [result] = await createTwins(
+      [{ shopperId, selfieKey: body.selfieKey, selfieUrl: body.selfieUrl }],
       ctx,
     );
     if (!result.ok) return result;

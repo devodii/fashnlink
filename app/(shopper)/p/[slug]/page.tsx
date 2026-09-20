@@ -1,8 +1,9 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { merchants, products, renders, twins } from '@/db/schema';
+import { merchants, products, renders } from '@/db/schema';
 import { retrieveLinks } from '@/actions/links';
+import { retrieveTwins } from '@/actions/twins';
 import { readShopperId } from '@/modules/shoppers';
 import { PollVoteView } from './poll-vote-view';
 
@@ -64,14 +65,15 @@ export default async function PollPage({
     .filter((o): o is NonNullable<typeof o> => !!o);
 
   const viewerShopperId = await readShopperId();
-  const viewerTwin = viewerShopperId
-    ? await db
-        .select({ id: twins.id, status: twins.status, twinUrl: twins.twinUrl })
-        .from(twins)
-        .where(and(eq(twins.shopperId, viewerShopperId), eq(twins.isDefault, true)))
-        .orderBy(desc(twins.createdAt))
-        .limit(1)
-        .then((rows) => rows[0] ?? null)
+  const [resolvedViewerTwin] = viewerShopperId
+    ? await retrieveTwins({ shopperIds: [viewerShopperId], isDefault: true })
+    : [];
+  const viewerTwin = resolvedViewerTwin
+    ? {
+        id: resolvedViewerTwin.id,
+        status: resolvedViewerTwin.status,
+        twinUrl: resolvedViewerTwin.twinUrl,
+      }
     : null;
 
   return (

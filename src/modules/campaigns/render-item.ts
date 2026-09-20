@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { campaignItems, campaigns, productImages, products, renders, twins } from '@/db/schema';
+import { campaignItems, campaigns, productImages, products, renders } from '@/db/schema';
+import { retrieveTwins } from '@/actions/twins';
 import { newId } from '@/lib/ids';
 import { err, ok, type Result } from '@/lib/result';
 import { registerJobHandler } from '@/modules/jobs/registry';
@@ -50,11 +51,7 @@ registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>>
     return ok(undefined);
   }
 
-  const [twin] = await db
-    .select({ id: twins.id, status: twins.status, twinUrl: twins.twinUrl })
-    .from(twins)
-    .where(and(eq(twins.shopperId, item.shopperId), eq(twins.isDefault, true)))
-    .limit(1);
+  const [twin] = await retrieveTwins({ shopperIds: [item.shopperId], isDefault: true });
   if (!twin || twin.status !== 'ready' || !twin.twinUrl) {
     await skipItem(item.id, 'shopper twin no longer ready');
     await checkCampaignHealth(item.campaignId);

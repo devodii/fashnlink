@@ -2,12 +2,13 @@ import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
-import { links, productImages, products, twins } from '@/db/schema';
+import { links, productImages, products } from '@/db/schema';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
 import { submitRender } from '@/modules/render/submit';
 import { createClaims } from '@/actions/claims';
+import { retrieveTwins } from '@/actions/twins';
 
 const bodySchema = z.object({
   linkId: z.string().min(1),
@@ -72,11 +73,7 @@ export const POST = apiHandler({
       return err({ code: 'INVALID_INPUT', message: 'product has no usable try-on image' });
     }
 
-    const [twin] = await db
-      .select({ status: twins.status, twinUrl: twins.twinUrl })
-      .from(twins)
-      .where(and(eq(twins.id, body.twinId), eq(twins.shopperId, shopperId)))
-      .limit(1);
+    const [twin] = await retrieveTwins({ ids: [body.twinId], shopperIds: [shopperId] });
     if (!twin) return err({ code: 'NOT_FOUND', message: 'twin not found' });
     if (twin.status !== 'ready' || !twin.twinUrl) {
       return err({ code: 'INVALID_INPUT', message: 'twin is not ready yet' });

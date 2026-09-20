@@ -4,7 +4,8 @@ import sharp from 'sharp';
 import { apiHandler } from '@/lib/api-handler';
 import { env } from '@/lib/env';
 import { db } from '@/db';
-import { campaignItems, campaigns, links, merchants, renders, twins } from '@/db/schema';
+import { campaignItems, campaigns, links, merchants, renders } from '@/db/schema';
+import { retrieveTwins, updateTwins } from '@/actions/twins';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
@@ -37,7 +38,7 @@ export const POST = apiHandler({
     const body = await req.json().catch(() => null);
 
     if (query.kind === 'twin') {
-      const [twin] = await db.select().from(twins).where(eq(twins.id, query.id)).limit(1);
+      const [twin] = await retrieveTwins({ ids: [query.id] });
       if (!twin || !twin.provider) {
         return err({ code: 'NOT_FOUND', message: 'twin not found' });
       }
@@ -54,7 +55,7 @@ export const POST = apiHandler({
       if (!parsed.ok) return parsed;
 
       if (parsed.value.status === 'failed' || !parsed.value.imageUrl) {
-        await db.update(twins).set({ status: 'failed' }).where(eq(twins.id, twin.id));
+        await updateTwins([twin.id], { status: 'failed' });
         log.warn({ error: parsed.value.error }, 'twin generation failed');
         return ok({ handled: true });
       }
@@ -64,10 +65,11 @@ export const POST = apiHandler({
       const key = `twins/${twin.shopperId}/${twin.id}.png`;
       const uploaded = await putObject(key, bytes, 'image/png');
 
-      await db
-        .update(twins)
-        .set({ status: 'ready', twinR2Key: uploaded.key, twinUrl: uploaded.url })
-        .where(eq(twins.id, twin.id));
+      await updateTwins([twin.id], {
+        status: 'ready',
+        twinR2Key: uploaded.key,
+        twinUrl: uploaded.url,
+      });
 
       return ok({ handled: true });
     }
