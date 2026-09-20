@@ -39,7 +39,14 @@ Note on item 3 (re-audit against the original build spec): the original pasted s
 - [ ] Flag anything actually wrong (not stylistic) as its own commit with the fix
 
 ## 7. Duplication and generics sweep
-- [ ] Find repeated logic/shapes across the codebase (form field patterns, repo query patterns, etc.) and factor out with generics where it genuinely simplifies, not for its own sake
+- [x] `apiHandler`: every `merchant_session`/`shopper_session` route called `requireMerchantSession(auth)`/`requireShopperSession(auth)` then checked `.ok` by hand. `HandlerConfig` is now generic over the declared auth scope, so the handler receives an already-narrowed `merchant`/`shopper` param directly. Core change + one migrated route landed in `0834e01`.
+- [ ] Migrate the remaining ~26 route files off `requireMerchantSession`/`requireShopperSession` to the new `merchant`/`shopper` handler param, then delete those two now-unused exports
+- [ ] Find other repeated logic/shapes across the codebase (form field patterns, repo query patterns, etc.) and factor out with generics where it genuinely simplifies, not for its own sake
+
+## 11. Server-rendering and loading-state audit
+- [ ] Confirm every page that can be a Server Component is one (no unnecessary `'use client'` at the page level)
+- [ ] Confirm every route segment has a `loading.tsx` shaped like that page's real content, not a generic spinner
+- [ ] Fill in any gaps found
 
 ## 8. Remove unused files and dead style
 - [ ] Sweep for files nothing imports, and unused CSS/utility classes
