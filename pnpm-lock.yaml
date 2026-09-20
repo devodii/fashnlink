@@ -50,12 +50,21 @@ importers:
       cn:
         specifier: ^0.3.0
         version: 0.3.0
+      countries-list:
+        specifier: ^3.4.1
+        version: 3.4.1
+      country-flag-icons:
+        specifier: ^1.6.20
+        version: 1.6.20
       drizzle-orm:
         specifier: ^0.45.2
         version: 0.45.2(@neondatabase/serverless@1.1.0)(@types/pg@8.23.1)(@upstash/redis@1.38.4)(kysely@0.29.6)(pg@8.23.0)
       framer-motion:
         specifier: ^13.4.0
         version: 13.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      libphonenumber-js:
+        specifier: ^1.13.13
+        version: 1.13.13
       lucide-react:
         specifier: ^1.47.0
         version: 1.47.0(react@19.2.8)
@@ -3493,6 +3502,12 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
+  countries-list@3.4.1:
+    resolution: {integrity: sha512-sKLGAZD5EAdzQwQ19vOp/9u33MTjmZ0CkdXPYtp/An6cyIlJ/E8TwGf2FcPe1AnzHO+h7nbTfoHyXIi58Hpa+Q==}
+
+  country-flag-icons@1.6.20:
+    resolution: {integrity: sha512-py8JiEKzjhYw6HPJ0L7SxLgCYim36UPRTZX43/kqGueUCZLSvnrqAiwW8HtQibur7mdkFQUkjOgdK+o/9FBtaw==}
+
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -4378,6 +4393,9 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  libphonenumber-js@1.13.13:
+    resolution: {integrity: sha512-hV6SmWnyQ8U1QXhhqbqYBHIStNnscG7A5XbGodgdHhf/8N5PwhYpJA5U/yHDjYwPYTd8uNGXqq416XctuvK2PA==}
 
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
@@ -8649,6 +8667,10 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
+  countries-list@3.4.1: {}
+
+  country-flag-icons@1.6.20: {}
+
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -9631,6 +9653,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libphonenumber-js@1.13.13: {}
 
   lightningcss-android-arm64@1.32.0:
     optional: true

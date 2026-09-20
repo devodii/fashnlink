@@ -8,6 +8,7 @@ import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
 import { UrlField } from '@/components/forms/url-field';
 import { TextField } from '@/components/forms/text-field';
+import { PhoneField } from '@/components/forms/phone-field';
 import { SegmentedField } from '@/components/forms/segmented-field';
 import { SwatchField } from '@/components/forms/swatch-field';
 import { LoadingButton } from '@/components/loading-button';
@@ -179,6 +180,7 @@ function BrandStep({
   const form = useZodForm<z.infer<typeof brandSchema>>(brandSchema, {
     defaultValues: { name: '', accentToken: '1', contactType: 'whatsapp', contactValue: '' },
   });
+  const contactType = form.watch('contactType');
 
   async function onSubmit(values: z.infer<typeof brandSchema>) {
     await fetch('/api/merchants/me', {
@@ -221,12 +223,16 @@ function BrandStep({
           { value: 'email', label: 'Email' },
         ]}
       />
-      <TextField
-        control={form.control}
-        name="contactValue"
-        label="Contact detail"
-        placeholder="+1..."
-      />
+      {contactType === 'whatsapp' ? (
+        <PhoneField control={form.control} name="contactValue" label="Contact detail" />
+      ) : (
+        <TextField
+          control={form.control}
+          name="contactValue"
+          label="Contact detail"
+          placeholder={contactType === 'instagram' ? '@yourstore' : 'you@yourstore.com'}
+        />
+      )}
 
       <LoadingButton type="submit" loading={form.formState.isSubmitting} className="w-full">
         Continue

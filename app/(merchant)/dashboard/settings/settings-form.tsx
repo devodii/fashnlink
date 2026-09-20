@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
 import { TextField } from '@/components/forms/text-field';
+import { PhoneField } from '@/components/forms/phone-field';
 import { SwatchField } from '@/components/forms/swatch-field';
 import { SegmentedField } from '@/components/forms/segmented-field';
 import { LoadingButton } from '@/components/loading-button';
@@ -46,6 +47,7 @@ export function SettingsForm({
   const [logo, setLogo] = React.useState<UploadedFile | null>(
     initial.logoUrl ? { url: initial.logoUrl, key: '', name: 'logo' } : null,
   );
+  const contactType = form.watch('contactType');
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -100,7 +102,16 @@ export function SettingsForm({
             { value: 'email', label: 'Email' },
           ]}
         />
-        <TextField control={form.control} name="contactValue" label="Contact detail" />
+        {contactType === 'whatsapp' ? (
+          <PhoneField control={form.control} name="contactValue" label="Contact detail" />
+        ) : (
+          <TextField
+            control={form.control}
+            name="contactValue"
+            label="Contact detail"
+            placeholder={contactType === 'instagram' ? '@yourstore' : 'you@yourstore.com'}
+          />
+        )}
 
         <LoadingButton type="submit" loading={form.formState.isSubmitting}>
           Save
