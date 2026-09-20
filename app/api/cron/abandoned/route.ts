@@ -1,4 +1,4 @@
-import { and, eq, gt, isNull, lt } from 'drizzle-orm';
+import { and, eq, gt, isNull, lt, sql } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
 import { db } from '@/db';
@@ -82,6 +82,8 @@ export const GET = apiHandler({
 
     for (const c of candidates) {
       if (!c.shopperEmail || !c.outputR2Key) continue;
+      const shopperEmail = c.shopperEmail;
+      const outputR2Key = c.outputR2Key;
 
       const [connection] = await db
         .select({ settings: espConnections.settings })
@@ -94,62 +96,80 @@ export const GET = apiHandler({
         continue;
       }
 
-      const [recent] = await db
-        .select({ id: cartEvents.id })
-        .from(cartEvents)
-        .where(
-          and(
-            eq(cartEvents.merchantId, c.merchantId),
-            eq(cartEvents.shopperId, c.shopperId),
-            eq(cartEvents.kind, 'tryon_no_buy'),
-            gt(cartEvents.occurredAt, capCutoff),
-          ),
-        )
-        .limit(1);
-      if (recent) {
-        skippedCapped++;
-        continue;
-      }
-
-      const signedUrl = await getSignedUrl(c.outputR2Key, SIGNED_URL_EXPIRY_SECONDS).catch(
+      const signedUrl = await getSignedUrl(outputR2Key, SIGNED_URL_EXPIRY_SECONDS).catch(
         () => c.outputUrl ?? '',
       );
 
-      const result = await pushToMerchantEsp(
-        c.merchantId,
-        {
-          op: 'event',
-          email: c.shopperEmail,
-          eventName: 'Tryon Abandoned',
-          properties: {
-            product_title: c.productTitle,
-            product_url: c.productUrl,
-            buy_url: c.buyUrl,
-            render_image_url: signedUrl,
-            render_expires_at: new Date(
-              Date.now() + SIGNED_URL_EXPIRY_SECONDS * 1000,
-            ).toISOString(),
-            variant_size: c.variantSize,
-            variant_color: c.variantColor,
-          },
-        },
-        { log, requestId, deadlineMs: Date.now() + 30_000, fetch: globalThis.fetch },
-      );
+      /**
+       * The dedupe check, the ESP push, and the audit-trail insert all run
+       * inside one transaction serialized per (merchant, shopper) with an
+       * advisory lock, otherwise two overlapping cron invocations (the
+       * previous run taking longer than the schedule interval) could both
+       * pass the "not recently pushed" check before either inserts, sending
+       * the same shopper a duplicate abandoned-cart nudge.
+       */
+      const pushResult = await db.transaction(async (tx) => {
+        await tx.execute(
+          sql`select pg_advisory_xact_lock(hashtext(${c.merchantId} || ':' || ${c.shopperId}))`,
+        );
 
-      if (!result.ok) {
-        if (result.error.code === 'NOT_FOUND') skippedNoEsp++;
-        else log.warn({ cause: result.error, renderId: c.renderId }, 'abandoned esp push failed');
+        const [recent] = await tx
+          .select({ id: cartEvents.id })
+          .from(cartEvents)
+          .where(
+            and(
+              eq(cartEvents.merchantId, c.merchantId),
+              eq(cartEvents.shopperId, c.shopperId),
+              eq(cartEvents.kind, 'tryon_no_buy'),
+              gt(cartEvents.occurredAt, capCutoff),
+            ),
+          )
+          .limit(1);
+        if (recent) return { outcome: 'capped' as const };
+
+        const result = await pushToMerchantEsp(
+          c.merchantId,
+          {
+            op: 'event',
+            email: shopperEmail,
+            eventName: 'Tryon Abandoned',
+            properties: {
+              product_title: c.productTitle,
+              product_url: c.productUrl,
+              buy_url: c.buyUrl,
+              render_image_url: signedUrl,
+              render_expires_at: new Date(
+                Date.now() + SIGNED_URL_EXPIRY_SECONDS * 1000,
+              ).toISOString(),
+              variant_size: c.variantSize,
+              variant_color: c.variantColor,
+            },
+          },
+          { log, requestId, deadlineMs: Date.now() + 30_000, fetch: globalThis.fetch },
+        );
+        if (!result.ok) return { outcome: 'failed' as const, error: result.error };
+
+        await tx.insert(cartEvents).values({
+          id: newId('cart'),
+          merchantId: c.merchantId,
+          shopperId: c.shopperId,
+          productId: c.productId,
+          renderId: c.renderId,
+          kind: 'tryon_no_buy',
+        });
+        return { outcome: 'pushed' as const };
+      });
+
+      if (pushResult.outcome === 'capped') {
+        skippedCapped++;
         continue;
       }
-
-      await db.insert(cartEvents).values({
-        id: newId('cart'),
-        merchantId: c.merchantId,
-        shopperId: c.shopperId,
-        productId: c.productId,
-        renderId: c.renderId,
-        kind: 'tryon_no_buy',
-      });
+      if (pushResult.outcome === 'failed') {
+        if (pushResult.error.code === 'NOT_FOUND') skippedNoEsp++;
+        else
+          log.warn({ cause: pushResult.error, renderId: c.renderId }, 'abandoned esp push failed');
+        continue;
+      }
       pushed++;
     }
 
