@@ -96,7 +96,7 @@ export function NewLinkForm() {
       {kind === 'poll' && (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Add 2 or 3 product URLs — shoppers try on all of them.
+            Add 2 or 3 product URLs so shoppers can try on all of them.
           </p>
           <div className="space-y-2">
             {pollUrls.map((url, i) => (

@@ -9,7 +9,7 @@ export default function TermsPage() {
         <h2 className="text-sm font-medium text-foreground">Who this is for</h2>
         <p className="text-sm text-muted-foreground">
           Merchants use this to let their shoppers try on products virtually. Shoppers use it to see
-          themselves in a product before they buy — free, with no account required.
+          themselves in a product before they buy: free, with no account required.
         </p>
       </section>
 

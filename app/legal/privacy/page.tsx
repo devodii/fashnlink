@@ -38,7 +38,7 @@ export default function PrivacyPage() {
         <h2 className="text-sm font-medium text-foreground">Merchants</h2>
         <p className="text-sm text-muted-foreground">
           A merchant can see that a render happened and, if you choose to leave your email, that
-          email — never your photo or your rendered image.
+          email, never your photo or your rendered image.
         </p>
       </section>
 

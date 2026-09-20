@@ -51,7 +51,7 @@ const columns: ColumnDef<ProductRow>[] = [
         <span className="text-sm text-muted-foreground">Ready</span>
       ) : (
         <InlineAlert tone="warning" className="w-fit py-1 text-xs">
-          No usable image — upload a clearer photo
+          No usable image, upload a clearer photo
         </InlineAlert>
       ),
   },

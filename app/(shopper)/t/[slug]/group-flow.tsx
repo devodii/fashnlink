@@ -112,7 +112,7 @@ export function GroupFlow({
       body: JSON.stringify({
         renderId,
         chosenVariantId: null,
-        note: [note, variantNote].filter(Boolean).join(' — ') || null,
+        note: [note, variantNote].filter(Boolean).join('; ') || null,
         showInGroup,
       }),
     }).catch(() => {});

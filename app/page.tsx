@@ -28,7 +28,7 @@ export default async function Home() {
             {
               step: '1',
               title: 'Paste',
-              body: 'Paste any product link — no theme install, no code.',
+              body: 'Paste any product link: no theme install, no code.',
             },
             {
               step: '2',

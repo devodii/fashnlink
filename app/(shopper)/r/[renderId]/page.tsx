@@ -39,7 +39,7 @@ export async function generateMetadata({
   if (!row || !row.outputUrl || !row.isPublic) return {};
 
   const ogUrl = `${publicUrl}/api/og/render/${renderId}?format=link`;
-  const title = `${row.productTitle} — See it on you`;
+  const title = `${row.productTitle}: See it on you`;
   return {
     title,
     openGraph: { title, images: [{ url: ogUrl, width: 1200, height: 630 }] },

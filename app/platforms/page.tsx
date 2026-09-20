@@ -10,7 +10,7 @@ export default function PlatformsPage() {
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-medium text-foreground">Platforms we support</h1>
         <p className="text-sm text-muted-foreground">
-          Don&apos;t see yours? You can still add products by uploading photos — and we&apos;re
+          Don&apos;t see yours? You can still add products by uploading photos, and we&apos;re
           always adding more.
         </p>
       </div>

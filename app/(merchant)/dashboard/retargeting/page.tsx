@@ -56,9 +56,9 @@ export default async function RetargetingPage() {
           ]}
         />
         {/* Section 9.8: "Copy in the UI must say 'measure it in your ESP',
-            never a conversion promise" — counts only, no revenue claims. */}
+            never a conversion promise"; counts only, no revenue claims. */}
         <p className="text-xs text-muted-foreground">
-          These are event counts, not revenue — measure conversion in your ESP.
+          These are event counts, not revenue, so measure conversion in your ESP.
         </p>
       </Section>
 

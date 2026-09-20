@@ -29,7 +29,7 @@ export default async function ClaimPage({ params }: { params: Promise<{ storeId:
           {totalRenders} people tried on items from {store.domain} this week.
         </h1>
         <p className="text-sm text-muted-foreground">
-          Shoppers have been trying your products on themselves — you haven&apos;t claimed this
+          Shoppers have been trying your products on themselves, but you haven&apos;t claimed this
           store yet.
         </p>
       </div>

@@ -91,7 +91,7 @@ export const GET = apiHandler({
           <span style={{ fontSize: 22, opacity: 0.75 }}>{row.merchantName}</span>
           <span style={{ fontSize: 32, fontWeight: 600 }}>{row.productTitle}</span>
           {price && <span style={{ fontSize: 26, opacity: 0.9 }}>{price}</span>}
-          <span style={{ fontSize: 24, opacity: 0.85 }}>See it on you — {shortUrl}</span>
+          <span style={{ fontSize: 24, opacity: 0.85 }}>See it on you: {shortUrl}</span>
         </div>
       </div>,
       { width, height },

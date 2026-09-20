@@ -92,7 +92,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
 
       <Section
         title="Renders"
-        description="Shopper renders are private — thumbnails only, never downloadable."
+        description="Shopper renders are private: thumbnails only, never downloadable."
       >
         {linkRenders.length === 0 ? (
           <EmptyState icon={ImageIcon} title="No renders yet" />
@@ -104,7 +104,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
                   <StatusBadge status={r.status} map={RENDER_STATUS_MAP} />
                   <span className="text-muted-foreground capitalize">{r.via}</span>
                 </div>
-                <span className="text-muted-foreground">{r.leadEmail ?? '—'}</span>
+                <span className="text-muted-foreground">{r.leadEmail ?? '-'}</span>
               </div>
             ))}
           </div>

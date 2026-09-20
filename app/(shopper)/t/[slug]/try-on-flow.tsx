@@ -49,7 +49,7 @@ function contactHref(
   pageUrl: string,
 ): string | null {
   if (!channel) return null;
-  const text = encodeURIComponent(`Hi! I'm interested in ${productTitle} — ${pageUrl}`);
+  const text = encodeURIComponent(`Hi! I'm interested in ${productTitle}: ${pageUrl}`);
   if (channel.type === 'whatsapp') return `https://wa.me/${channel.value}?text=${text}`;
   if (channel.type === 'instagram') return `https://ig.me/m/${channel.value}`;
   return `mailto:${channel.value}?subject=${encodeURIComponent(productTitle)}`;
@@ -111,7 +111,7 @@ export function TryOnFlow({
     const json = await res.json();
     if (!res.ok) {
       if (json.error?.code === 'INSUFFICIENT_CREDITS') {
-        setErrorMessage("This shop's try-on is paused right now — check back soon.");
+        setErrorMessage("This shop's try-on is paused right now. Check back soon.");
       } else if (json.error?.code === 'RATE_LIMITED') {
         setErrorMessage("You've reached today's try-on limit for this link.");
       } else {

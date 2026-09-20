@@ -62,7 +62,7 @@ export function RetargetingForm({
     <div className="space-y-4">
       {connected && (
         <InlineAlert tone={status === 'active' ? 'success' : 'destructive'}>
-          Connected to {provider} — {status === 'active' ? 'active' : 'needs attention'}.
+          Connected to {provider}: {status === 'active' ? 'active' : 'needs attention'}.
         </InlineAlert>
       )}
       <Form form={form} onSubmit={onSubmit} className="space-y-4">
@@ -105,7 +105,7 @@ export function RetargetingForm({
       </Form>
       {testResult === 'ok' && <InlineAlert tone="success">Test event sent.</InlineAlert>}
       {testResult === 'failed' && (
-        <InlineAlert tone="destructive">Test failed — check the API key and try again.</InlineAlert>
+        <InlineAlert tone="destructive">Test failed, check the API key and try again.</InlineAlert>
       )}
     </div>
   );
