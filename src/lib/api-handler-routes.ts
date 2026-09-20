@@ -29,8 +29,6 @@ import '@/app/api/merchants/me/route';
 import '@/app/api/merchants/me/delete/route';
 import '@/app/api/platform-requests/route';
 import '@/app/api/webhooks/paykit/route';
-import '@/app/api/links/poll/route';
-import '@/app/api/links/group/route';
 import '@/app/api/polls/[linkId]/route';
 import '@/app/api/polls/[linkId]/vote/route';
 import '@/app/api/polls/[linkId]/close/route';

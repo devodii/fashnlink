@@ -21,15 +21,13 @@ Every API route and every page, what it does, and who can reach it. `auth` scope
 
 ### Links, products, drops
 
-| Route                     | Method | Auth     | What it does                                                               |
-| ------------------------- | ------ | -------- | -------------------------------------------------------------------------- |
-| `/api/links`              | POST   | merchant | Scrape a product URL, create a single try-on link                          |
-| `/api/links/[id]`         | PATCH  | merchant | Update a link's status (active/paused/archived)                            |
-| `/api/links/group`        | POST   | merchant | Create a "shop with friends" group link from a product URL                 |
-| `/api/links/poll`         | POST   | merchant | Create a poll link ("try these looks, vote") from multiple product URLs    |
-| `/api/campaigns`          | POST   | merchant | Create a retargeting drop (bulk render campaign against opted-in shoppers) |
-| `/api/campaigns/estimate` | POST   | merchant | Estimate credit cost of a campaign before creating it                      |
-| `/api/platform-requests`  | POST   | merchant | Log a "we don't support this platform yet" request from onboarding         |
+| Route                     | Method | Auth     | What it does                                                                                                                                                                |
+| ------------------------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/links`              | POST   | merchant | Scrape product URL(s), create a link; body `kind: 'single' \| 'group' \| 'poll'` picks a single try-on link, a "shop with friends" group link, or a poll link from 2-3 URLs |
+| `/api/links/[id]`         | PATCH  | merchant | Update a link's status (active/paused/archived)                                                                                                                             |
+| `/api/campaigns`          | POST   | merchant | Create a retargeting drop (bulk render campaign against opted-in shoppers)                                                                                                  |
+| `/api/campaigns/estimate` | POST   | merchant | Estimate credit cost of a campaign before creating it                                                                                                                       |
+| `/api/platform-requests`  | POST   | merchant | Log a "we don't support this platform yet" request from onboarding                                                                                                          |
 
 ### Twins and renders (the core try-on pipeline)
 

@@ -80,7 +80,11 @@ export function NewLinkForm() {
       />
 
       {kind === 'single' && (
-        <Form form={singleForm} onSubmit={(v) => post('/api/links', v)} className="space-y-4">
+        <Form
+          form={singleForm}
+          onSubmit={(v) => post('/api/links', { kind: 'single', ...v })}
+          className="space-y-4"
+        >
           <UrlField
             control={singleForm.control}
             name="url"
@@ -125,7 +129,7 @@ export function NewLinkForm() {
             loading={stage === 'working'}
             className="w-full"
             disabled={pollUrls.filter(Boolean).length < 2}
-            onClick={() => post('/api/links/poll', { urls: pollUrls.filter(Boolean) })}
+            onClick={() => post('/api/links', { kind: 'poll', urls: pollUrls.filter(Boolean) })}
           >
             Create poll
           </LoadingButton>
@@ -136,7 +140,8 @@ export function NewLinkForm() {
         <Form
           form={groupForm}
           onSubmit={(v) =>
-            post('/api/links/group', {
+            post('/api/links', {
+              kind: 'group',
               url: v.url,
               groupName: v.groupName,
               groupNote: v.groupNote || null,

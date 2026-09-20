@@ -86,7 +86,7 @@ function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) 
     const res = await fetch('/api/links', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ kind: 'single', ...values }),
     });
     const json = await res.json();
     if (!res.ok) {
