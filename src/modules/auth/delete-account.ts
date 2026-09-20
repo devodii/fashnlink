@@ -10,8 +10,10 @@ import {
   platformRequests,
   espConnections,
   retargetOptins,
+  user,
+  session,
+  account,
 } from '@/db/schema';
-import { user, session, account } from '@/db/auth-schema';
 
 export async function deleteMerchantAccount(merchantId: string, email: string): Promise<void> {
   await db.update(links).set({ status: 'archived' }).where(eq(links.merchantId, merchantId));

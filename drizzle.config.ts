@@ -14,8 +14,7 @@ if (!databaseUrl)
   throw new Error('DATABASE_URL or DATABASE_URL_UNPOOLED must be set to run drizzle-kit');
 
 export default defineConfig({
-  schema: ['./src/db/schema.ts', './src/db/auth-schema.ts'],
-  out: './src/db/migrations',
+  schema: './src/db/schema.ts',
   dialect: 'postgresql',
   dbCredentials: { url: databaseUrl },
 });

@@ -1,1 +1,0 @@
-ALTER TABLE "group_members" ADD COLUMN "show_in_group" boolean DEFAULT false NOT NULL;

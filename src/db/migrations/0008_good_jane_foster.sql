@@ -1,1 +1,0 @@
-ALTER TABLE "renders" ALTER COLUMN "link_id" DROP NOT NULL;

@@ -5,8 +5,7 @@ import { nextCookies } from 'better-auth/next-js';
 import { eq } from 'drizzle-orm';
 import { Resend } from 'resend';
 import { db } from '@/db';
-import * as authSchema from '@/db/auth-schema';
-import { merchants } from '@/db/schema';
+import { merchants, user, session, account, verification } from '@/db/schema';
 import { env } from '@/lib/env';
 import { newId } from '@/lib/ids';
 import { logger } from '@/lib/log';
@@ -29,7 +28,10 @@ async function sendMagicLink(email: string, url: string) {
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
-  database: drizzleAdapter(db, { provider: 'pg', schema: authSchema }),
+  database: drizzleAdapter(db, {
+    provider: 'pg',
+    schema: { user, session, account, verification },
+  }),
   emailAndPassword: { enabled: false },
   socialProviders:
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
