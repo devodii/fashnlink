@@ -1,7 +1,7 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { campaignItems, campaigns, merchants, products, renders, shoppers } from '@/db/schema';
-import { countCampaignItemsByStatus } from '@/db/repos/campaigns';
+import { readCampaign } from '@/actions/campaigns';
 import { releaseCredits } from '@/modules/render/credit-ledger';
 import { pushToMerchantEsp } from '@/modules/esp';
 import { sendEmail } from '@/lib/email';
@@ -14,7 +14,7 @@ export async function checkCampaignHealth(campaignId: string): Promise<void> {
   const [campaign] = await db.select().from(campaigns).where(eq(campaigns.id, campaignId)).limit(1);
   if (!campaign || campaign.status === 'cancelled' || campaign.status === 'ready') return;
 
-  const counts = await countCampaignItemsByStatus(campaignId);
+  const counts = await readCampaign({ id: campaignId, itemCountsOnly: true });
   const resolved = counts.rendered + counts.failed + counts.skipped;
   const total = counts.pending + resolved;
   if (total === 0) return;

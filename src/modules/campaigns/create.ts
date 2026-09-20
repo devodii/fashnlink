@@ -2,12 +2,8 @@ import { err, ok, type Result } from '@/lib/result';
 import { reserveCredits } from '@/modules/render/credit-ledger';
 import { enqueueJobs } from '@/modules/jobs';
 import { MAX_DROP_ITEMS, MAX_DROP_PRODUCTS } from '@/config/limits';
-import {
-  createCampaignRow,
-  findDropAudience,
-  findEligibleProductsForDrop,
-  insertCampaignItems,
-} from '@/db/repos/campaigns';
+import { createCampaign, readCampaign } from '@/actions/campaigns';
+import { readProduct } from '@/actions/products';
 
 export type DropEstimate = {
   eligibleProductIds: string[];
@@ -24,12 +20,12 @@ export async function estimateDrop(
     return err({ code: 'INVALID_INPUT', message: `pick 1-${MAX_DROP_PRODUCTS} products` });
   }
 
-  const eligible = await findEligibleProductsForDrop(merchantId, productIds);
+  const eligible = await readProduct({ merchantId, ids: productIds, eligibleOnly: true });
   if (eligible.length !== productIds.length) {
     return err({ code: 'INVALID_INPUT', message: 'one or more products are not eligible' });
   }
 
-  const audience = await findDropAudience(merchantId);
+  const audience = await readCampaign({ audienceForMerchantId: merchantId });
   const itemCount = audience.length * eligible.length;
 
   return ok({
@@ -60,22 +56,21 @@ export async function createDrop(
   const reservation = await reserveCredits(merchantId, estimate.value.estimatedCredits);
   if (!reservation.ok) return reservation;
 
-  const campaignId = await createCampaignRow({
-    merchantId,
-    productIds: estimate.value.eligibleProductIds,
-    audienceCount: estimate.value.audienceCount,
-    estimatedCredits: estimate.value.estimatedCredits,
-  });
-
-  const audience = await findDropAudience(merchantId);
-  const rows = audience.flatMap((shopper) =>
+  const audience = await readCampaign({ audienceForMerchantId: merchantId });
+  const items = audience.flatMap((shopper) =>
     estimate.value.eligibleProductIds.map((productId) => ({
-      campaignId,
       shopperId: shopper.shopperId,
       productId,
     })),
   );
-  const itemIds = await insertCampaignItems(rows);
+
+  const { campaignId, itemIds } = await createCampaign({
+    merchantId,
+    productIds: estimate.value.eligibleProductIds,
+    audienceCount: estimate.value.audienceCount,
+    estimatedCredits: estimate.value.estimatedCredits,
+    items,
+  });
 
   await enqueueJobs(
     itemIds.map((itemId) => ({ type: 'campaign.renderItem', payload: { campaignItemId: itemId } })),
