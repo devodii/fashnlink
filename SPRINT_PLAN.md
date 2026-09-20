@@ -5,48 +5,48 @@ Working list for the final pre-launch pass. Items get struck through as they lan
 Note on item 3 (re-audit against the original build spec): the original pasted spec text is not saved anywhere in this repo or in my memory of this session, only milestone/module references. I am auditing against what the actual codebase demonstrates (scraper adapters, render providers, DB schema, milestone folder structure) rather than a literal text diff, since I cannot recover the original wording. Flagging this so it is not mistaken for a full line-by-line spec check.
 
 ## 1. Theme migration (new design system, light + dark)
-- [ ] Replace `app/globals.css` tokens with the provided oklch design system (background, card, popover, primary, secondary, muted, accent, destructive, border, input, ring, chart-1..5, sidebar-*, shadows, radius, tracking, Outfit font)
-- [ ] Keep `--brand-1` through `--brand-6` and the `[data-brand]` merchant accent system intact, migrated to sit alongside the new tokens
-- [ ] Add `.dark` variant token values (provided)
-- [ ] Wire `next-themes` `ThemeProvider` into `app/layout.tsx` (currently imported by `sonner.tsx` only, never actually provided anywhere, so dark mode has never worked)
-- [ ] Add a light and dark theme toggle component, placed in the dashboard shell
-- [ ] Swap in the Outfit font (currently Geist)
+- [x] Replace `app/globals.css` tokens with the provided oklch design system (background, card, popover, primary, secondary, muted, accent, destructive, border, input, ring, chart-1..5, sidebar-*, shadows, radius, tracking, Outfit font)
+- [x] Keep `--brand-1` through `--brand-6` and the `[data-brand]` merchant accent system intact, migrated to sit alongside the new tokens
+- [x] Add `.dark` variant token values (provided)
+- [x] Wire `next-themes` `ThemeProvider` into `app/layout.tsx` (previously imported by `sonner.tsx` only, never actually provided anywhere, so dark mode never worked)
+- [x] Add a light and dark theme toggle component, placed in the dashboard shell header
+- [x] Swap in the Outfit font (was Geist)
+- landed in `2316e57`
 
 ## 2. Founding pass promo banner
-- [ ] Remove the per-page `BuyFoundingPassButton` from dashboard page headers (Overview, Billing)
-- [ ] Replace with one persistent top banner in the dashboard shell (styled like the reference "You are in Test mode" bar), shown once, not per-page
-- [ ] Slide-down animation on page load, pure Tailwind (translate + duration, no framer-motion), pushes page content down rather than overlapping it
+- [x] Remove the per-page `BuyFoundingPassButton` from dashboard page headers (Overview, Billing), delete the now-dead component
+- [x] Replace with one persistent top banner in the dashboard shell (styled like the reference "You are in Test mode" bar), shown once, not per-page, computed once in the dashboard layout
+- [x] Slide-down animation on page load, pure Tailwind (translate + duration, no framer-motion)
+- landed mixed into commit `85e8f9b` due to a concurrent git-index race with the loading-state audit fork (content correct, commit message is misleading, not rewriting shared history to fix it)
 
 ## 3. Dashboard user menu
-- [ ] Remove the click-to-open popover/dropdown on the sidebar footer email
-- [ ] Replace with an inline logout icon-button on the far left, side by side with the avatar and email (always visible, no menu)
+- [x] Remove the click-to-open popover/dropdown on the sidebar footer email
+- [x] Replace with an inline logout icon-button on the far left, side by side with the avatar and email (always visible, no menu)
+- landed in the same `85e8f9b` commit as item 2
 
 ## 4. Remove demo pages
-- [ ] Remove `app/demo/[requestId]/` (page + demo-processing.tsx)
-- [ ] Remove `app/quick-demo-form.tsx` and its usage in `app/page.tsx`
-- [ ] Remove `src/config/system-merchant.ts` and its usages if nothing else needs the system/demo merchant
-- [ ] Remove `scripts/demo-scrape.ts` if it only supported the demo flow
-- [ ] Update the marketing homepage copy/CTA now that quick-demo is gone
+- [x] Remove `app/demo/[requestId]/` (page + demo-processing.tsx)
+- [x] `app/quick-demo-form.tsx` now calls the quick-link API directly and routes straight to `/t/[slug]` instead of the removed processing page
+- Scope decision (asked the user, since `system-merchant.ts` also backs the real `/claim/[storeId]` growth flow, not just the demo): keep the quick-demo homepage feature and the claim flow working, only remove the dedicated wait screen. `system-merchant.ts`, `/claim/[storeId]`, and `scripts/demo-scrape.ts` (an unrelated CLI dev tool) all stay.
+- landed in `887088f`
 
 ## 5. Role-based route protection audit
-- [ ] Walk every route under `app/(merchant)`, `app/(shopper)`, `app/(auth)`, and top-level pages
-- [ ] Confirm each merchant route calls `requireMerchant()` (or inherits it via layout)
-- [ ] Confirm shopper-only routes (`/me`, closet) have their own real guard, not just merchant guard
-- [ ] Confirm public routes (`/t/[slug]`, `/p/[slug]`, `/r/[renderId]`, `/platforms`, legal pages) are intentionally public, not accidentally exposed data
+- [x] Full audit done. No real gaps found: dashboard layout genuinely gates every nested page, onboarding doesn't loop, `/me` is scoped by a signed httpOnly cookie (not a guessable URL param), `/r/[renderId]` gates on `isPublic`, `/p/[slug]`'s `?s=` param is an intentional unguessable share link, `/claim/[storeId]` only shows blurred teasers, `/login` has no redirect so no loop is possible.
+- Noted, not fixed (business logic, not a security/leak issue): `/t/[slug]` only blocks rendering on `status === 'archived'`, not `'paused'` — the product page itself still renders for a paused link, only render creation is blocked. Tracked under item 6.
 
 ## 6. Business logic correctness pass
+- [ ] `/t/[slug]` should probably also block on `status === 'paused'`, not just `'archived'` (found during the route-protection audit, not yet fixed)
 - [ ] Re-check credit ledger, render routing/fallback, webhook idempotency, abandoned-cart cron, catalog refresh cron for correctness
 - [ ] Flag anything actually wrong (not stylistic) as its own commit with the fix
 
 ## 7. Duplication and generics sweep
-- [x] `apiHandler`: every `merchant_session`/`shopper_session` route called `requireMerchantSession(auth)`/`requireShopperSession(auth)` then checked `.ok` by hand. `HandlerConfig` is now generic over the declared auth scope, so the handler receives an already-narrowed `merchant`/`shopper` param directly. Core change + one migrated route landed in `0834e01`.
-- [ ] Migrate the remaining ~26 route files off `requireMerchantSession`/`requireShopperSession` to the new `merchant`/`shopper` handler param, then delete those two now-unused exports
+- [x] `apiHandler`: every `merchant_session`/`shopper_session` route called `requireMerchantSession(auth)`/`requireShopperSession(auth)` then checked `.ok` by hand. `HandlerConfig` is now generic over the declared auth scope, so the handler receives an already-narrowed `merchant`/`shopper` param directly, and the two now-dead `require*Session` exports are gone. Landed in `0834e01` and `d9f3441`.
 - [ ] Find other repeated logic/shapes across the codebase (form field patterns, repo query patterns, etc.) and factor out with generics where it genuinely simplifies, not for its own sake
 
 ## 11. Server-rendering and loading-state audit
-- [ ] Confirm every page that can be a Server Component is one (no unnecessary `'use client'` at the page level)
-- [ ] Confirm every route segment has a `loading.tsx` shaped like that page's real content, not a generic spinner
-- [ ] Fill in any gaps found
+- [x] Every `page.tsx` is already a Server Component except `/login`, which does no data fetching at all so there's nothing to push server-side.
+- [x] Added `loading.tsx` to every route segment that does a real fetch and lacked one: onboarding, `/me`, `/t/[slug]`, `/p/[slug]`, `/r/[renderId]`, `/claim/[storeId]`, dashboard drops (both), dashboard links/[id]. Skipped `dashboard/links/new` deliberately, nothing to wait on there.
+- landed across `a1449a4`, `1e15230`, `80ac071`, `fb18a53`, `85e8f9b`, `e1c1b22`, `471a4de`, `58eb543`
 
 ## 8. Remove unused files and dead style
 - [ ] Sweep for files nothing imports, and unused CSS/utility classes
