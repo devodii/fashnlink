@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
-import { validateEvent, WebhookVerificationError } from '@polar-sh/sdk/webhooks';
 import { apiHandler } from '@/lib/api-handler';
+import { paykit } from '@/lib/paykit';
 import { err, ok } from '@/lib/result';
 import { env } from '@/lib/env';
 import { db } from '@/db';
@@ -11,7 +11,9 @@ import { grantCredits } from '@/modules/render/credit-ledger';
 
 /**
  * A Fetch `Request` body can only be read once, so `webhookVerify` reads a
- * *clone* and leaves the original untouched for the handler to read again.
+ * clone through a zero-handler `paykit.webhooks` dispatch (verification only,
+ * nothing to run) and leaves the original untouched for the handler to read
+ * again with the real `.on('payment.succeeded', ...)` registered.
  */
 function headersToRecord(headers: Headers): Record<string, string> {
   const record: Record<string, string> = {};
@@ -21,85 +23,89 @@ function headersToRecord(headers: Headers): Record<string, string> {
   return record;
 }
 
-async function verifyAndParse(req: Request) {
-  if (!env.POLAR_WEBHOOK_SECRET) return null;
-  try {
-    const rawBody = await req.clone().text();
-    return validateEvent(rawBody, headersToRecord(req.headers), env.POLAR_WEBHOOK_SECRET);
-  } catch (cause) {
-    if (cause instanceof WebhookVerificationError) return null;
-    throw cause;
-  }
-}
-
-/**
- * Merchant identity is carried through Polar's `customer_external_id`
- * checkout param, so the "Buy founding pass" link must be built with
- * `?customer_external_id=<merchantId>` or this handler can't credit anyone.
- */
 export const POST = apiHandler({
   name: 'webhooks.polar',
   auth: ['webhook'],
   webhookVerify: async (req) => {
-    const event = await verifyAndParse(req);
-    return event
-      ? ok(undefined)
-      : err({ code: 'UNAUTHORIZED', message: 'invalid polar signature' });
+    if (!paykit || !env.POLAR_WEBHOOK_SECRET) {
+      return err({ code: 'UNAUTHORIZED', message: 'polar not configured' });
+    }
+    try {
+      const rawBody = await req.clone().text();
+      await paykit.webhooks.setup({ webhookSecret: env.POLAR_WEBHOOK_SECRET }).handle({
+        body: rawBody,
+        headersAsObject: headersToRecord(req.headers),
+        fullUrl: req.url,
+      });
+      return ok(undefined);
+    } catch (cause) {
+      return err({ code: 'UNAUTHORIZED', message: 'invalid polar signature', cause });
+    }
   },
   handler: async ({ req, requestId }) => {
-    const event = await verifyAndParse(req);
-    if (!event) return err({ code: 'UNAUTHORIZED', message: 'invalid polar signature' });
-
-    /**
-     * Polar doesn't give every payload a stable top-level `id`; `order.paid`
-     * is the only event this route acts on, and its `data.id` (the order id)
-     * is unique per delivery, so idempotency keys on that.
-     */
-    const eventId = 'id' in event.data ? String(event.data.id) : `${event.type}:${Date.now()}`;
-    const log = childLogger(requestId, { route: 'webhooks.polar', eventId, type: event.type });
-
-    const [existing] = await db
-      .select({ id: paymentEvents.id })
-      .from(paymentEvents)
-      .where(eq(paymentEvents.id, eventId))
-      .limit(1);
-    if (existing) {
-      log.info('polar event already processed, skipping');
-      return ok({ received: true, duplicate: true });
+    if (!paykit || !env.POLAR_WEBHOOK_SECRET) {
+      return err({ code: 'UNAUTHORIZED', message: 'polar not configured' });
     }
 
-    if (event.type === 'order.paid') {
-      const order = event.data;
-      const merchantId = order.customer?.externalId ?? null;
-      const matchesFoundingPass =
-        !env.POLAR_FOUNDING_PASS_PRODUCT_ID ||
-        order.productId === env.POLAR_FOUNDING_PASS_PRODUCT_ID;
+    const log = childLogger(requestId, { route: 'webhooks.polar' });
+    const rawBody = await req.text();
+    const headersRecord = headersToRecord(req.headers);
+    const fullUrl = req.url;
 
-      if (merchantId && matchesFoundingPass) {
-        const [merchant] = await db
-          .select()
-          .from(merchants)
-          .where(eq(merchants.id, merchantId))
-          .limit(1);
+    try {
+      await paykit.webhooks
+        .setup({ webhookSecret: env.POLAR_WEBHOOK_SECRET })
+        .on('payment.succeeded', async (event) => {
+          const payment = event.data;
+          const eventId = payment.id;
 
-        if (merchant) {
-          await grantCredits(merchantId, PLANS.founder.creditsOnGrant, 'purchase_founder');
-          await db
-            .update(merchants)
-            .set({ plan: 'founder', watermarkEnabled: false })
-            .where(eq(merchants.id, merchantId));
-        } else {
-          log.error({ merchantId }, 'polar webhook: merchant not found for customer_external_id');
-        }
-      }
+          const [existing] = await db
+            .select({ id: paymentEvents.id })
+            .from(paymentEvents)
+            .where(eq(paymentEvents.id, eventId))
+            .limit(1);
+          if (existing) {
+            log.info({ eventId }, 'polar payment already processed, skipping');
+            return;
+          }
+
+          const merchantId = payment.metadata['merchantId'];
+          const matchesFoundingPass =
+            !env.POLAR_FOUNDING_PASS_PRODUCT_ID ||
+            payment.item_id === env.POLAR_FOUNDING_PASS_PRODUCT_ID;
+
+          if (merchantId && matchesFoundingPass) {
+            const [merchant] = await db
+              .select()
+              .from(merchants)
+              .where(eq(merchants.id, merchantId))
+              .limit(1);
+
+            if (merchant) {
+              await grantCredits(merchantId, PLANS.founder.creditsOnGrant, 'purchase_founder');
+              await db
+                .update(merchants)
+                .set({ plan: 'founder', watermarkEnabled: false })
+                .where(eq(merchants.id, merchantId));
+            } else {
+              log.error(
+                { merchantId },
+                'polar webhook: merchant not found for metadata.merchantId',
+              );
+            }
+          }
+
+          await db.insert(paymentEvents).values({
+            id: eventId,
+            provider: 'polar',
+            type: 'payment.succeeded',
+            payload: payment as unknown as object,
+          });
+        })
+        .handle({ body: rawBody, headersAsObject: headersRecord, fullUrl });
+    } catch (cause) {
+      return err({ code: 'UNAUTHORIZED', message: 'invalid polar signature', cause });
     }
-
-    await db.insert(paymentEvents).values({
-      id: eventId,
-      provider: 'polar',
-      type: event.type,
-      payload: event as unknown as object,
-    });
 
     return ok({ received: true });
   },
