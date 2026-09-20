@@ -22,7 +22,6 @@ env:
   EMAIL_FROM: 'CI <ci@example.com>'
   POLAR_ACCESS_TOKEN: ci-dummy-polar-access-token
   POLAR_WEBHOOK_SECRET: ci-dummy-polar-webhook-secret
-  POLAR_FOUNDING_PASS_CHECKOUT_LINK: https://buy.polar.sh/ci-dummy
   POLAR_FOUNDING_PASS_PRODUCT_ID: prod_ci_dummy
   ENCRYPTION_KEY: Y2ktZHVtbXktMzItYnl0ZS1lbmNyeXB0aW9uLWtleSE=
   UPSTASH_REDIS_REST_URL: https://ci-dummy.upstash.io
