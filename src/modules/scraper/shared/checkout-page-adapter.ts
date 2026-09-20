@@ -1,11 +1,12 @@
 import { err, ok, type Result } from '@/lib/result';
 import type { Ctx } from '@/lib/adapter';
-import type { DetectResult, HomepageProbe, PlatformKey, ScraperAdapter } from '../types';
+import type { Platform } from '@/db/schema';
+import type { DetectResult, HomepageProbe, ScraperAdapter } from '../types';
 import type { NormalizedProduct } from '../schema';
 import { productPageRawSchema, scrapeJsonLdProductPage, type ProductPageRaw } from './product-page';
 
 export type CheckoutPageAdapterConfig = {
-  key: PlatformKey;
+  key: Platform;
   displayName: string;
   priority: number;
   hostPatterns: RegExp[];

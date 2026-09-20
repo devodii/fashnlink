@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { db } from '@/db';
-import { jobs } from '@/db/schema';
+import { jobs, type Job } from '@/db/schema';
 import type { Ctx } from '@/lib/adapter';
 import { getJobHandler } from './registry';
 
@@ -29,7 +29,7 @@ export async function drainJobs(ctx: Ctx): Promise<DrainSummary> {
       AND attempts >= ${MAX_ATTEMPTS}
   `);
 
-  const claimed = await db.execute<typeof jobs.$inferSelect>(sql`
+  const claimed = await db.execute<Job>(sql`
     UPDATE ${jobs}
     SET status = 'running', locked_at = now(), attempts = attempts + 1, updated_at = now()
     WHERE id IN (
@@ -47,7 +47,7 @@ export async function drainJobs(ctx: Ctx): Promise<DrainSummary> {
     RETURNING *
   `);
 
-  const rows = claimed.rows as unknown as (typeof jobs.$inferSelect)[];
+  const rows = claimed.rows as unknown as Job[];
   const summary: DrainSummary = { claimed: rows.length, succeeded: 0, failed: 0, skipped: 0 };
 
   for (const job of rows) {

@@ -1,4 +1,5 @@
-import type { DetectResult, HomepageProbe, PlatformKey } from './types';
+import type { Platform } from '@/db/schema';
+import type { DetectResult, HomepageProbe } from './types';
 
 function shopifySignals(html: string, headers: Headers): string[] {
   const signals: string[] = [];
@@ -62,27 +63,26 @@ function salesforceSignals(html: string): string[] {
   return html.includes('demandware.store') ? ['html:demandware.store'] : [];
 }
 
-const SIGNAL_DETECTORS: Record<PlatformKey, ((html: string, headers: Headers) => string[]) | null> =
-  {
-    shopify: shopifySignals,
-    woocommerce: woocommerceSignals,
-    squarespace: squarespaceSignals,
-    wix: wixSignals,
-    bigcommerce: bigcommerceSignals,
-    magento: magentoSignals,
-    prestashop: prestashopSignals,
-    salesforce: salesforceSignals,
-    lemonsqueezy: null, // hostPatterns-only, no browsable homepage at all
-    gumroad: null,
-    bigcartel: null,
-    generic: null,
-    manual: null,
-  };
+const SIGNAL_DETECTORS: Record<Platform, ((html: string, headers: Headers) => string[]) | null> = {
+  shopify: shopifySignals,
+  woocommerce: woocommerceSignals,
+  squarespace: squarespaceSignals,
+  wix: wixSignals,
+  bigcommerce: bigcommerceSignals,
+  magento: magentoSignals,
+  prestashop: prestashopSignals,
+  salesforce: salesforceSignals,
+  lemonsqueezy: null, // hostPatterns-only, no browsable homepage at all
+  gumroad: null,
+  bigcartel: null,
+  generic: null,
+  manual: null,
+};
 
 // Salesforce gets a flat high confidence on its single signal
 // (demandware.store alone is trusted, unlike woocommerce/prestashop which
 // need two signals); every other platform scales with signal count.
-export function detectSignalsFor(platform: PlatformKey, probe: HomepageProbe): DetectResult {
+export function detectSignalsFor(platform: Platform, probe: HomepageProbe): DetectResult {
   const detector = SIGNAL_DETECTORS[platform];
   if (!detector) return { match: false, confidence: 0, signals: [] };
 
@@ -95,9 +95,9 @@ export function detectSignalsFor(platform: PlatformKey, probe: HomepageProbe): D
 
 export function detectPlatformSignals(
   probe: HomepageProbe,
-): { platform: PlatformKey; confidence: number; signals: string[] }[] {
-  const results: { platform: PlatformKey; confidence: number; signals: string[] }[] = [];
-  for (const platform of Object.keys(SIGNAL_DETECTORS) as PlatformKey[]) {
+): { platform: Platform; confidence: number; signals: string[] }[] {
+  const results: { platform: Platform; confidence: number; signals: string[] }[] = [];
+  for (const platform of Object.keys(SIGNAL_DETECTORS) as Platform[]) {
     const result = detectSignalsFor(platform, probe);
     if (result.signals.length)
       results.push({ platform, confidence: result.confidence, signals: result.signals });

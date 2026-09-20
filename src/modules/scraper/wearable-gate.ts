@@ -21,7 +21,7 @@ import {
   type FinalWearabilityVerdict,
   type ImageVisionVerdict,
 } from '@/config/wearable-rules';
-import type { GarmentCategory } from './types';
+import type { GarmentCategory } from '@/db/schema';
 
 async function safeRedisGet<T>(ctx: Ctx, key: string): Promise<T | null> {
   if (!redis) return null;

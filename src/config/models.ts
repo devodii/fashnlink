@@ -1,4 +1,4 @@
-import type { GarmentCategory } from '@/modules/scraper/types';
+import type { GarmentCategory } from '@/db/schema';
 
 /**
  * Render providers, invoked through fal's queue API

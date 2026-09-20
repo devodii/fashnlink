@@ -1,4 +1,4 @@
-import type { GarmentCategory } from '@/modules/scraper/types';
+import type { GarmentCategory } from '@/db/schema';
 
 export const WEARABLE_GATE = `You are screening product photos for a virtual try-on app. For EACH image, decide whether it shows a single wearable item (something a person wears on their body: clothing, shoes, headwear, eyewear, jewelry, a bag, or another worn accessory) that is clearly usable as a try-on source photo.
 

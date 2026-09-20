@@ -3,7 +3,7 @@ import type { Ctx } from '@/lib/adapter';
 import { putObject } from '@/modules/storage';
 import type { NormalizedProduct } from './schema';
 import type { FinalWearabilityVerdict, ImageVisionVerdict } from '@/config/wearable-rules';
-import type { ImageRole } from './types';
+import type { ImageRole } from '@/db/schema';
 import { computeAverageHash, hammingDistanceHex } from './shared/phash';
 
 export type EnrichedImage = {

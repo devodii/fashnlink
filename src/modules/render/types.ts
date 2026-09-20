@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { Adapter, Ctx } from '@/lib/adapter';
 import type { Result } from '@/lib/result';
-import type { GarmentCategory } from '@/modules/scraper/types';
+import type { GarmentCategory } from '@/db/schema';
 import type { ProviderKey } from '@/config/models';
 
 export type RenderInput = {

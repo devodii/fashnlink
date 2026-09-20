@@ -1,7 +1,7 @@
 import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { ROUTING, type ProviderKey } from '@/config/models';
-import type { GarmentCategory } from '@/modules/scraper/types';
+import type { GarmentCategory } from '@/db/schema';
 import { fashnProvider } from './providers/fashn';
 import { nanoBananaProvider } from './providers/nano-banana';
 import { openaiImageProvider } from './providers/openai-image';

@@ -1,18 +1,8 @@
 import type { z } from 'zod';
 import type { Ctx } from '@/lib/adapter';
 import type { Result } from '@/lib/result';
-import type {
-  eligibilityEnum,
-  garmentCategoryEnum,
-  imageRoleEnum,
-  platformEnum,
-  wearableTypeEnum,
-} from '@/db/schema';
+import type { Platform } from '@/db/schema';
 import type { NormalizedProduct, RawProduct } from './schema';
-
-// Derived from platformEnum in db/schema.ts, not hand-listed, so adding a
-// platform only ever means editing the enum.
-export type PlatformKey = (typeof platformEnum.enumValues)[number];
 
 export type ScraperCapability =
   | 'detect'
@@ -39,19 +29,13 @@ export type DetectResult = {
 
 export type StoreRef = {
   domain: string;
-  platform: PlatformKey;
+  platform: Platform;
 };
 
 export type Cursor = unknown;
 
-// Same derive-from-schema pattern as PlatformKey above.
-export type GarmentCategory = (typeof garmentCategoryEnum.enumValues)[number];
-export type WearableType = (typeof wearableTypeEnum.enumValues)[number];
-export type Eligibility = (typeof eligibilityEnum.enumValues)[number];
-export type ImageRole = (typeof imageRoleEnum.enumValues)[number];
-
 export interface ScraperAdapter {
-  readonly key: PlatformKey;
+  readonly key: Platform;
   readonly displayName: string;
   readonly capabilities: ReadonlySet<ScraperCapability>;
   readonly priority: number;

@@ -1,4 +1,4 @@
-import type { Eligibility, GarmentCategory, WearableType } from '@/modules/scraper/types';
+import type { Eligibility, GarmentCategory, WearableType } from '@/db/schema';
 
 export type ImageVisionVerdict = {
   is_wearable: boolean;

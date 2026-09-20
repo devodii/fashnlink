@@ -6,7 +6,7 @@ import type { Ctx } from '@/lib/adapter';
 import { env, publicUrl } from '@/lib/env';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import { RENDERS_PER_LINK_SHOPPER_PER_DAY } from '@/config/limits';
-import type { GarmentCategory } from '@/modules/scraper/types';
+import type { GarmentCategory } from '@/db/schema';
 import { reserveRenderCredit, refundFailedRender, type CreateRenderInput } from './credit-ledger';
 import { submitWithRouting } from './index';
 import type { RenderInput } from './types';
