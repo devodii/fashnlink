@@ -100,28 +100,44 @@ export function TryOnFlow({
     }).catch(() => {});
   }, [viaRenderId]);
 
+  // Guards against a double-click (or any other double-invocation) firing
+  // two /api/renders POSTs for the same "see it on you" gesture, which would
+  // reserve and burn two credits for one shopper action. The Idempotency-Key
+  // header below additionally lets the server dedupe a genuine network-level
+  // retry of the same request, per api-handler's Idempotency-Key support.
+  const renderRequestInFlight = React.useRef(false);
+
   async function submitRenderRequest(twinId: string) {
+    if (renderRequestInFlight.current) return;
+    renderRequestInFlight.current = true;
     setStage('render-pending');
     setErrorMessage(null);
-    const res = await fetch('/api/renders', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ linkId, productId, twinId, variantId: null }),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      if (json.error?.code === 'INSUFFICIENT_CREDITS') {
-        setErrorMessage("This shop's try-on is paused right now. Check back soon.");
-      } else if (json.error?.code === 'RATE_LIMITED') {
-        setErrorMessage("You've reached today's try-on limit for this link.");
-      } else {
-        setErrorMessage(json.error?.message ?? 'Something went wrong. Please try again.');
+    try {
+      const res = await fetch('/api/renders', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'Idempotency-Key': crypto.randomUUID(),
+        },
+        body: JSON.stringify({ linkId, productId, twinId, variantId: null }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (json.error?.code === 'INSUFFICIENT_CREDITS') {
+          setErrorMessage("This shop's try-on is paused right now. Check back soon.");
+        } else if (json.error?.code === 'RATE_LIMITED') {
+          setErrorMessage("You've reached today's try-on limit for this link.");
+        } else {
+          setErrorMessage(json.error?.message ?? 'Something went wrong. Please try again.');
+        }
+        setStage('error');
+        return;
       }
-      setStage('error');
-      return;
+      setRenderId(json.renderId);
+      setRenderOutputUrl(null);
+    } finally {
+      renderRequestInFlight.current = false;
     }
-    setRenderId(json.renderId);
-    setRenderOutputUrl(null);
   }
 
   function handleSeeItOnYou() {
