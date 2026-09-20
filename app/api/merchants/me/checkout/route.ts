@@ -1,4 +1,4 @@
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { paykit } from '@/lib/paykit';
 import { err, ok } from '@/lib/result';
 import { env } from '@/lib/env';
@@ -9,10 +9,7 @@ import { eq } from 'drizzle-orm';
 export const POST = apiHandler({
   name: 'merchants.checkout.create',
   auth: ['merchant_session'],
-  handler: async ({ auth }) => {
-    const resolved = requireMerchantSession(auth);
-    if (!resolved.ok) return resolved;
-
+  handler: async ({ merchant: session }) => {
     if (!paykit || !env.POLAR_FOUNDING_PASS_PRODUCT_ID) {
       return err({ code: 'INTERNAL', message: 'billing is not configured' });
     }
@@ -20,7 +17,7 @@ export const POST = apiHandler({
     const [merchant] = await db
       .select()
       .from(merchants)
-      .where(eq(merchants.id, resolved.value.merchantId))
+      .where(eq(merchants.id, session.merchantId))
       .limit(1);
     if (!merchant) return err({ code: 'NOT_FOUND', message: 'merchant not found' });
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { ok } from '@/lib/result';
@@ -18,14 +18,11 @@ export const POST = apiHandler({
     limit: SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR,
     windowSeconds: 3600,
   },
-  handler: async ({ body, auth, requestId }) => {
-    const merchant = requireMerchantSession(auth);
-    if (!merchant.ok) return merchant;
-
+  handler: async ({ body, merchant, requestId }) => {
     const log = childLogger(requestId, { route: 'links.createFromUrl' });
     const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };
 
-    const result = await createLinkFromUrl(body.url, merchant.value.merchantId, ctx);
+    const result = await createLinkFromUrl(body.url, merchant.merchantId, ctx);
     if (!result.ok) return result;
 
     return ok(result.value);

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { links, productImages, products, twins } from '@/db/schema';
 import { childLogger } from '@/lib/log';
@@ -21,10 +21,8 @@ export const POST = apiHandler({
   name: 'renders.create',
   auth: ['shopper_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth, requestId }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-    const { shopperId } = shopper.value;
+  handler: async ({ body, shopper, requestId }) => {
+    const { shopperId } = shopper;
 
     const [link] = await db
       .select({

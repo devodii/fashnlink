@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { renders } from '@/db/schema';
 import { err, ok } from '@/lib/result';
@@ -17,14 +17,11 @@ export const DELETE = apiHandler({
   name: 'renders.delete',
   auth: ['shopper_session'],
   schema: { params: paramsSchema },
-  handler: async ({ params, auth }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-
+  handler: async ({ params, shopper }) => {
     const [render] = await db
       .select({ outputR2Key: renders.outputR2Key })
       .from(renders)
-      .where(and(eq(renders.id, params.id), eq(renders.shopperId, shopper.value.shopperId)))
+      .where(and(eq(renders.id, params.id), eq(renders.shopperId, shopper.shopperId)))
       .limit(1);
     if (!render) return err({ code: 'NOT_FOUND', message: 'render not found' });
 

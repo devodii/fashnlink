@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { createDrop } from '@/modules/campaigns';
 import { ok } from '@/lib/result';
 
@@ -9,11 +9,8 @@ export const POST = apiHandler({
   name: 'campaigns.create',
   auth: ['merchant_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth }) => {
-    const merchant = requireMerchantSession(auth);
-    if (!merchant.ok) return merchant;
-
-    const result = await createDrop(merchant.value.merchantId, body.productIds);
+  handler: async ({ body, merchant }) => {
+    const result = await createDrop(merchant.merchantId, body.productIds);
     if (!result.ok) return result;
 
     return ok(result.value);

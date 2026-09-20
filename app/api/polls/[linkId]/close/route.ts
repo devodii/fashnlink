@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { links } from '@/db/schema';
 import { closePoll } from '@/db/repos/links';
@@ -10,13 +10,10 @@ export const POST = apiHandler({
   name: 'polls.close',
   auth: ['merchant_session'],
   schema: { params: z.object({ linkId: z.string() }) },
-  handler: async ({ params, auth }) => {
-    const merchant = requireMerchantSession(auth);
-    if (!merchant.ok) return merchant;
-
+  handler: async ({ params, merchant }) => {
     const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
     if (!link || link.kind !== 'poll') return err({ code: 'NOT_FOUND', message: 'poll not found' });
-    if (link.merchantId !== merchant.value.merchantId) {
+    if (link.merchantId !== merchant.merchantId) {
       return err({ code: 'FORBIDDEN', message: 'not your poll' });
     }
 

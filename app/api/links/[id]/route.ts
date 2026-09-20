@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { products, garmentCategoryEnum } from '@/db/schema';
 import { err, ok } from '@/lib/result';
@@ -16,12 +16,9 @@ export const PATCH = apiHandler({
   name: 'links.update',
   auth: ['merchant_session'],
   schema: { params: paramsSchema, body: bodySchema },
-  handler: async ({ params, body, auth }) => {
-    const merchant = requireMerchantSession(auth);
-    if (!merchant.ok) return merchant;
-
+  handler: async ({ params, body, merchant }) => {
     const link = await findLinkById(params.id);
-    if (!link || link.merchantId !== merchant.value.merchantId) {
+    if (!link || link.merchantId !== merchant.merchantId) {
       return err({ code: 'NOT_FOUND', message: 'Link not found' });
     }
 

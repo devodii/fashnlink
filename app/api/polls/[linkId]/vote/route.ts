@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { links, pollVotes, renders } from '@/db/schema';
 import { newId } from '@/lib/ids';
@@ -16,10 +16,7 @@ export const POST = apiHandler({
   name: 'polls.vote',
   auth: ['shopper_session'],
   schema: { body: bodySchema, params: z.object({ linkId: z.string() }) },
-  handler: async ({ body, params, auth }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-
+  handler: async ({ body, params, shopper }) => {
     const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
     if (!link || link.kind !== 'poll') return err({ code: 'NOT_FOUND', message: 'poll not found' });
 
@@ -33,7 +30,7 @@ export const POST = apiHandler({
       .from(pollVotes)
       .where(eq(pollVotes.linkId, link.id))
       .limit(200); // small polls only, no pagination needed
-    const priorVote = existing.find((v) => v.voterShopperId === shopper.value.shopperId);
+    const priorVote = existing.find((v) => v.voterShopperId === shopper.shopperId);
     if (priorVote) return ok({ voteId: priorVote.id, renderId: priorVote.renderId });
 
     const [vote] = await db
@@ -42,7 +39,7 @@ export const POST = apiHandler({
         id: newId('vote'),
         linkId: link.id,
         renderId: body.renderId,
-        voterShopperId: shopper.value.shopperId,
+        voterShopperId: shopper.shopperId,
       })
       .returning();
     if (!vote) return err({ code: 'INTERNAL', message: 'failed to record vote' });

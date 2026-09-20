@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { twins } from '@/db/schema';
 import { err, ok } from '@/lib/result';
@@ -12,14 +12,11 @@ export const GET = apiHandler({
   name: 'twins.status',
   auth: ['shopper_session'],
   schema: { params: paramsSchema },
-  handler: async ({ params, auth }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-
+  handler: async ({ params, shopper }) => {
     const [twin] = await db
       .select({ status: twins.status, twinUrl: twins.twinUrl, isDefault: twins.isDefault })
       .from(twins)
-      .where(and(eq(twins.id, params.id), eq(twins.shopperId, shopper.value.shopperId)))
+      .where(and(eq(twins.id, params.id), eq(twins.shopperId, shopper.shopperId)))
       .limit(1);
 
     if (!twin) return err({ code: 'NOT_FOUND', message: 'twin not found' });

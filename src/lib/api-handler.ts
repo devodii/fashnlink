@@ -180,24 +180,6 @@ async function resolveAuth<TBody, TParams, TQuery>(
   throw appError('UNAUTHORIZED', 'Unauthorized');
 }
 
-export function requireShopperSession(
-  resolvedAuth: ResolvedAuth,
-): Result<{ shopperId: string }, AppError> {
-  if (resolvedAuth.type !== 'shopper_session') {
-    return { ok: false, error: { code: 'UNAUTHORIZED', message: 'shopper session required' } };
-  }
-  return { ok: true, value: { shopperId: resolvedAuth.shopperId } };
-}
-
-export function requireMerchantSession(
-  resolvedAuth: ResolvedAuth,
-): Result<{ merchantId: string; email: string }, AppError> {
-  if (resolvedAuth.type !== 'merchant_session') {
-    return { ok: false, error: { code: 'UNAUTHORIZED', message: 'merchant session required' } };
-  }
-  return { ok: true, value: { merchantId: resolvedAuth.merchantId, email: resolvedAuth.email } };
-}
-
 function authContextFor(resolvedAuth: ResolvedAuth): Record<string, unknown> {
   if (resolvedAuth.type === 'merchant_session') {
     return { merchant: { merchantId: resolvedAuth.merchantId, email: resolvedAuth.email } };

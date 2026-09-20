@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { groupMembers, links, renders } from '@/db/schema';
 import { newId } from '@/lib/ids';
@@ -22,10 +22,7 @@ export const POST = apiHandler({
   name: 'groups.join',
   auth: ['shopper_session'],
   schema: { body: bodySchema, params: z.object({ linkId: z.string() }) },
-  handler: async ({ body, params, auth }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-
+  handler: async ({ body, params, shopper }) => {
     const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
     if (!link || link.kind !== 'group') {
       return err({ code: 'NOT_FOUND', message: 'group link not found' });
@@ -37,7 +34,7 @@ export const POST = apiHandler({
     }
 
     const existing = await db.select().from(groupMembers).where(eq(groupMembers.linkId, link.id));
-    const priorMembership = existing.find((m) => m.shopperId === shopper.value.shopperId);
+    const priorMembership = existing.find((m) => m.shopperId === shopper.shopperId);
 
     if (priorMembership) {
       const [updated] = await db
@@ -58,7 +55,7 @@ export const POST = apiHandler({
       .values({
         id: newId('member'),
         linkId: link.id,
-        shopperId: shopper.value.shopperId,
+        shopperId: shopper.shopperId,
         renderId: body.renderId,
         chosenVariantId: body.chosenVariantId ?? null,
         note: body.note ?? null,

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
 import { recordFreeTextPlatformRequest } from '@/db/repos/platform-requests';
 
@@ -9,12 +9,9 @@ export const POST = apiHandler({
   name: 'platformRequests.createFreeText',
   auth: ['merchant_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth }) => {
-    const merchant = requireMerchantSession(auth);
-    if (!merchant.ok) return merchant;
-
+  handler: async ({ body, merchant }) => {
     await recordFreeTextPlatformRequest({
-      merchantId: merchant.value.merchantId,
+      merchantId: merchant.merchantId,
       notes: body.notes,
     });
     return ok({ recorded: true });

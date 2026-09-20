@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { espConnections, espProviderEnum } from '@/db/schema';
 import { newId } from '@/lib/ids';
@@ -18,14 +18,11 @@ export const POST = apiHandler({
   name: 'merchants.espConnection.upsert',
   auth: ['merchant_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth }) => {
-    const merchant = requireMerchantSession(auth);
-    if (!merchant.ok) return merchant;
-
+  handler: async ({ body, merchant }) => {
     const [existing] = await db
       .select({ id: espConnections.id })
       .from(espConnections)
-      .where(eq(espConnections.merchantId, merchant.value.merchantId))
+      .where(eq(espConnections.merchantId, merchant.merchantId))
       .limit(1);
 
     const apiKeyEncrypted = encrypt(body.apiKey);
@@ -49,7 +46,7 @@ export const POST = apiHandler({
     const id = newId('esp');
     await db.insert(espConnections).values({
       id,
-      merchantId: merchant.value.merchantId,
+      merchantId: merchant.merchantId,
       provider: body.provider,
       apiKeyEncrypted,
       listId: body.listId,

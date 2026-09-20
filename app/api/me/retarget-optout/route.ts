@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { campaigns, campaignItems, retargetOptins } from '@/db/schema';
 import { ok } from '@/lib/result';
@@ -11,10 +11,8 @@ export const POST = apiHandler({
   name: 'me.retargetOptOut',
   auth: ['shopper_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-    const { shopperId } = shopper.value;
+  handler: async ({ body, shopper }) => {
+    const { shopperId } = shopper;
 
     await db
       .update(retargetOptins)

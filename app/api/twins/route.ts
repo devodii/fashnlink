@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { apiHandler, requireShopperSession } from '@/lib/api-handler';
+import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { shoppers } from '@/db/schema';
 import { childLogger } from '@/lib/log';
@@ -19,10 +19,8 @@ export const POST = apiHandler({
   name: 'twins.create',
   auth: ['shopper_session'],
   schema: { body: bodySchema },
-  handler: async ({ body, auth, requestId }) => {
-    const shopper = requireShopperSession(auth);
-    if (!shopper.ok) return shopper;
-    const { shopperId } = shopper.value;
+  handler: async ({ body, shopper, requestId }) => {
+    const { shopperId } = shopper;
 
     await db
       .update(shoppers)
