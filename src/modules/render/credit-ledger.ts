@@ -1,10 +1,8 @@
 import { desc, eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
-import { creditLedger, ledgerReasonEnum, renders, renderViaEnum } from '@/db/schema';
+import { creditLedger, renders, type LedgerReason, type RenderVia } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { err, ok, type Result } from '@/lib/result';
-
-export type LedgerReason = (typeof ledgerReasonEnum.enumValues)[number];
 
 export type CreateRenderInput = {
   merchantId: string;
@@ -13,7 +11,7 @@ export type CreateRenderInput = {
   variantId: string | null;
   shopperId: string;
   twinId: string;
-  via: (typeof renderViaEnum.enumValues)[number];
+  via: RenderVia;
 };
 
 /**
