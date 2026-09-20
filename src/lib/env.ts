@@ -9,7 +9,7 @@ const devRequired = z.object({
   FAL_KEY: z.string().min(1, 'FAL_KEY is required'),
   OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required'),
   UPLOADTHING_TOKEN: z.string().min(1, 'UPLOADTHING_TOKEN is required'),
-  TYPESAFE_AI_API_KEY: z.string().min(1, 'TYPESAFE_AI_API_KEY is required'),
+  AI_GATEWAY_API_KEY: z.string().min(1, 'AI_GATEWAY_API_KEY is required'),
 });
 
 const prodOnlyRequired = z.object({

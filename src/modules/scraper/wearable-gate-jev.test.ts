@@ -29,17 +29,14 @@ type DoEvaluate = NonNullable<
 
 let mockDoEvaluate: ReturnType<typeof vi.fn<DoEvaluate>>;
 
-vi.mock('@/lib/typesafe-ai', () => ({
-  get typesafeAi() {
-    return {
-      evaluationModel: () =>
-        new Experimental_EvaluationMockModelV4({
-          provider: 'typesafe-ai',
-          modelId: 'jev-latest',
-          supportedQuestionTypes: ['boolean', 'choice', 'score'],
-          doEvaluate: (options) => mockDoEvaluate!(options),
-        }),
-    };
+vi.mock('@/lib/jev', () => ({
+  get jevModel() {
+    return new Experimental_EvaluationMockModelV4({
+      provider: 'typesafe-ai',
+      modelId: 'jev-latest',
+      supportedQuestionTypes: ['boolean', 'choice', 'score'],
+      doEvaluate: (options) => mockDoEvaluate!(options),
+    });
   },
 }));
 

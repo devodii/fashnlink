@@ -5,7 +5,7 @@ import { experimental_evaluate as evaluate } from 'ai';
 import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { openai } from '@/lib/openai';
-import { typesafeAi } from '@/lib/typesafe-ai';
+import { jevModel } from '@/lib/jev';
 import { redis } from '@/lib/redis';
 import { garmentCategoryEnum, wearableTypeEnum } from '@/db/schema';
 import {
@@ -113,7 +113,7 @@ async function classifyWithJev(
 
   try {
     const result = await evaluate({
-      model: typesafeAi.evaluationModel('jev-latest'),
+      model: jevModel,
       state,
       questions: {
         is_wearable: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_WEARABLE },
