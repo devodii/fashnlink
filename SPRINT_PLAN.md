@@ -42,12 +42,18 @@ The original pasted spec text is not saved anywhere in this repo or in my memory
 
 ## 6. Business logic correctness pass
 - [x] Checked the `/t/[slug]` paused-link behavior flagged in the route audit: not a bug. The page renders normally for a paused link (correct, a paused link isn't a dead link), and clicking "See it on you" already fails gracefully through the existing `INSUFFICIENT_CREDITS` path with "this shop's try-on is paused" (`credit-ledger.ts`), which `try-on-flow.tsx` already displays. A hard 404 would be worse UX than this.
-- [ ] Re-check credit ledger, render routing/fallback, webhook idempotency, abandoned-cart cron, catalog refresh cron for correctness
-- [ ] Flag anything actually wrong (not stylistic) as its own commit with the fix
+- [x] Full audit of credit ledger, render routing/fallback, webhook idempotency, and crons. Found and fixed 5 real, launch-blocking bugs:
+  1. `60a2980` Credit ledger race condition: concurrent renders for the same merchant could both pass a balance check and both deduct, going over budget. Fixed with a per-merchant `pg_advisory_xact_lock`.
+  2. `a63c65a` The `openai_image` fallback provider was completely broken: its synchronous self-delivered webhook always 404'd because `renders.provider` was only persisted after the whole routing chain returned, not before the webhook could reference it. This silently failed 100% of the time for `set`/`shoes`/`accessory`/`unknown` categories whenever `nano_banana` also failed, refunding a credit and showing an error even though the image had actually rendered.
+  3. `cd82eb6` The Polar/paykit payment webhook could double-grant founder credits on a concurrent retry delivery (select-then-insert dedup race). Fixed with insert-first-and-check-if-it-claimed-the-row.
+  4. `2b737cd` A redelivered fal webhook (standard provider retry behavior) for an already-terminal twin or render would reprocess it, double-refunding a failed render or re-uploading a succeeded one.
+  5. `400c2d2` No protection against double-submitting a render: no `Idempotency-Key` header was sent despite `api-handler.ts` supporting it, and no client-side guard against a real double-click, so one shopper gesture could burn two credits.
+- Investigated and confirmed correct, not touched: render routing's provider-fallback order, the jobs-queue drain's `SELECT ... FOR UPDATE SKIP LOCKED` claiming, and the cleanup/catalog-refresh/abandoned-cart crons' windowing against their firing cadence.
+- Flagged, not fixed (follow-up, not launch-blocking): the abandoned-cart cron's per-shopper dedup has the same select-then-insert shape as the payment webhook bug, but for a duplicate marketing email, not a financial double-grant, and a proper fix needs a new unique index (a schema migration) rather than a same-shape minimal fix. Also: crashed `campaign.renderItem` jobs can leave a `campaignItems` row stuck `pending` forever (no timeout-based requeue in the job queue), which needs job-type-specific retry-safety judgment, not a blind fix.
 
 ## 7. Duplication and generics sweep
-- [x] `apiHandler`: every `merchant_session`/`shopper_session` route called `requireMerchantSession(auth)`/`requireShopperSession(auth)` then checked `.ok` by hand. `HandlerConfig` is now generic over the declared auth scope, so the handler receives an already-narrowed `merchant`/`shopper` param directly, and the two now-dead `require*Session` exports are gone. Landed in `0834e01` and `d9f3441`.
-- [ ] Find other repeated logic/shapes across the codebase (form field patterns, repo query patterns, etc.) and factor out with generics where it genuinely simplifies, not for its own sake
+- [x] `apiHandler`: every `merchant_session`/`shopper_session` route called `requireMerchantSession(auth)`/`requireShopperSession(auth)` then checked `.ok` by hand. `HandlerConfig` is now generic over the declared auth scope, so the handler receives an already-narrowed `merchant`/`shopper` param directly, and the two now-dead `require*Session` exports are gone. Landed in `0834e01` and `d9f3441`. This was the one real, high-value duplication pattern found across the API layer.
+- [x] Looked for other repeated logic/shapes (form field patterns, repo query patterns). Nothing else rose to "genuinely simplifies": the per-page `requireMerchant()` calls are the correct, idiomatic use of a `cache()`-wrapped fetcher in Server Components, not duplication; Drizzle's repeated `select().from(x).where(eq(x.id, id)).limit(1)` shape is standard and a generic `findById` helper would add indirection without removing real complexity, given column selections differ per call site.
 
 ## 11. Server-rendering and loading-state audit
 - [x] Every `page.tsx` is already a Server Component except `/login`, which does no data fetching at all so there's nothing to push server-side.
@@ -61,8 +67,7 @@ The original pasted spec text is not saved anywhere in this repo or in my memory
 - [ ] Broader sweep for unused CSS/utility classes still pending
 
 ## 9. Copy pass: remove em dashes and fluff
-- [ ] Repo-wide sweep replacing em dashes in UI copy and comments with proper conjunctions (or, and, so)
-- [ ] Cut filler phrasing in user-facing text
+- [x] Repo-wide sweep done: 90 em dashes across 32 files replaced with the conjunction, colon, comma, or period-split that reads best per sentence, no meaning changed. Landed across `c376c82`, `0fdeab9`, `5045345`, `0c80f5c`. Confirmed zero remaining with a final repo-wide grep.
 
 ## 10. Deliverables for the user
 
