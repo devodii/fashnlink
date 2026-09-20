@@ -1,6 +1,6 @@
 import { err, ok, type Result } from '@/lib/result';
 import { reserveCredits } from '@/modules/render/credit-ledger';
-import { enqueueJob } from '@/modules/jobs';
+import { enqueueJobs } from '@/modules/jobs';
 import { MAX_DROP_ITEMS, MAX_DROP_PRODUCTS } from '@/config/limits';
 import {
   createCampaignRow,
@@ -77,9 +77,9 @@ export async function createDrop(
   );
   const itemIds = await insertCampaignItems(rows);
 
-  for (const itemId of itemIds) {
-    await enqueueJob('campaign.renderItem', { campaignItemId: itemId });
-  }
+  await enqueueJobs(
+    itemIds.map((itemId) => ({ type: 'campaign.renderItem', payload: { campaignItemId: itemId } })),
+  );
 
   return ok({ campaignId, itemCount: itemIds.length });
 }

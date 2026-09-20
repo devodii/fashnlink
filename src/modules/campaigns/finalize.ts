@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { campaignItems, campaigns, merchants, products, renders, shoppers } from '@/db/schema';
 import { countCampaignItemsByStatus } from '@/db/repos/campaigns';
@@ -96,39 +96,64 @@ async function finalizeCampaign(
     byShopper.set(item.shopperId, list);
   }
 
+  // The lookups below were previously done per shopper (and per item, for
+  // renders/products) inside the loop, one round-trip each; batched into
+  // three queries up front and joined in memory instead.
+  const shopperIds = [...byShopper.keys()];
+  const renderIds = renderedItems.map((item) => item.renderId).filter((id): id is string => !!id);
+  const productIds = [...new Set(renderedItems.map((item) => item.productId))];
+
+  const [shopperRows, renderRows, productRows] = await Promise.all([
+    shopperIds.length > 0
+      ? db
+          .select({ id: shoppers.id, email: shoppers.email })
+          .from(shoppers)
+          .where(inArray(shoppers.id, shopperIds))
+      : [],
+    renderIds.length > 0
+      ? db
+          .select({ id: renders.id, outputUrl: renders.outputUrl })
+          .from(renders)
+          .where(inArray(renders.id, renderIds))
+      : [],
+    productIds.length > 0
+      ? db
+          .select({ id: products.id, title: products.title, buyUrl: products.buyUrl })
+          .from(products)
+          .where(inArray(products.id, productIds))
+      : [],
+  ]);
+
+  const emailByShopper = new Map(shopperRows.map((s) => [s.id, s.email]));
+  const outputUrlByRender = new Map(renderRows.map((r) => [r.id, r.outputUrl]));
+  const productById = new Map(productRows.map((p) => [p.id, p]));
+
+  // Each shopper gets a distinct ESP payload (their own "looks"), so this
+  // push genuinely has to happen per shopper; only the DB writes around it
+  // are deferred and batched.
+  const deliveredShopperIds: string[] = [];
+
   for (const [shopperId, items] of byShopper) {
-    const [shopper] = await db
-      .select({ email: shoppers.email })
-      .from(shoppers)
-      .where(eq(shoppers.id, shopperId))
-      .limit(1);
-    if (!shopper?.email) continue;
+    const email = emailByShopper.get(shopperId);
+    if (!email) continue;
 
     const looks = [];
     for (const item of items) {
       if (!item.renderId) continue;
-      const [render] = await db
-        .select({ outputUrl: renders.outputUrl })
-        .from(renders)
-        .where(eq(renders.id, item.renderId))
-        .limit(1);
-      const [product] = await db
-        .select({ title: products.title, buyUrl: products.buyUrl })
-        .from(products)
-        .where(eq(products.id, item.productId))
-        .limit(1);
-      if (!render?.outputUrl || !product) continue;
+      const outputUrl = outputUrlByRender.get(item.renderId);
+      const product = productById.get(item.productId);
+      if (!outputUrl || !product) continue;
       looks.push({
         product_title: product.title,
         buy_url: product.buyUrl,
-        render_image_url: render.outputUrl,
+        render_image_url: outputUrl,
       });
     }
     if (looks.length === 0) continue;
 
     const pushResult = await pushToMerchantEsp(
       merchantId,
-      { op: 'event', email: shopper.email, eventName: 'Tryon New Drop', properties: { looks } },
+      { op: 'event', email, eventName: 'Tryon New Drop', properties: { looks } },
       {
         log,
         requestId: `campaign-finalize-${campaignId}`,
@@ -138,19 +163,23 @@ async function finalizeCampaign(
     );
 
     if (pushResult.ok) {
-      await db
-        .update(campaignItems)
-        .set({ deliveredAt: new Date() })
-        .where(
-          and(
-            eq(campaignItems.campaignId, campaignId),
-            eq(campaignItems.shopperId, shopperId),
-            eq(campaignItems.status, 'rendered'),
-          ),
-        );
+      deliveredShopperIds.push(shopperId);
     } else {
       log.warn({ cause: pushResult.error, shopperId, campaignId }, 'drop esp push failed');
     }
+  }
+
+  if (deliveredShopperIds.length > 0) {
+    await db
+      .update(campaignItems)
+      .set({ deliveredAt: new Date() })
+      .where(
+        and(
+          eq(campaignItems.campaignId, campaignId),
+          inArray(campaignItems.shopperId, deliveredShopperIds),
+          eq(campaignItems.status, 'rendered'),
+        ),
+      );
   }
 
   await db
