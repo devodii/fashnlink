@@ -22,6 +22,11 @@ config({
 // ...) rather than re-declaring them.
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  resolve: {
+    alias: {
+      'server-only': path.join(dirname, 'node_modules/server-only/empty.js'),
+    },
+  },
   test: {
     projects: [
       {
