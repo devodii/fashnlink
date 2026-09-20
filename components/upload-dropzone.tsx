@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Image as ImageIcon, ArrowUp, Warning, X } from '@phosphor-icons/react/ssr';
+import { ImageIcon, ArrowUpIcon, WarningIcon, X } from '@phosphor-icons/react/ssr';
 import { Spinner } from '@/components/spinner';
 import { useUploadThing } from '@/lib/uploadthing-client';
 
@@ -141,7 +141,7 @@ export function UploadDropzone({
           </>
         ) : displayError ? (
           <>
-            <Warning className="size-6" />
+            <WarningIcon className="size-6" />
             <span className="px-4 text-center text-sm font-medium">{displayError}</span>
             <span className="text-xs">
               Drag an image here or <span className="underline">browse</span>
@@ -149,7 +149,7 @@ export function UploadDropzone({
           </>
         ) : dragActive ? (
           <>
-            <ArrowUp className="size-6" />
+            <ArrowUpIcon className="size-6" />
             <span className="text-sm">
               Drop to <span className="font-semibold">upload</span>
             </span>
