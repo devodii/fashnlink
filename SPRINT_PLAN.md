@@ -55,8 +55,10 @@ The original pasted spec text is not saved anywhere in this repo or in my memory
 - landed across `a1449a4`, `1e15230`, `80ac071`, `fb18a53`, `85e8f9b`, `e1c1b22`, `471a4de`, `58eb543`
 
 ## 8. Remove unused files and dead style
-- [ ] Sweep for files nothing imports, and unused CSS/utility classes
-- [ ] Remove `components/ui/tabs.tsx` (confirmed unused earlier this session) unless something now needs it
+- [x] `components/ui/tabs.tsx` removed (confirmed unused, `42da256`)
+- [x] Found and removed 8 more orphaned components with zero real usages anywhere: `filter-bar`, `image-compare`, `kbd`, `pagination`, `search-input`, `shimmer-card` (orphaned by removing the demo processing page it was built for), `stepper`, `timeline`, plus their stories files (`f642326`)
+- [x] `language-picker.tsx` and `language-suggest-banner.tsx` were also unused, but they have live backing infrastructure (`TranslateProvider`, `config/languages.ts`, `lib/google-translate.ts` are all actively wired into the root layout), so wired them into the try-on page instead of deleting them (`f912f8e`). Not yet wired into the poll/group link flows (`poll-flow.tsx`, `group-flow.tsx`), only the main `try-on-flow.tsx`, follow-up if wanted.
+- [ ] Broader sweep for unused CSS/utility classes still pending
 
 ## 9. Copy pass: remove em dashes and fluff
 - [ ] Repo-wide sweep replacing em dashes in UI copy and comments with proper conjunctions (or, and, so)
