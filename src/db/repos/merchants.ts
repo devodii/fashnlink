@@ -1,6 +1,7 @@
 import { eq, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { merchants } from '@/db/schema';
+import type { ContactChannel } from '@/config/contact-channel';
 
 export async function countFounderMerchants(): Promise<number> {
   const [row] = await db
@@ -11,7 +12,7 @@ export async function countFounderMerchants(): Promise<number> {
 }
 
 export type MerchantSettings = {
-  contactChannel?: { type: 'whatsapp' | 'instagram' | 'email'; value: string };
+  contactChannel?: ContactChannel;
   accentToken?: string;
   logoUrl?: string;
 };

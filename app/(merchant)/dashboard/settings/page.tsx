@@ -20,8 +20,7 @@ export default async function SettingsPage() {
           name: merchant.name,
           accentToken: settings.accentToken ?? '1',
           logoUrl: settings.logoUrl ?? null,
-          contactType: settings.contactChannel?.type ?? 'whatsapp',
-          contactValue: settings.contactChannel?.value ?? '',
+          contactChannel: settings.contactChannel ?? { type: 'whatsapp', value: '' },
         }}
       />
     </div>

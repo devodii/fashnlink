@@ -13,12 +13,12 @@ import { LoadingButton } from '@/components/loading-button';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { MediaTile } from '@/components/media-tile';
 import { SplitPane } from '@/components/split-pane';
+import { contactChannelSchema, type ContactChannel } from '@/config/contact-channel';
 
 const schema = z.object({
   name: z.string().min(1, 'Required'),
   accentToken: z.enum(['1', '2', '3', '4', '5', '6']),
-  contactType: z.enum(['whatsapp', 'instagram', 'email']),
-  contactValue: z.string().min(1, 'Required'),
+  contactChannel: contactChannelSchema,
 });
 
 export function SettingsForm({
@@ -30,8 +30,7 @@ export function SettingsForm({
     name: string;
     accentToken: string;
     logoUrl: string | null;
-    contactType: 'whatsapp' | 'instagram' | 'email';
-    contactValue: string;
+    contactChannel: ContactChannel;
   };
 }) {
   const router = useRouter();
@@ -39,14 +38,13 @@ export function SettingsForm({
     defaultValues: {
       name: initial.name,
       accentToken: (initial.accentToken as z.infer<typeof schema>['accentToken']) ?? '1',
-      contactType: initial.contactType,
-      contactValue: initial.contactValue,
+      contactChannel: initial.contactChannel,
     },
   });
   const [logo, setLogo] = React.useState<UploadedFile | null>(
     initial.logoUrl ? { url: initial.logoUrl, key: '', name: 'logo' } : null,
   );
-  const contactType = form.watch('contactType');
+  const contactType = form.watch('contactChannel.type');
 
   async function onSubmit(values: z.infer<typeof schema>) {
     await fetch('/api/merchants/me', {
@@ -56,7 +54,7 @@ export function SettingsForm({
         name: values.name,
         accentToken: values.accentToken,
         ...(logo && { logoUrl: logo.url }),
-        contactChannel: { type: values.contactType, value: values.contactValue },
+        contactChannel: values.contactChannel,
       }),
     });
     router.refresh();
@@ -111,7 +109,7 @@ export function SettingsForm({
 
               <SegmentedField
                 control={form.control}
-                name="contactType"
+                name="contactChannel.type"
                 label="Contact channel"
                 options={[
                   { value: 'whatsapp', label: 'WhatsApp' },
@@ -120,11 +118,15 @@ export function SettingsForm({
                 ]}
               />
               {contactType === 'whatsapp' ? (
-                <PhoneField control={form.control} name="contactValue" label="Contact detail" />
+                <PhoneField
+                  control={form.control}
+                  name="contactChannel.value"
+                  label="Contact detail"
+                />
               ) : (
                 <TextField
                   control={form.control}
-                  name="contactValue"
+                  name="contactChannel.value"
                   label="Contact detail"
                   placeholder={contactType === 'instagram' ? '@yourstore' : 'you@yourstore.com'}
                 />

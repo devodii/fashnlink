@@ -21,6 +21,7 @@ import { MediaTile } from '@/components/media-tile';
 import { CopyField } from '@/components/copy-field';
 import { PhoneFrame } from '@/components/phone-frame';
 import { ChipSelect } from '@/components/chip-select';
+import { contactChannelSchema } from '@/config/contact-channel';
 
 const PLATFORM_CHIPS = ['Shopify', 'WooCommerce', 'Squarespace', 'Wix', 'Something else'].map(
   (label) => ({ value: label, label }),
@@ -30,8 +31,7 @@ const urlSchema = z.object({ url: z.string().url('Paste a full product URL') });
 const brandSchema = z.object({
   name: z.string().min(1, 'Required'),
   accentToken: z.enum(['1', '2', '3', '4', '5', '6']),
-  contactType: z.enum(['whatsapp', 'instagram', 'email']),
-  contactValue: z.string().min(1, 'Required'),
+  contactChannel: contactChannelSchema,
 });
 
 type CreatedLink = { linkId: string; slug: string; productId: string; productTitle: string };
@@ -180,9 +180,13 @@ function BrandStep({
   onDone: () => void;
 }) {
   const form = useZodForm<z.infer<typeof brandSchema>>(brandSchema, {
-    defaultValues: { name: '', accentToken: '1', contactType: 'whatsapp', contactValue: '' },
+    defaultValues: {
+      name: '',
+      accentToken: '1',
+      contactChannel: { type: 'whatsapp', value: '' },
+    },
   });
-  const contactType = form.watch('contactType');
+  const contactType = form.watch('contactChannel.type');
 
   async function onSubmit(values: z.infer<typeof brandSchema>) {
     await fetch('/api/merchants/me', {
@@ -192,7 +196,7 @@ function BrandStep({
         name: values.name,
         accentToken: values.accentToken,
         ...(logo && { logoUrl: logo.url }),
-        contactChannel: { type: values.contactType, value: values.contactValue },
+        contactChannel: values.contactChannel,
       }),
     });
     onDone();
@@ -222,7 +226,7 @@ function BrandStep({
 
       <SegmentedField
         control={form.control}
-        name="contactType"
+        name="contactChannel.type"
         label="Contact channel"
         options={[
           { value: 'whatsapp', label: 'WhatsApp' },
@@ -231,11 +235,11 @@ function BrandStep({
         ]}
       />
       {contactType === 'whatsapp' ? (
-        <PhoneField control={form.control} name="contactValue" label="Contact detail" />
+        <PhoneField control={form.control} name="contactChannel.value" label="Contact detail" />
       ) : (
         <TextField
           control={form.control}
-          name="contactValue"
+          name="contactChannel.value"
           label="Contact detail"
           placeholder={contactType === 'instagram' ? '@yourstore' : 'you@yourstore.com'}
         />

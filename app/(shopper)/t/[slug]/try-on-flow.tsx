@@ -17,9 +17,9 @@ import { SplitPane } from '@/components/split-pane';
 import { usePolling } from '@/hooks/use-polling';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { formatPriceCents } from '@/lib/format';
+import type { ContactChannel } from '@/config/contact-channel';
 
 type Twin = { id: string; status: string; twinUrl: string | null };
-type ContactChannel = { type: 'whatsapp' | 'instagram' | 'email'; value: string } | null;
 
 export interface TryOnFlowProps {
   linkId: string;
@@ -29,7 +29,7 @@ export interface TryOnFlowProps {
   currency: string | null;
   buyUrl: string | null;
   merchantName: string;
-  contactChannel: ContactChannel;
+  contactChannel: ContactChannel | null;
   accentToken: string | null;
   productImageUrl: string | null;
   variantOptions: VariantOption[];
@@ -42,7 +42,7 @@ type Stage =
   'idle' | 'consent' | 'twin-pending' | 'render-pending' | 'result' | 'blocked' | 'error';
 
 function contactHref(
-  channel: ContactChannel,
+  channel: ContactChannel | null,
   productTitle: string,
   pageUrl: string,
 ): string | null {

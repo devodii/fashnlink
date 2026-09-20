@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { apiHandler, requireMerchantSession } from '@/lib/api-handler';
 import { ok, err } from '@/lib/result';
+import { contactChannelSchema } from '@/config/contact-channel';
 import {
   updateMerchantBrand,
   updateMerchantSettings,
@@ -11,12 +12,7 @@ const bodySchema = z.object({
   name: z.string().min(1).max(80).optional(),
   logoUrl: z.string().url().optional(),
   accentToken: z.enum(['1', '2', '3', '4', '5', '6']).optional(),
-  contactChannel: z
-    .object({
-      type: z.enum(['whatsapp', 'instagram', 'email']),
-      value: z.string().min(1),
-    })
-    .optional(),
+  contactChannel: contactChannelSchema.optional(),
 });
 
 export const PATCH = apiHandler({
