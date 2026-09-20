@@ -1,5 +1,5 @@
 import { desc, eq } from 'drizzle-orm';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { db } from '@/db';
 import { creditLedger } from '@/db/schema';
 import { currentBalance } from '@/modules/render/credit-ledger';

@@ -1,4 +1,4 @@
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { retrieveLeads } from '@/actions/leads';
 import { PageHeader } from '@/components/page-header';
 import { LeadsTable } from './leads-table';

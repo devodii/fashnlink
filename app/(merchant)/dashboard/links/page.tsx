@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { retrieveLinks } from '@/actions/links';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';

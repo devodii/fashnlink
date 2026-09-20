@@ -1,4 +1,4 @@
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { PageHeader } from '@/components/page-header';
 import { NewLinkForm } from './new-link-form';
 

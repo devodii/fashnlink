@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { env } from '@/lib/env';
 import { Container } from '@/components/container';
 import { OnboardingWizard } from './onboarding-wizard';

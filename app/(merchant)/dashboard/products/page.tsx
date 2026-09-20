@@ -1,4 +1,4 @@
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { retrieveProducts } from '@/actions/products';
 import { PageHeader } from '@/components/page-header';
 import { ProductsTable } from './products-table';

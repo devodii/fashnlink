@@ -1,12 +1,12 @@
 import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
-import { deleteMerchantAccount } from '@/modules/auth/delete-account';
+import { deleteMerchants } from '@/actions/merchants';
 
 export const POST = apiHandler({
   name: 'merchants.deleteAccount',
   auth: ['merchant_session'],
   handler: async ({ merchant }) => {
-    await deleteMerchantAccount(merchant.merchantId, merchant.email);
+    await deleteMerchants([merchant.merchantId]);
     return ok({ deleted: true });
   },
 });

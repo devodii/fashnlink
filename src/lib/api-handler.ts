@@ -6,7 +6,7 @@ import type { z } from 'zod';
 
 import { db } from '@/db';
 import { idempotencyKeys, merchants } from '@/db/schema';
-import { auth } from '@/modules/auth';
+import { auth } from '@/actions/auth';
 import { createShoppers } from '@/actions/shoppers';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';

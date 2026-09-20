@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { retrieveCampaigns } from '@/actions/campaigns';
 import { db } from '@/db';
 import { campaignItems, products } from '@/db/schema';

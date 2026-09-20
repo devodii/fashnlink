@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { desc, eq } from 'drizzle-orm';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { db } from '@/db';
 import { products, renders, leads } from '@/db/schema';
 import { retrieveLinks } from '@/actions/links';

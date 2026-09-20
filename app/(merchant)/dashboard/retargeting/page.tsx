@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { and, count, eq, isNull } from 'drizzle-orm';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { db } from '@/db';
 import { cartEvents, campaignItems, campaigns, espConnections, retargetOptins } from '@/db/schema';
 import { PageHeader } from '@/components/page-header';

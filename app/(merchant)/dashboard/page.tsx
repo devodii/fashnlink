@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireMerchant } from '@/modules/auth/require-merchant';
+import { requireMerchant } from '@/actions/merchants';
 import { currentBalance } from '@/modules/render/credit-ledger';
 import { retrieveLinks } from '@/actions/links';
 import { retrieveDashboard } from '@/actions/dashboard';
