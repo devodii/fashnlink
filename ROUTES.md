@@ -57,12 +57,12 @@ Every API route and every page, what it does, and who can reach it. `auth` scope
 
 ### Polls and groups
 
-| Route                       | Method | Auth              | What it does                                                                                                                                      |
-| --------------------------- | ------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/api/polls/[linkId]`       | GET    | public            | Poll state and vote counts                                                                                                                        |
-| `/api/polls/[linkId]`       | POST   | shopper, merchant | Act on a poll; body `action: 'vote'` (shopper, takes `renderId`) or `action: 'close'` (merchant, poll owner, closes it before the 48h auto-close) |
-| `/api/groups/[linkId]`      | GET    | public            | Group link state (who's joined)                                                                                                                   |
-| `/api/groups/[linkId]/join` | POST   | shopper           | Join a group link                                                                                                                                 |
+| Route                  | Method | Auth              | What it does                                                                                                                                      |
+| ---------------------- | ------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/polls/[linkId]`  | GET    | public            | Poll state and vote counts                                                                                                                        |
+| `/api/polls/[linkId]`  | POST   | shopper, merchant | Act on a poll; body `action: 'vote'` (shopper, takes `renderId`) or `action: 'close'` (merchant, poll owner, closes it before the 48h auto-close) |
+| `/api/groups/[linkId]` | GET    | public            | Group link state (who's joined)                                                                                                                   |
+| `/api/groups/[linkId]` | POST   | shopper           | Join a group link (or update your existing pick)                                                                                                  |
 
 ### Claims
 

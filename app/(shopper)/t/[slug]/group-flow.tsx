@@ -108,7 +108,7 @@ export function GroupFlow({
     const variantNote = Object.entries(variantSelection)
       .map(([name, value]) => `${name}: ${value}`)
       .join(', ');
-    await fetch(`/api/groups/${linkId}/join`, {
+    await fetch(`/api/groups/${linkId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
