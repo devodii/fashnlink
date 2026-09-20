@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { requireMerchant } from '@/modules/auth/require-merchant';
 import { db } from '@/db';
 import { stores } from '@/db/schema';
-import type { MerchantSettings } from '@/db/repos/merchants';
+import type { MerchantSettings } from '@/actions/merchants';
 import { PageHeader } from '@/components/page-header';
 import { SettingsForm } from './settings-form';
 

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { links, merchants, productImages, productVariants, products, twins } from '@/db/schema';
 import { readShopperId } from '@/modules/shoppers';
-import type { MerchantSettings } from '@/db/repos/merchants';
+import type { MerchantSettings } from '@/actions/merchants';
 import { TryOnFlow } from './try-on-flow';
 import { PollFlow } from './poll-flow';
 import { GroupFlow } from './group-flow';

@@ -1,12 +1,12 @@
 import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/config/pricing';
-import { countFounderMerchants } from '@/db/repos/merchants';
+import { readMerchant } from '@/actions/merchants';
 import { Container } from '@/components/container';
 import { Section } from '@/components/section';
 import { PricingCard } from '@/components/pricing-card';
 import { QuickDemoForm } from './quick-demo-form';
 
 export default async function Home() {
-  const founderCount = await countFounderMerchants();
+  const founderCount = await readMerchant({ countByPlan: 'founder' });
   const seatsRemaining = Math.max(FOUNDING_PASS_SEATS_TOTAL - founderCount, 0);
 
   return (
