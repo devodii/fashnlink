@@ -3,6 +3,17 @@
 import * as React from 'react';
 import { cn } from 'cn';
 import type { LucideIcon } from 'lucide-react';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from '@/components/ui/sidebar';
 
 export interface NavItem {
   label: string;
@@ -21,26 +32,33 @@ export interface AppShellProps {
 
 export function AppShell({ nav, user, actions, footer, children }: AppShellProps) {
   return (
-    <div className="flex min-h-dvh flex-col md:flex-row">
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-border p-4 md:flex">
-        <nav className="flex-1 space-y-1">
-          {nav.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground',
-                item.active && 'bg-secondary text-secondary-foreground',
-              )}
-            >
-              <item.icon className="size-4" />
-              {item.label}
-            </a>
-          ))}
-        </nav>
-        {footer && <div className="mt-4 border-t border-border pt-4">{footer}</div>}
-        {user && <div className="mt-4 border-t border-border pt-4">{user}</div>}
-      </aside>
+    <SidebarProvider className="min-h-dvh flex-col md:flex-row">
+      <Sidebar collapsible="none" className="hidden w-56 shrink-0 border-r border-border md:flex">
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {nav.map((item) => (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={item.active}>
+                      <a href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+        {(footer || user) && (
+          <SidebarFooter>
+            {footer}
+            {user}
+          </SidebarFooter>
+        )}
+      </Sidebar>
 
       <div className="flex min-w-0 flex-1 flex-col">
         {actions && (
@@ -66,6 +84,6 @@ export function AppShell({ nav, user, actions, footer, children }: AppShellProps
           </a>
         ))}
       </nav>
-    </div>
+    </SidebarProvider>
   );
 }
