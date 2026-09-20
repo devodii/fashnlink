@@ -26,7 +26,7 @@ export function DropForm({ products }: { products: { id: string; title: string }
       return;
     }
     let cancelled = false;
-    fetch('/api/campaigns/estimate', {
+    fetch('/api/campaigns?estimate=true', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ productIds: selected }),
