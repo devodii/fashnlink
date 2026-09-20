@@ -37,12 +37,26 @@ export const POST = apiHandler({
           const payment = event.data;
           const eventId = payment.id;
 
-          const [existing] = await db
-            .select({ id: paymentEvents.id })
-            .from(paymentEvents)
-            .where(eq(paymentEvents.id, eventId))
-            .limit(1);
-          if (existing) {
+          /**
+           * Insert-first, not select-then-insert: a select-then-insert check
+           * leaves a window where two concurrent deliveries of the same
+           * webhook (standard retry behavior, and Polar/paykit is no
+           * exception) can both see "not yet processed" and both grant
+           * credits. The payment_events primary key makes the insert itself
+           * the atomic dedupe gate, same pattern as api-handler's
+           * idempotency-key lock.
+           */
+          const inserted = await db
+            .insert(paymentEvents)
+            .values({
+              id: eventId,
+              provider: 'polar',
+              type: 'payment.succeeded',
+              payload: payment as unknown as object,
+            })
+            .onConflictDoNothing({ target: paymentEvents.id })
+            .returning({ id: paymentEvents.id });
+          if (inserted.length === 0) {
             log.info({ eventId }, 'polar payment already processed, skipping');
             return;
           }
@@ -72,13 +86,6 @@ export const POST = apiHandler({
               );
             }
           }
-
-          await db.insert(paymentEvents).values({
-            id: eventId,
-            provider: 'polar',
-            type: 'payment.succeeded',
-            payload: payment as unknown as object,
-          });
         })
         .handle({ body: rawBody, headersAsObject: headersRecord, fullUrl });
     } catch (cause) {
