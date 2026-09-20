@@ -1,9 +1,9 @@
 import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { scrapeUrl } from '@/modules/scraper';
-import { findStoreByDomain } from '@/db/repos/stores';
-import { findProductByExternalId } from '@/db/repos/products';
-import { createMultiProductLink, createSingleLink } from '@/db/repos/links';
+import { readStore } from '@/actions/stores';
+import { readProduct } from '@/actions/products';
+import { createLink } from '@/actions/links';
 
 export type CreatedLink = {
   linkId: string;
@@ -26,10 +26,10 @@ export async function scrapeUrlToProduct(
   if (!product) return err({ code: 'INTERNAL', message: 'Scrape produced no product' });
 
   const hostname = new URL(rawUrl).hostname;
-  const store = await findStoreByDomain(hostname);
+  const store = await readStore({ domain: hostname });
   if (!store) return err({ code: 'INTERNAL', message: 'Store not found after scrape' });
 
-  const saved = await findProductByExternalId(store.id, product.externalId);
+  const saved = await readProduct({ storeId: store.id, externalId: product.externalId });
   if (!saved) return err({ code: 'INTERNAL', message: 'Product not found after scrape' });
 
   return ok({ productId: saved.id, productTitle: product.title });
@@ -43,7 +43,7 @@ export async function createLinkFromUrl(
   const product = await scrapeUrlToProduct(rawUrl, merchantId, ctx);
   if (!product.ok) return product;
 
-  const link = await createSingleLink({ merchantId, productId: product.value.productId });
+  const link = await createLink({ kind: 'single', merchantId, productId: product.value.productId });
   if (!link) return err({ code: 'INTERNAL', message: 'Failed to create link' });
 
   return ok({
@@ -72,10 +72,10 @@ export async function createPollLinkFromUrls(
     products.push(scraped.value);
   }
 
-  const link = await createMultiProductLink({
+  const link = await createLink({
+    kind: 'poll',
     merchantId,
     productIds: products.map((p) => p.productId),
-    kind: 'poll',
   });
   if (!link) return err({ code: 'INTERNAL', message: 'Failed to create poll link' });
 
@@ -92,10 +92,10 @@ export async function createGroupLinkFromUrl(
   const product = await scrapeUrlToProduct(rawUrl, merchantId, ctx);
   if (!product.ok) return product;
 
-  const link = await createMultiProductLink({
+  const link = await createLink({
+    kind: 'group',
     merchantId,
     productIds: [product.value.productId],
-    kind: 'group',
     title: groupName,
     settings: { groupName, groupNote },
   });

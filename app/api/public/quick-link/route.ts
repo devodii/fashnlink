@@ -4,7 +4,8 @@ import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
 import { scrapeUrlToProduct } from '@/modules/links/create-link-from-url';
-import { createSingleLink, findProductImagesForLink } from '@/db/repos/links';
+import { createLink } from '@/actions/links';
+import { readProduct } from '@/actions/products';
 import { ensureSystemMerchant, SYSTEM_MERCHANT_ID } from '@/config/system-merchant';
 import { QUICK_LINK_DEMO_PER_IP_PER_DAY } from '@/config/limits';
 
@@ -38,13 +39,14 @@ export const POST = apiHandler({
     const scraped = await scrapeUrlToProduct(body.url, SYSTEM_MERCHANT_ID, ctx);
     if (!scraped.ok) return scraped;
 
-    const link = await createSingleLink({
+    const link = await createLink({
+      kind: 'single',
       merchantId: SYSTEM_MERCHANT_ID,
       productId: scraped.value.productId,
     });
     if (!link) return err({ code: 'INTERNAL', message: 'Failed to create demo link' });
 
-    const images = await findProductImagesForLink(scraped.value.productId);
+    const images = await readProduct({ productId: scraped.value.productId, imagesOnly: true });
     const tryonImage = images.find((i) => i.isTryonSource) ?? images[0] ?? null;
 
     return ok({

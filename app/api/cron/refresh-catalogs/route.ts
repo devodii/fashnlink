@@ -1,6 +1,6 @@
 import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
-import { findStoresDueForRefresh } from '@/db/repos/stores';
+import { readStore } from '@/actions/stores';
 import { scraperRegistry } from '@/modules/scraper';
 import { enqueueJobs } from '@/modules/jobs';
 
@@ -17,7 +17,7 @@ export const GET = apiHandler({
   name: 'cron.refreshCatalogs',
   auth: ['cron'],
   handler: async () => {
-    const dueStores = await findStoresDueForRefresh(STALE_AFTER_HOURS);
+    const dueStores = await readStore({ dueForRefresh: STALE_AFTER_HOURS });
     const crawlableStores = dueStores.filter((store) =>
       scraperRegistry.supports(store.platform, 'listProducts'),
     );

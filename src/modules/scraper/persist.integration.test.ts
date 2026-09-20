@@ -23,13 +23,8 @@ import { db } from '@/db';
 import { products, productImages, productVariants, stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { childLogger } from '@/lib/log';
-import { findOrCreateStore } from '@/db/repos/stores';
-import {
-  findProductByExternalId,
-  replaceProductImages,
-  replaceProductVariants,
-  upsertProduct,
-} from '@/db/repos/products';
+import { createStore } from '@/actions/stores';
+import { createProduct, readProduct, updateProduct } from '@/actions/products';
 import { enrichProduct } from './enrich';
 import type { NormalizedProduct } from './schema';
 import type { FinalWearabilityVerdict, ImageVisionVerdict } from '@/config/wearable-rules';
@@ -52,7 +47,7 @@ afterAll(async () => {
 
 describe('M2 persistence pipeline against a real local Postgres', () => {
   it('enriches and persists a product with images and variants', async () => {
-    const store = await findOrCreateStore({
+    const store = await createStore({
       domain: TEST_DOMAIN,
       platform: 'shopify',
       fingerprint: {},
@@ -158,7 +153,7 @@ describe('M2 persistence pipeline against a real local Postgres', () => {
     expect(enrichedImages[0].isTryonSource).toBe(true);
     expect(enrichedImages[0].role).toBe('flat_lay');
 
-    const saved = await upsertProduct({
+    const saved = await createProduct({
       id: productId,
       storeId: store.id,
       normalized,
@@ -172,10 +167,9 @@ describe('M2 persistence pipeline against a real local Postgres', () => {
     expect(saved?.id).toBe(productId);
     expect(saved?.eligibility).toBe('eligible');
 
-    await replaceProductImages(productId, enrichedImages);
-    await replaceProductVariants(
-      productId,
-      normalized.variants.map((v) => ({
+    await updateProduct(productId, {
+      images: enrichedImages,
+      variants: normalized.variants.map((v) => ({
         externalId: v.externalId,
         sku: v.sku,
         optionSize: v.size,
@@ -184,9 +178,9 @@ describe('M2 persistence pipeline against a real local Postgres', () => {
         priceCents: v.priceCents,
         available: v.available,
       })),
-    );
+    });
 
-    const roundTrippedProduct = await findProductByExternalId(store.id, 'test-ext-1');
+    const roundTrippedProduct = await readProduct({ storeId: store.id, externalId: 'test-ext-1' });
     expect(roundTrippedProduct?.id).toBe(productId);
     expect(roundTrippedProduct?.title).toBe('Test Cardigan');
 

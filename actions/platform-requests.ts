@@ -4,13 +4,39 @@ import { platformRequests } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import type { PlatformKey } from '@/modules/scraper/types';
 
-export async function recordPlatformRequest(input: {
-  hostname: string;
-  sampleUrl: string;
-  detectedPlatform: PlatformKey | null;
-  signals: Record<string, unknown>;
-  merchantId?: string | null;
-}) {
+export async function createPlatformRequest(
+  input:
+    | {
+        kind: 'scraped';
+        hostname: string;
+        sampleUrl: string;
+        detectedPlatform: PlatformKey | null;
+        signals: Record<string, unknown>;
+        merchantId?: string | null;
+      }
+    | { kind: 'freetext'; merchantId: string; notes: string },
+) {
+  if (input.kind === 'freetext') {
+    // hostname is NOT NULL + unique on this table, so a synthetic
+    // per-merchant placeholder stands in since free-text requests have no
+    // real hostname.
+    const [created] = await db
+      .insert(platformRequests)
+      .values({
+        id: newId('preq'),
+        hostname: `freetext:${input.merchantId}:${Date.now()}`,
+        sampleUrl: null,
+        detectedPlatform: null,
+        signals: {},
+        requestCount: 1,
+        firstMerchantId: input.merchantId,
+        status: 'open',
+        notes: input.notes,
+      })
+      .returning();
+    return created;
+  }
+
   const [existing] = await db
     .select()
     .from(platformRequests)
@@ -36,26 +62,6 @@ export async function recordPlatformRequest(input: {
       requestCount: 1,
       firstMerchantId: input.merchantId ?? null,
       status: 'open',
-    })
-    .returning();
-  return created;
-}
-
-// hostname is NOT NULL + unique on this table, so a synthetic per-merchant
-// placeholder stands in since free-text requests have no real hostname.
-export async function recordFreeTextPlatformRequest(input: { merchantId: string; notes: string }) {
-  const [created] = await db
-    .insert(platformRequests)
-    .values({
-      id: newId('preq'),
-      hostname: `freetext:${input.merchantId}:${Date.now()}`,
-      sampleUrl: null,
-      detectedPlatform: null,
-      signals: {},
-      requestCount: 1,
-      firstMerchantId: input.merchantId,
-      status: 'open',
-      notes: input.notes,
     })
     .returning();
   return created;
