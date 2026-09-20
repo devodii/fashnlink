@@ -4,13 +4,13 @@ Working list for the final pre-launch pass. Items get struck through as they lan
 
 ## 12. Round 2: knock out remaining items (in progress)
 
-- [x] Job queue: crashed jobs stuck in `status: 'running'` forever now get reaped and retried (up to 5 attempts, then marked failed) instead of silently stuck. `src/modules/jobs/drain.ts`
-- [ ] Storage: rename `deleteObject(key)` to `deleteObjects(keys: string[])`, batch-call UploadThing's `deleteFiles` once instead of once per loop iteration. Fix the two real loop call sites: `app/api/cron/cleanup/route.ts` and `src/modules/shoppers/delete-everything.ts`, update the other single-key call sites to pass a one-element array.
-- [ ] Broader sweep: find other places calling a single-row DB insert/update/delete inside a loop and batch them (bulk insert, `WHERE id IN (...)`, etc.), not just the storage example.
-- [ ] Found while investigating storage: `src/modules/storage/adapter.ts`'s `storageRegistry`/`Adapter` wrapper is dead code, nothing calls `storageRegistry.run()` anywhere, every real caller imports `putObject`/`deleteObject`/`getSignedUrl` directly. Candidate for removal (part of item 8).
-- [ ] Write a new `ROUTES.md`: every API route and every page route, what it does, in one file (separate from the page-inventory table already in this file, that one's page-only and UI-focused; this one covers the full API surface too).
-- [ ] Give the user the Neon connection string instructions again (asked, not yet answered by them).
-- [ ] Provision Neon + Upstash once the user hands over credentials, push env vars to Vercel, redeploy, confirm it's actually green (still the one item blocking a real production deploy).
+- [x] Job queue: crashed jobs stuck in `status: 'running'` forever now get reaped and retried (up to 5 attempts, then marked failed) instead of silently stuck. `src/modules/jobs/drain.ts` (`5812e5d`)
+- [x] Storage: renamed `deleteObject(key)` to `deleteObjects(keys: string[])`, batch-calls UploadThing's `deleteFiles` once instead of once per loop iteration. Fixed both real loop call sites (`app/api/cron/cleanup/route.ts`, `src/modules/shoppers/delete-everything.ts`), updated the single-key call sites to pass a one-element array (`14633b3`)
+- [ ] Broader sweep: find other places calling a single-row DB insert/update/delete inside a loop and batch them, delegated to a fork, in progress
+- [x] `src/modules/storage/adapter.ts`'s dead `storageRegistry`/`Adapter` wrapper removed, nothing called it (`e0cd446`)
+- [x] `ROUTES.md` written: every API route and every page route, what it does (`39ba417`)
+- [x] Gave the user the Neon connection string instructions (again, in chat)
+- [ ] Provision Neon + Upstash once the user hands over credentials, push env vars to Vercel, redeploy, confirm it's actually green (still the one item blocking a real production deploy)
 
 ## 3. Re-audit against the original build spec
 
