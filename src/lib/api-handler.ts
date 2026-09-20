@@ -26,7 +26,7 @@ export type ResolvedAuth =
  * Adds a pre-narrowed `merchant`/`shopper` param to the handler when `TScope`
  * includes that auth scope, so routes no longer call
  * `requireMerchantSession(auth)` / `requireShopperSession(auth)` and check
- * `.ok` themselves — the scope declared in `auth: [...]` already guarantees
+ * `.ok` themselves, since the scope declared in `auth: [...]` already guarantees
  * it at the type level.
  */
 type AuthContext<TScope extends AuthScope> = ('merchant_session' extends TScope
@@ -282,7 +282,7 @@ export const apiHandler = <
   config: HandlerConfig<TBody, TParams, TQuery, TScope>,
 ) => {
   if (routeRegistry.has(config.name)) {
-    throw new Error(`Route "${config.name}" is already registered — route names must be unique`);
+    throw new Error(`Route "${config.name}" is already registered, route names must be unique`);
   }
   routeRegistry.set(config.name, config as unknown as HandlerConfig<unknown, unknown, unknown>);
   if (config.mcp)

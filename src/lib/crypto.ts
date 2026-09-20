@@ -6,7 +6,7 @@ const IV_LENGTH = 12; // GCM's recommended nonce size is 96 bits
 
 function key(): Buffer {
   if (!env.ENCRYPTION_KEY) {
-    throw new Error('ENCRYPTION_KEY is not set — cannot encrypt/decrypt ESP credentials');
+    throw new Error('ENCRYPTION_KEY is not set, cannot encrypt/decrypt ESP credentials');
   }
   return Buffer.from(env.ENCRYPTION_KEY, 'base64');
 }

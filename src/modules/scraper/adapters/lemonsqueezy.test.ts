@@ -14,7 +14,7 @@ import { lemonsqueezyAdapter } from './lemonsqueezy';
  * Gumroad and Big Cartel pages, so the parsing logic itself isn't untested;
  * only this platform's real-world shape is unconfirmed.
  */
-describe('lemonsqueezy adapter (structural only — no real fixture found, see comment)', () => {
+describe('lemonsqueezy adapter (structural only, no real fixture found, see comment)', () => {
   it('matches only *.lemonsqueezy.com via hostPatterns', () => {
     expect(lemonsqueezyAdapter.hostPatterns?.some((p) => p.test('my-store.lemonsqueezy.com'))).toBe(
       true,

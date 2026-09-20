@@ -53,7 +53,7 @@ export async function createDrop(
   if (estimate.value.itemCount > MAX_DROP_ITEMS) {
     return err({
       code: 'INVALID_INPUT',
-      message: `this drop would create ${estimate.value.itemCount} items, over the ${MAX_DROP_ITEMS} cap — pick fewer products`,
+      message: `this drop would create ${estimate.value.itemCount} items, over the ${MAX_DROP_ITEMS} cap; pick fewer products`,
     });
   }
 

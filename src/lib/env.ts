@@ -75,7 +75,7 @@ export type Env = typeof env;
 
 /**
  * TUNNEL_URL overrides NEXT_PUBLIC_APP_URL wherever a URL must be reachable
- * from outside localhost — fal webhook callbacks, OG image crawlers — so
+ * from outside localhost (fal webhook callbacks, OG image crawlers), so
  * local dev behind ngrok (or similar) actually receives those calls back.
  */
 export const publicUrl = env.TUNNEL_URL || env.NEXT_PUBLIC_APP_URL;

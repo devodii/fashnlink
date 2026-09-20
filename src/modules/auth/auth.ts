@@ -15,7 +15,7 @@ const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
 async function sendMagicLink(email: string, url: string) {
   if (!resend) {
-    logger.info({ email, url }, 'magic link (dev — RESEND_API_KEY not set)');
+    logger.info({ email, url }, 'magic link (dev, RESEND_API_KEY not set)');
     return;
   }
   await resend.emails.send({
