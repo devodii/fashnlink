@@ -16,11 +16,35 @@ export type CreateRenderInput = {
   via: (typeof renderViaEnum.enumValues)[number];
 };
 
+/**
+ * Balance is derived from the latest ledger row's `refAfter`, not a single
+ * mutable balance row, so a plain `SELECT ... FOR UPDATE ORDER BY
+ * created_at DESC LIMIT 1` doesn't actually serialize concurrent writers:
+ * two transactions racing to reserve/grant/refund for the same merchant can
+ * both lock the same pre-existing "latest" row (a concurrent transaction's
+ * not-yet-committed INSERT of a newer row is invisible to them), and once
+ * the first commits, the second's lock wait is satisfied against that same
+ * unchanged row — Postgres only re-checks a locked row's WHERE clause when
+ * the row itself was updated, not when a newer sibling row appears — so the
+ * second transaction reads a stale balance instead of the true latest one.
+ * A session-scoped advisory lock keyed on the merchant id forces every
+ * ledger-mutating transaction for that merchant to run one at a time,
+ * closing that gap regardless of the row-lock subtlety above.
+ */
+async function lockMerchantLedger(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  merchantId: string,
+): Promise<void> {
+  await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${merchantId}))`);
+}
+
 export async function reserveRenderCredit(
   input: CreateRenderInput,
 ): Promise<Result<{ renderId: string }>> {
   try {
     const renderId = await db.transaction(async (tx) => {
+      await lockMerchantLedger(tx, input.merchantId);
+
       const [latest] = await tx
         .select({ refAfter: creditLedger.refAfter })
         .from(creditLedger)
@@ -77,6 +101,8 @@ export async function refundFailedRender(
 ): Promise<Result<void>> {
   try {
     await db.transaction(async (tx) => {
+      await lockMerchantLedger(tx, merchantId);
+
       const [latest] = await tx
         .select({ refAfter: creditLedger.refAfter })
         .from(creditLedger)
@@ -116,6 +142,8 @@ export async function grantCredits(
 ): Promise<Result<{ balance: number }>> {
   try {
     const balance = await db.transaction(async (tx) => {
+      await lockMerchantLedger(tx, merchantId);
+
       const [latest] = await tx
         .select({ refAfter: creditLedger.refAfter })
         .from(creditLedger)
@@ -146,6 +174,8 @@ export async function reserveCredits(
 ): Promise<Result<{ balance: number }>> {
   try {
     const balance = await db.transaction(async (tx) => {
+      await lockMerchantLedger(tx, merchantId);
+
       const [latest] = await tx
         .select({ refAfter: creditLedger.refAfter })
         .from(creditLedger)
