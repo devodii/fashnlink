@@ -31,16 +31,14 @@ Every API route and every page, what it does, and who can reach it. `auth` scope
 
 ### Twins and renders (the core try-on pipeline)
 
-| Route                          | Method | Auth    | What it does                                                                      |
-| ------------------------------ | ------ | ------- | --------------------------------------------------------------------------------- |
-| `/api/twins`                   | POST   | shopper | Upload a selfie, moderate it, kick off twin generation                            |
-| `/api/twins/[id]/status`       | GET    | shopper | Poll twin generation status                                                       |
-| `/api/renders`                 | POST   | shopper | Submit a render request (twin + garment), reserves a credit, routes to a provider |
-| `/api/renders/[id]`            | DELETE | shopper | Delete a render and its stored image                                              |
-| `/api/renders/[id]/status`     | GET    | shopper | Poll render status                                                                |
-| `/api/renders/[id]/share`      | POST   | shopper | Record a share event                                                              |
-| `/api/renders/[id]/buy-click`  | POST   | shopper | Record a "Buy" click                                                              |
-| `/api/renders/[id]/visibility` | POST   | shopper | Toggle whether a render is publicly shareable                                     |
+| Route                      | Method | Auth    | What it does                                                                                                              |
+| -------------------------- | ------ | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `/api/twins`               | POST   | shopper | Upload a selfie, moderate it, kick off twin generation                                                                    |
+| `/api/twins/[id]/status`   | GET    | shopper | Poll twin generation status                                                                                               |
+| `/api/renders`             | POST   | shopper | Submit a render request (twin + garment), reserves a credit, routes to a provider                                         |
+| `/api/renders/[id]`        | DELETE | shopper | Delete a render and its stored image                                                                                      |
+| `/api/renders/[id]`        | POST   | shopper | Record an event against a render; body `event: 'share' \| 'buy_click' \| 'visibility'` (visibility also takes `isPublic`) |
+| `/api/renders/[id]/status` | GET    | shopper | Poll render status                                                                                                        |
 
 ### Shopper account
 

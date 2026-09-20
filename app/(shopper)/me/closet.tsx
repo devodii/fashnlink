@@ -54,10 +54,10 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
     setRenders((prev) =>
       prev.map((r) => (r.renderId === render.renderId ? { ...r, isPublic: next } : r)),
     );
-    await fetch(`/api/renders/${render.renderId}/visibility`, {
+    await fetch(`/api/renders/${render.renderId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ isPublic: next }),
+      body: JSON.stringify({ event: 'visibility', isPublic: next }),
     }).catch(() => {});
   }
 
@@ -114,8 +114,10 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
                         title={render.productTitle}
                         url={`${typeof window !== 'undefined' ? window.location.origin : ''}/r/${render.renderId}`}
                         onShare={() => {
-                          fetch(`/api/renders/${render.renderId}/share`, {
+                          fetch(`/api/renders/${render.renderId}`, {
                             method: 'POST',
+                            headers: { 'content-type': 'application/json' },
+                            body: JSON.stringify({ event: 'share' }),
                           }).catch(() => {});
                         }}
                         trigger={

@@ -244,7 +244,11 @@ export function TryOnFlow({
 
   async function handleBuyClick() {
     if (renderId) {
-      fetch(`/api/renders/${renderId}/buy-click`, { method: 'POST' }).catch(() => {});
+      fetch(`/api/renders/${renderId}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ event: 'buy_click' }),
+      }).catch(() => {});
     }
     if (buyUrl) window.open(buyUrl, '_blank', 'noopener,noreferrer');
   }
@@ -343,7 +347,12 @@ export function TryOnFlow({
         title={`See it on you at ${merchantName}`}
         url={renderId ? `${window.location.origin}/r/${renderId}` : pageUrl}
         onShare={() => {
-          if (renderId) fetch(`/api/renders/${renderId}/share`, { method: 'POST' }).catch(() => {});
+          if (renderId)
+            fetch(`/api/renders/${renderId}`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ event: 'share' }),
+            }).catch(() => {});
         }}
       />
       {messageHref && (
