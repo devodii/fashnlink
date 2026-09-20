@@ -18,7 +18,7 @@ import { LanguagePicker } from '@/components/language-picker';
 import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useIsDesktop } from '@/hooks/use-media-query';
-import { formatPriceCents } from '@/lib/format';
+import { formatPriceCents } from '@/lib/util';
 import type { ContactChannel } from '@/config/contact-channel';
 
 type Twin = { id: string; status: string; twinUrl: string | null };

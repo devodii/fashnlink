@@ -5,7 +5,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { links, merchants, products, renders } from '@/db/schema';
 import { publicUrl } from '@/lib/env';
-import { formatPriceCents } from '@/lib/format';
+import { formatPriceCents } from '@/lib/util';
 import { err } from '@/lib/result';
 
 const paramsSchema = z.object({ renderId: z.string() });

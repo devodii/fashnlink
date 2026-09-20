@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { links, merchants, products, renders } from '@/db/schema';
 import { publicUrl } from '@/lib/env';
-import { formatPriceCents } from '@/lib/format';
+import { formatPriceCents } from '@/lib/util';
 import { Container } from '@/components/container';
 import { Button } from '@/components/ui/button';
 
