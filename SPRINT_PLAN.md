@@ -35,7 +35,7 @@ Note on item 3 (re-audit against the original build spec): the original pasted s
 - Noted, not fixed (business logic, not a security/leak issue): `/t/[slug]` only blocks rendering on `status === 'archived'`, not `'paused'` — the product page itself still renders for a paused link, only render creation is blocked. Tracked under item 6.
 
 ## 6. Business logic correctness pass
-- [ ] `/t/[slug]` should probably also block on `status === 'paused'`, not just `'archived'` (found during the route-protection audit, not yet fixed)
+- [x] Checked the `/t/[slug]` paused-link behavior flagged in the route audit: not a bug. The page renders normally for a paused link (correct, a paused link isn't a dead link), and clicking "See it on you" already fails gracefully through the existing `INSUFFICIENT_CREDITS` path with "this shop's try-on is paused" (`credit-ledger.ts`), which `try-on-flow.tsx` already displays. A hard 404 would be worse UX than this.
 - [ ] Re-check credit ledger, render routing/fallback, webhook idempotency, abandoned-cart cron, catalog refresh cron for correctness
 - [ ] Flag anything actually wrong (not stylistic) as its own commit with the fix
 
