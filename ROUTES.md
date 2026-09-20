@@ -12,13 +12,12 @@ Every API route and every page, what it does, and who can reach it. `auth` scope
 
 ### Merchant account
 
-| Route                                   | Method | Auth     | What it does                                                                                                                 |
-| --------------------------------------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `/api/merchants/me`                     | PATCH  | merchant | Update brand name, accent color, logo, contact channel                                                                       |
-| `/api/merchants/me/delete`              | POST   | merchant | Delete a merchant account (links, leads, credit history; product/render history tied to the store is preserved for shoppers) |
-| `/api/merchants/me/checkout`            | POST   | merchant | Create a Polar/paykit checkout session, returns a payment URL                                                                |
-| `/api/merchants/me/esp-connection`      | POST   | merchant | Save an ESP (Klaviyo etc.) API key connection                                                                                |
-| `/api/merchants/me/esp-connection/test` | POST   | merchant | Send a test event to confirm an ESP connection actually works                                                                |
+| Route                              | Method | Auth     | What it does                                                                                                                 |
+| ---------------------------------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `/api/merchants/me`                | PATCH  | merchant | Update brand name, accent color, logo, contact channel                                                                       |
+| `/api/merchants/me/delete`         | POST   | merchant | Delete a merchant account (links, leads, credit history; product/render history tied to the store is preserved for shoppers) |
+| `/api/merchants/me/checkout`       | POST   | merchant | Create a Polar/paykit checkout session, returns a payment URL                                                                |
+| `/api/merchants/me/esp-connection` | POST   | merchant | Save an ESP (Klaviyo etc.) API key connection; `?test=true` instead tests the existing saved connection                      |
 
 ### Links, products, drops
 

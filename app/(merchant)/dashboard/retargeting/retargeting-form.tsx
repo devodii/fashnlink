@@ -53,7 +53,7 @@ export function RetargetingForm({
 
   async function handleTest() {
     setTesting(true);
-    const res = await fetch('/api/merchants/me/esp-connection/test', { method: 'POST' });
+    const res = await fetch('/api/merchants/me/esp-connection?test=true', { method: 'POST' });
     setTestResult(res.ok ? 'ok' : 'failed');
     setTesting(false);
   }

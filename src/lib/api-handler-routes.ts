@@ -45,5 +45,4 @@ import '@/app/api/cron/abandoned/route';
 import '@/app/api/campaigns/route';
 import '@/app/api/campaigns/estimate/route';
 import '@/app/api/merchants/me/esp-connection/route';
-import '@/app/api/merchants/me/esp-connection/test/route';
 import '@/app/api/merchants/me/checkout/route';
