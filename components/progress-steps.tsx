@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check, Loader2, X } from 'lucide-react';
+import { Check, X } from '@phosphor-icons/react';
+import { Spinner } from '@/components/spinner';
 
 export type ProgressStepState = 'pending' | 'active' | 'done' | 'error';
 
@@ -17,7 +18,7 @@ export interface ProgressStepsProps {
 
 const ICON: Record<ProgressStepState, React.ReactNode> = {
   pending: <span className="size-1.5 rounded-full bg-muted-foreground" />,
-  active: <Loader2 className="size-3.5 animate-spin" />,
+  active: <Spinner size={14} />,
   done: <Check className="size-3.5" />,
   error: <X className="size-3.5" />,
 };

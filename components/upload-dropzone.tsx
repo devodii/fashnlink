@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { ImageIcon, Loader2, UploadCloud, X } from 'lucide-react';
+import { Image as ImageIcon, CloudArrowUp, X } from '@phosphor-icons/react';
+import { Spinner } from '@/components/spinner';
 import { useUploadThing } from '@/lib/uploadthing-client';
 
 export interface UploadedFile {
@@ -102,17 +103,13 @@ export function UploadDropzone({
           <img src={displayPreview} alt="" className="absolute inset-0 size-full object-cover" />
         ) : (
           <>
-            {isLoading ? (
-              <Loader2 className="size-6 animate-spin" />
-            ) : (
-              <UploadCloud className="size-6" />
-            )}
+            {isLoading ? <Spinner size={24} /> : <CloudArrowUp className="size-6" />}
             <span className="px-4 text-center text-sm">Tap to upload, or drag a photo here</span>
           </>
         )}
         {isLoading && displayPreview && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-            <Loader2 className="size-6 animate-spin" />
+            <Spinner size={24} />
           </div>
         )}
         {displayPreview && !isLoading && (
