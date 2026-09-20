@@ -1,4 +1,5 @@
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
+import { InferSelectModel } from 'drizzle-orm';
 import {
   boolean,
   integer,
@@ -659,3 +660,82 @@ export const verification = pgTable('verification', {
   expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   ...timestamps,
 });
+
+// ---------- Types ----------
+
+export type Merchant = InferSelectModel<typeof merchants>;
+export type Store = InferSelectModel<typeof stores>;
+export type Product = InferSelectModel<typeof products>;
+export type ProductImage = InferSelectModel<typeof productImages>;
+export type ProductVariant = InferSelectModel<typeof productVariants>;
+export type Link = InferSelectModel<typeof links>;
+export type Shopper = InferSelectModel<typeof shoppers>;
+export type Twin = InferSelectModel<typeof twins>;
+export type Render = InferSelectModel<typeof renders>;
+export type PollVote = InferSelectModel<typeof pollVotes>;
+export type GroupMember = InferSelectModel<typeof groupMembers>;
+export type Lead = InferSelectModel<typeof leads>;
+export type CreditLedger = InferSelectModel<typeof creditLedger>;
+export type PaymentEvent = InferSelectModel<typeof paymentEvents>;
+export type Job = InferSelectModel<typeof jobs>;
+export type Claim = InferSelectModel<typeof claims>;
+export type AuditLog = InferSelectModel<typeof auditLog>;
+export type RetargetOptin = InferSelectModel<typeof retargetOptins>;
+export type EspConnection = InferSelectModel<typeof espConnections>;
+export type Campaign = InferSelectModel<typeof campaigns>;
+export type CampaignItem = InferSelectModel<typeof campaignItems>;
+export type CartEvent = InferSelectModel<typeof cartEvents>;
+export type PlatformRequest = InferSelectModel<typeof platformRequests>;
+export type IdempotencyKey = InferSelectModel<typeof idempotencyKeys>;
+export type User = InferSelectModel<typeof user>;
+export type Session = InferSelectModel<typeof session>;
+export type Account = InferSelectModel<typeof account>;
+export type Verification = InferSelectModel<typeof verification>;
+
+export type Platform = (typeof platformEnum.enumValues)[number];
+export type Plan = (typeof planEnum.enumValues)[number];
+export type GarmentCategory = (typeof garmentCategoryEnum.enumValues)[number];
+export type WearableType = (typeof wearableTypeEnum.enumValues)[number];
+export type Eligibility = (typeof eligibilityEnum.enumValues)[number];
+export type ImageRole = (typeof imageRoleEnum.enumValues)[number];
+export type LinkKind = (typeof linkKindEnum.enumValues)[number];
+export type LinkStatus = (typeof linkStatusEnum.enumValues)[number];
+export type TwinStatus = (typeof twinStatusEnum.enumValues)[number];
+export type RenderStatus = (typeof renderStatusEnum.enumValues)[number];
+export type RenderVia = (typeof renderViaEnum.enumValues)[number];
+export type LeadSource = (typeof leadSourceEnum.enumValues)[number];
+export type LedgerReason = (typeof ledgerReasonEnum.enumValues)[number];
+export type JobStatus = (typeof jobStatusEnum.enumValues)[number];
+export type ClaimStatus = (typeof claimStatusEnum.enumValues)[number];
+export type RetargetSource = (typeof retargetSourceEnum.enumValues)[number];
+export type EspProvider = (typeof espProviderEnum.enumValues)[number];
+export type EspStatus = (typeof espStatusEnum.enumValues)[number];
+export type CampaignKind = (typeof campaignKindEnum.enumValues)[number];
+export type CampaignStatus = (typeof campaignStatusEnum.enumValues)[number];
+export type CampaignItemStatus = (typeof campaignItemStatusEnum.enumValues)[number];
+export type CartEventKind = (typeof cartEventKindEnum.enumValues)[number];
+export type PlatformRequestStatus = (typeof platformRequestStatusEnum.enumValues)[number];
+export type AuditActorType = (typeof auditActorTypeEnum.enumValues)[number];
+
+// ---------- Resolved (joined/derived) types ----------
+// Every optional field is populated only when the retrieving action's
+// filters asked for it; callers check for presence rather than the action
+// having multiple overloaded return shapes.
+
+export type ResolvedLink = Link & {
+  product?: { title: string | null } | null;
+  isClosed?: boolean | null;
+};
+export type ResolvedProduct = Product & {
+  images?: ProductImage[] | null;
+  hasTryonImage?: boolean | null;
+};
+export type ResolvedStore = Store;
+export type ResolvedCampaign = Campaign & {
+  itemCounts?: { pending: number; rendered: number; failed: number; skipped: number } | null;
+};
+export type ResolvedClaim = Claim & { productTitle?: string | null };
+export type ResolvedLead = Lead & { productTitle?: string | null; count?: number | null };
+export type ResolvedMerchant = Merchant;
+export type ResolvedTwin = Twin;
+export type ResolvedShopper = Shopper & { twinId?: string | null; twinUrl?: string | null };
