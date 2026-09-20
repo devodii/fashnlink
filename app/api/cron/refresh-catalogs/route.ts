@@ -2,7 +2,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
 import { findStoresDueForRefresh } from '@/db/repos/stores';
 import { scraperRegistry } from '@/modules/scraper';
-import { enqueueJob } from '@/modules/jobs';
+import { enqueueJobs } from '@/modules/jobs';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,14 +18,14 @@ export const GET = apiHandler({
   auth: ['cron'],
   handler: async () => {
     const dueStores = await findStoresDueForRefresh(STALE_AFTER_HOURS);
-    let enqueued = 0;
+    const crawlableStores = dueStores.filter((store) =>
+      scraperRegistry.supports(store.platform, 'listProducts'),
+    );
 
-    for (const store of dueStores) {
-      if (!scraperRegistry.supports(store.platform, 'listProducts')) continue;
-      await enqueueJob('store.crawled', { storeId: store.id });
-      enqueued++;
-    }
+    await enqueueJobs(
+      crawlableStores.map((store) => ({ type: 'store.crawled', payload: { storeId: store.id } })),
+    );
 
-    return ok({ storesDue: dueStores.length, enqueued });
+    return ok({ storesDue: dueStores.length, enqueued: crawlableStores.length });
   },
 });
