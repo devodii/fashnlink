@@ -13,7 +13,9 @@ import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { ShareSheet } from '@/components/share-sheet';
 import { Container } from '@/components/container';
+import { SplitPane } from '@/components/split-pane';
 import { usePolling } from '@/hooks/use-polling';
+import { useIsDesktop } from '@/hooks/use-media-query';
 import { formatPriceCents } from '@/lib/format';
 
 type Twin = { id: string; status: string; twinUrl: string | null };
@@ -252,14 +254,197 @@ export function TryOnFlow({
   const pageUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
   const messageHref = contactHref(contactChannel, productTitle, pageUrl);
   const price = formatPriceCents(priceCents, currency);
+  const isDesktop = useIsDesktop();
 
-  const dialogOpen = stage !== 'idle' && stage !== 'result';
+  const dialogOpen = !isDesktop && stage !== 'idle' && stage !== 'result';
 
   function handleDialogOpenChange(open: boolean) {
     if (open || stage === 'result') return;
     setStage('idle');
     setSelfie(null);
     setErrorMessage(null);
+  }
+
+  const flowStageContent = (
+    <div className="flex flex-col gap-4">
+      {stage === 'consent' && (
+        <div className="space-y-4">
+          <div className="flex items-start gap-2.5">
+            <Checkbox
+              id="consent"
+              checked={consent}
+              onCheckedChange={(checked) => setConsent(checked === true)}
+            />
+            <Label htmlFor="consent" className="text-sm leading-snug font-normal">
+              I consent to my photo being used to generate a try-on render of myself.
+            </Label>
+          </div>
+          <div className="flex items-start gap-2.5">
+            <Checkbox
+              id="age"
+              checked={ageAttested}
+              onCheckedChange={(checked) => setAgeAttested(checked === true)}
+            />
+            <Label htmlFor="age" className="text-sm leading-snug font-normal">
+              I am 18 or older and this is a photo of me.
+            </Label>
+          </div>
+          {consent && ageAttested ? (
+            <UploadDropzone capture="user" onFiles={handleSelfieFiles} />
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Check both boxes to take or upload a photo.
+            </p>
+          )}
+        </div>
+      )}
+
+      {(stage === 'twin-pending' || stage === 'render-pending') && (
+        <ProgressSteps steps={steps} orientation="vertical" />
+      )}
+
+      {(stage === 'blocked' || stage === 'error') && errorMessage && (
+        <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
+      )}
+      {stage === 'blocked' && (
+        <Button variant="outline" onClick={() => setStage('consent')}>
+          Try another photo
+        </Button>
+      )}
+      {stage === 'error' && (
+        <Button variant="outline" onClick={() => setStage('idle')}>
+          Try again
+        </Button>
+      )}
+    </div>
+  );
+
+  const resultActions = stage === 'result' && renderOutputUrl && (
+    <div className="flex flex-wrap items-center gap-2">
+      <ShareSheet
+        title={`See it on you at ${merchantName}`}
+        url={renderId ? `${window.location.origin}/r/${renderId}` : pageUrl}
+        onShare={() => {
+          if (renderId) fetch(`/api/renders/${renderId}/share`, { method: 'POST' }).catch(() => {});
+        }}
+      />
+      {messageHref && (
+        <Button variant="outline" asChild>
+          <a href={messageHref} target="_blank" rel="noopener noreferrer">
+            Message the shop
+          </a>
+        </Button>
+      )}
+      {buyUrl && (
+        <Button variant="outline" onClick={handleBuyClick}>
+          Buy
+        </Button>
+      )}
+      <Button
+        variant="ghost"
+        onClick={() => {
+          setStage('idle');
+          setRenderId(null);
+          setRenderOutputUrl(null);
+        }}
+      >
+        Try another look
+      </Button>
+    </div>
+  );
+
+  const emailGate = showEmailGate && (
+    <div className="space-y-3 rounded-md border border-border bg-card p-4">
+      <p className="text-sm font-medium text-foreground">Save your looks</p>
+      <Input
+        type="email"
+        placeholder="you@example.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <div className="flex items-start gap-2">
+        <Checkbox
+          id="retarget-opt-in"
+          checked={retargetOptIn}
+          onCheckedChange={(v) => setRetargetOptIn(v === true)}
+        />
+        <Label htmlFor="retarget-opt-in" className="text-sm leading-snug font-normal">
+          Send me looks from {merchantName} using my photo. Unsubscribe anytime.
+        </Label>
+      </div>
+      <div className="flex gap-2">
+        <Button onClick={handleEmailGateSubmit} disabled={!email}>
+          Save
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            setEmailSkippedOnce(true);
+            setShowEmailGate(false);
+          }}
+        >
+          Skip
+        </Button>
+      </div>
+    </div>
+  );
+
+  const productImage = (
+    <div className="flex flex-col gap-4">
+      <ImageReveal
+        from={productImageUrl ?? ''}
+        to={stage === 'result' ? renderOutputUrl : null}
+        alt={productTitle}
+      />
+      {variantOptions.length > 0 && (
+        <VariantPicker
+          options={variantOptions}
+          value={variantSelection}
+          onChange={(name, valueId) =>
+            setVariantSelection((prev) => ({ ...prev, [name]: valueId }))
+          }
+        />
+      )}
+    </div>
+  );
+
+  if (isDesktop) {
+    return (
+      <Container
+        size="lg"
+        data-brand={accentToken ?? undefined}
+        className="flex flex-1 flex-col gap-4 py-10"
+      >
+        {preview && (
+          <InlineAlert tone="warning" title="Preview">
+            This is a merchant preview — nothing here counts as a real visit.
+          </InlineAlert>
+        )}
+
+        <SplitPane
+          start={productImage}
+          end={
+            <div className="flex flex-col gap-5">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{merchantName}</p>
+                <h1 className="text-2xl font-medium text-foreground">{productTitle}</h1>
+                {price && <p className="text-sm text-muted-foreground">{price}</p>}
+              </div>
+
+              {stage === 'idle' && (
+                <Button size="lg" onClick={handleSeeItOnYou} disabled={preview}>
+                  See it on you
+                </Button>
+              )}
+
+              {flowStageContent}
+              {resultActions}
+              {emailGate}
+            </div>
+          }
+        />
+      </Container>
+    );
   }
 
   return (
@@ -280,150 +465,18 @@ export function TryOnFlow({
         {price && <p className="text-sm text-muted-foreground">{price}</p>}
       </div>
 
-      <ImageReveal
-        from={productImageUrl ?? ''}
-        to={stage === 'result' ? renderOutputUrl : null}
-        alt={productTitle}
-      />
-
-      {variantOptions.length > 0 && (
-        <VariantPicker
-          options={variantOptions}
-          value={variantSelection}
-          onChange={(name, valueId) =>
-            setVariantSelection((prev) => ({ ...prev, [name]: valueId }))
-          }
-        />
-      )}
+      {productImage}
 
       <ResponsiveDialog
         open={dialogOpen}
         onOpenChange={handleDialogOpenChange}
         title="See it on you"
       >
-        <div className="flex flex-col gap-4">
-          {stage === 'consent' && (
-            <div className="space-y-4">
-              <div className="flex items-start gap-2.5">
-                <Checkbox
-                  id="consent"
-                  checked={consent}
-                  onCheckedChange={(checked) => setConsent(checked === true)}
-                />
-                <Label htmlFor="consent" className="text-sm leading-snug font-normal">
-                  I consent to my photo being used to generate a try-on render of myself.
-                </Label>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <Checkbox
-                  id="age"
-                  checked={ageAttested}
-                  onCheckedChange={(checked) => setAgeAttested(checked === true)}
-                />
-                <Label htmlFor="age" className="text-sm leading-snug font-normal">
-                  I am 18 or older and this is a photo of me.
-                </Label>
-              </div>
-              {consent && ageAttested ? (
-                <UploadDropzone capture="user" onFiles={handleSelfieFiles} />
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Check both boxes to take or upload a photo.
-                </p>
-              )}
-            </div>
-          )}
-
-          {(stage === 'twin-pending' || stage === 'render-pending') && (
-            <ProgressSteps steps={steps} orientation="vertical" />
-          )}
-
-          {(stage === 'blocked' || stage === 'error') && errorMessage && (
-            <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
-          )}
-          {stage === 'blocked' && (
-            <Button variant="outline" onClick={() => setStage('consent')}>
-              Try another photo
-            </Button>
-          )}
-          {stage === 'error' && (
-            <Button variant="outline" onClick={() => setStage('idle')}>
-              Try again
-            </Button>
-          )}
-        </div>
+        {flowStageContent}
       </ResponsiveDialog>
 
-      {stage === 'result' && renderOutputUrl && (
-        <div className="flex flex-wrap items-center gap-2">
-          <ShareSheet
-            title={`See it on you at ${merchantName}`}
-            url={renderId ? `${window.location.origin}/r/${renderId}` : pageUrl}
-            onShare={() => {
-              if (renderId)
-                fetch(`/api/renders/${renderId}/share`, { method: 'POST' }).catch(() => {});
-            }}
-          />
-          {messageHref && (
-            <Button variant="outline" asChild>
-              <a href={messageHref} target="_blank" rel="noopener noreferrer">
-                Message the shop
-              </a>
-            </Button>
-          )}
-          {buyUrl && (
-            <Button variant="outline" onClick={handleBuyClick}>
-              Buy
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setStage('idle');
-              setRenderId(null);
-              setRenderOutputUrl(null);
-            }}
-          >
-            Try another look
-          </Button>
-        </div>
-      )}
-
-      {showEmailGate && (
-        <div className="space-y-3 rounded-md border border-border bg-card p-4">
-          <p className="text-sm font-medium text-foreground">Save your looks</p>
-          <Input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <div className="flex items-start gap-2">
-            <Checkbox
-              id="retarget-opt-in"
-              checked={retargetOptIn}
-              onCheckedChange={(v) => setRetargetOptIn(v === true)}
-            />
-            <Label htmlFor="retarget-opt-in" className="text-sm leading-snug font-normal">
-              Send me looks from {merchantName} using my photo. Unsubscribe anytime.
-            </Label>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleEmailGateSubmit} disabled={!email}>
-              Save
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setEmailSkippedOnce(true);
-                setShowEmailGate(false);
-              }}
-            >
-              Skip
-            </Button>
-          </div>
-        </div>
-      )}
+      {resultActions}
+      {emailGate}
 
       {stage === 'idle' && (
         <div className="fixed inset-x-0 bottom-0 border-t border-border bg-background p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
