@@ -22,7 +22,19 @@ export type ResolvedAuth =
   | { type: 'webhook' }
   | { type: 'public' };
 
-export type HandlerConfig<TBody, TParams, TQuery> = {
+/**
+ * Adds a pre-narrowed `merchant`/`shopper` param to the handler when `TScope`
+ * includes that auth scope, so routes no longer call
+ * `requireMerchantSession(auth)` / `requireShopperSession(auth)` and check
+ * `.ok` themselves — the scope declared in `auth: [...]` already guarantees
+ * it at the type level.
+ */
+type AuthContext<TScope extends AuthScope> = ('merchant_session' extends TScope
+  ? { merchant: { merchantId: string; email: string } }
+  : unknown) &
+  ('shopper_session' extends TScope ? { shopper: { shopperId: string } } : unknown);
+
+export type HandlerConfig<TBody, TParams, TQuery, TScope extends AuthScope = AuthScope> = {
   name: string;
   schema?: {
     body?: z.ZodType<TBody>;
@@ -30,7 +42,7 @@ export type HandlerConfig<TBody, TParams, TQuery> = {
     query?: z.ZodType<TQuery>;
   };
   mcp?: { name: string; description: string };
-  auth?: AuthScope[];
+  auth?: readonly TScope[];
   webhookVerify?: (req: NextRequest) => Promise<Result<void>> | Result<void>;
   rateLimit?: {
     key: (args: { auth: ResolvedAuth; req: NextRequest }) => string;
@@ -39,14 +51,16 @@ export type HandlerConfig<TBody, TParams, TQuery> = {
   };
   cors?: boolean;
   convertToSnakeCase?: boolean;
-  handler: (args: {
-    body: TBody;
-    params: TParams;
-    query: TQuery;
-    auth: ResolvedAuth;
-    req: NextRequest;
-    requestId: string;
-  }) => Promise<Result<unknown> | Response> | Result<unknown> | Response;
+  handler: (
+    args: {
+      body: TBody;
+      params: TParams;
+      query: TQuery;
+      auth: ResolvedAuth;
+      req: NextRequest;
+      requestId: string;
+    } & AuthContext<TScope>,
+  ) => Promise<Result<unknown> | Response> | Result<unknown> | Response;
 };
 
 export const routeRegistry = new Map<string, HandlerConfig<unknown, unknown, unknown>>();
@@ -124,7 +138,7 @@ async function resolveMerchantSession(req: NextRequest): Promise<ResolvedAuth | 
 }
 
 async function resolveAuth<TBody, TParams, TQuery>(
-  scopes: AuthScope[],
+  scopes: readonly AuthScope[],
   req: NextRequest,
   webhookVerify: HandlerConfig<TBody, TParams, TQuery>['webhookVerify'],
 ): Promise<ResolvedAuth> {
@@ -182,6 +196,16 @@ export function requireMerchantSession(
     return { ok: false, error: { code: 'UNAUTHORIZED', message: 'merchant session required' } };
   }
   return { ok: true, value: { merchantId: resolvedAuth.merchantId, email: resolvedAuth.email } };
+}
+
+function authContextFor(resolvedAuth: ResolvedAuth): Record<string, unknown> {
+  if (resolvedAuth.type === 'merchant_session') {
+    return { merchant: { merchantId: resolvedAuth.merchantId, email: resolvedAuth.email } };
+  }
+  if (resolvedAuth.type === 'shopper_session') {
+    return { shopper: { shopperId: resolvedAuth.shopperId } };
+  }
+  return {};
 }
 
 function actorIdFor(resolvedAuth: ResolvedAuth): string {
@@ -267,15 +291,23 @@ function toSnakeCase(value: unknown): unknown {
   );
 }
 
-export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>(
-  config: HandlerConfig<TBody, TParams, TQuery>,
+export const apiHandler = <
+  TBody = unknown,
+  TParams = unknown,
+  TQuery = unknown,
+  TScope extends AuthScope = AuthScope,
+>(
+  config: HandlerConfig<TBody, TParams, TQuery, TScope>,
 ) => {
   if (routeRegistry.has(config.name)) {
     throw new Error(`Route "${config.name}" is already registered — route names must be unique`);
   }
-  routeRegistry.set(config.name, config as HandlerConfig<unknown, unknown, unknown>);
+  routeRegistry.set(config.name, config as unknown as HandlerConfig<unknown, unknown, unknown>);
   if (config.mcp)
-    mcpToolsRegistry.set(config.mcp.name, config as HandlerConfig<unknown, unknown, unknown>);
+    mcpToolsRegistry.set(
+      config.mcp.name,
+      config as unknown as HandlerConfig<unknown, unknown, unknown>,
+    );
 
   return async (
     req: NextRequest,
@@ -393,7 +425,8 @@ export const apiHandler = <TBody = unknown, TParams = unknown, TQuery = unknown>
         auth: resolvedAuth,
         req,
         requestId,
-      });
+        ...authContextFor(resolvedAuth),
+      } as Parameters<typeof config.handler>[0]);
 
       if (result instanceof Response) return result;
       if (!result.ok) throw result.error;
