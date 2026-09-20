@@ -41,6 +41,13 @@ export const POST = apiHandler({
       if (!twin || !twin.provider) {
         return err({ code: 'NOT_FOUND', message: 'twin not found' });
       }
+      // fal can redeliver the same webhook (standard retry behavior); once a
+      // twin has reached a terminal state, ignore further deliveries rather
+      // than re-downloading and re-uploading the same image.
+      if (twin.status === 'ready' || twin.status === 'failed') {
+        log.info({ twinId: twin.id, status: twin.status }, 'fal webhook redelivered, ignoring');
+        return ok({ handled: true });
+      }
 
       const provider = getProvider(twin.provider as ProviderKey);
       const parsed = provider.parseWebhook(body);
@@ -68,6 +75,14 @@ export const POST = apiHandler({
     const [render] = await db.select().from(renders).where(eq(renders.id, query.id)).limit(1);
     if (!render || !render.provider) {
       return err({ code: 'NOT_FOUND', message: 'render not found' });
+    }
+    // Same redelivery guard as the twin branch above: without it, a
+    // redelivered "failed" webhook would call refundFailedRender again
+    // (double-granting credits back), and a redelivered "succeeded" webhook
+    // would re-download and re-upload the output image.
+    if (render.status === 'succeeded' || render.status === 'failed') {
+      log.info({ renderId: render.id, status: render.status }, 'fal webhook redelivered, ignoring');
+      return ok({ handled: true });
     }
 
     let merchantId: string | null = null;
