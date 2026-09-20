@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { env } from '@/lib/env';
 import { PLANS } from '@/config/pricing';
 import { LinksTable } from './links/links-table';
+import { BuyFoundingPassButton } from './billing/buy-founding-pass-button';
 
 export default async function DashboardOverviewPage() {
   const merchant = await requireMerchant();
@@ -20,9 +21,7 @@ export default async function DashboardOverviewPage() {
     findLinksWithProductByMerchant(merchant.id),
   ]);
 
-  const checkoutUrl = env.POLAR_FOUNDING_PASS_CHECKOUT_LINK
-    ? `${env.POLAR_FOUNDING_PASS_CHECKOUT_LINK}?customer_external_id=${merchant.id}`
-    : null;
+  const canBuyFoundingPass = Boolean(env.POLAR_FOUNDING_PASS_PRODUCT_ID);
 
   return (
     <div className="space-y-8 p-4 md:p-8">
@@ -30,13 +29,10 @@ export default async function DashboardOverviewPage() {
         title="Overview"
         description="Your links, renders, and credits at a glance."
         actions={
-          merchant.plan === 'free' && checkoutUrl ? (
-            <Button asChild>
-              <a href={checkoutUrl}>
-                Buy founding pass —{' '}
-                {PLANS.founder.priceCents ? `$${PLANS.founder.priceCents / 100}` : ''}
-              </a>
-            </Button>
+          merchant.plan === 'free' && canBuyFoundingPass ? (
+            <BuyFoundingPassButton
+              label={`Buy founding pass — ${PLANS.founder.priceCents ? `$${PLANS.founder.priceCents / 100}` : ''}`}
+            />
           ) : (
             <Badge variant="secondary" className="capitalize">
               {merchant.plan}

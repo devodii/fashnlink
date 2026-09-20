@@ -9,8 +9,8 @@ import { PageHeader } from '@/components/page-header';
 import { Section } from '@/components/section';
 import { CreditMeter } from '@/components/credit-meter';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { LedgerTable } from './ledger-table';
+import { BuyFoundingPassButton } from './buy-founding-pass-button';
 
 export default async function BillingPage() {
   const merchant = await requireMerchant();
@@ -24,9 +24,7 @@ export default async function BillingPage() {
       .limit(100),
   ]);
 
-  const checkoutUrl = env.POLAR_FOUNDING_PASS_CHECKOUT_LINK
-    ? `${env.POLAR_FOUNDING_PASS_CHECKOUT_LINK}?customer_external_id=${merchant.id}`
-    : null;
+  const canBuyFoundingPass = Boolean(env.POLAR_FOUNDING_PASS_PRODUCT_ID);
 
   return (
     <div className="space-y-8 p-4 md:p-8">
@@ -36,13 +34,10 @@ export default async function BillingPage() {
         actions={
           merchant.plan === 'founder' ? (
             <Badge>Founder</Badge>
-          ) : checkoutUrl ? (
-            <Button asChild>
-              <a href={checkoutUrl}>
-                Buy founding pass —{' '}
-                {PLANS.founder.priceCents ? `$${PLANS.founder.priceCents / 100}` : ''}
-              </a>
-            </Button>
+          ) : canBuyFoundingPass ? (
+            <BuyFoundingPassButton
+              label={`Buy founding pass — ${PLANS.founder.priceCents ? `$${PLANS.founder.priceCents / 100}` : ''}`}
+            />
           ) : null
         }
       />
