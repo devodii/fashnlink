@@ -75,24 +75,29 @@ export function DemoProcessing() {
 
   return (
     <main className="flex min-h-screen flex-1 items-center justify-center bg-background">
-      <Container size="sm" className="flex flex-col items-center gap-8 py-16 text-center">
-        <PhoneFrame className="max-w-56">
-          <ShimmerCard aspect="9/16" className="size-full rounded-none" />
-        </PhoneFrame>
+      <Container size="sm" className="py-12">
+        <div className="flex flex-col items-center gap-6 md:flex-row md:items-center md:justify-center md:gap-8">
+          <PhoneFrame className="max-w-56 shrink-0">
+            <ShimmerCard aspect="9/16" className="size-full rounded-none" />
+          </PhoneFrame>
 
-        {error ? (
-          <div className="flex w-full max-w-xs flex-col gap-3">
-            <InlineAlert tone="destructive">{error}</InlineAlert>
-            <Button variant="secondary" onClick={() => router.push('/')}>
-              Try another link
-            </Button>
+          <div className="flex flex-col items-center gap-4 text-center md:items-start md:text-left">
+            <p className="text-sm text-muted-foreground">
+              {error ? "Something didn't work" : 'Building your try-on link…'}
+            </p>
+
+            {error ? (
+              <div className="flex w-full max-w-xs flex-col gap-3">
+                <InlineAlert tone="destructive">{error}</InlineAlert>
+                <Button variant="secondary" onClick={() => router.push('/')}>
+                  Try another link
+                </Button>
+              </div>
+            ) : (
+              <ProgressSteps steps={steps} orientation="vertical" />
+            )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-sm text-muted-foreground">Building your try-on link…</p>
-            <ProgressSteps steps={steps} orientation="vertical" />
-          </div>
-        )}
+        </div>
       </Container>
     </main>
   );
