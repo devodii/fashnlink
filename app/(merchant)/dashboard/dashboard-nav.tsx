@@ -21,15 +21,17 @@ const BASE_ITEMS: Omit<NavItem, 'active'>[] = [
   { label: 'Model pack', href: '/dashboard/model-pack', icon: Sparkle },
   { label: 'Retargeting', href: '/dashboard/retargeting', icon: Envelope },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { label: 'Gear', href: '/dashboard/settings', icon: Gear },
+  { label: 'Settings', href: '/dashboard/settings', icon: Gear },
 ];
 
 export function DashboardNav({
   children,
   actions,
+  user,
 }: {
   children: React.ReactNode;
   actions?: React.ReactNode;
+  user: { name: string; email: string; logoUrl?: string | null };
 }) {
   const pathname = usePathname();
   const nav: NavItem[] = BASE_ITEMS.map((item) => ({
@@ -38,7 +40,7 @@ export function DashboardNav({
   }));
 
   return (
-    <AppShell nav={nav} actions={actions}>
+    <AppShell nav={nav} actions={actions} user={user}>
       {children}
     </AppShell>
   );

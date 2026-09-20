@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Package, ShoppingBag } from '@phosphor-icons/react/ssr';
 import { AppShell, type NavItem } from './app-shell';
-import { LanguagePicker } from './language-picker';
 
 const NAV: NavItem[] = [
   { label: 'Dashboard', href: '#dashboard', icon: ShoppingBag, active: true },
@@ -14,7 +13,7 @@ const meta: Meta<typeof AppShell> = {
   tags: ['ai-generated'],
   args: {
     nav: NAV,
-    footer: <LanguagePicker />,
+    user: { name: 'Studio Ada', email: 'hello@studioada.com' },
     children: (
       <div className="rounded-md border border-border bg-card p-6 text-sm">Page content</div>
     ),

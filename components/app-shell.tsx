@@ -1,18 +1,30 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from 'cn';
+import { useRouter } from 'next/navigation';
 import type { Icon } from '@phosphor-icons/react';
+import { SignOut } from '@phosphor-icons/react/ssr';
+import { authClient } from '@/lib/auth-client';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 
 export interface NavItem {
@@ -24,23 +36,61 @@ export interface NavItem {
 
 export interface AppShellProps {
   nav: NavItem[];
-  user?: React.ReactNode;
+  user?: { name: string; email: string; logoUrl?: string | null };
   actions?: React.ReactNode;
-  footer?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export function AppShell({ nav, user, actions, footer, children }: AppShellProps) {
+function initials(name: string, email: string) {
+  const source = name.trim() || email;
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
+
+function SidebarUserMenu({ name, email, logoUrl }: NonNullable<AppShellProps['user']>) {
+  const router = useRouter();
+
+  async function handleSignOut() {
+    await authClient.signOut();
+    router.push('/login');
+  }
+
   return (
-    <SidebarProvider className="min-h-dvh flex-col md:flex-row">
-      <Sidebar collapsible="none" className="hidden w-56 shrink-0 border-r border-border md:flex">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="flex w-full items-center gap-2 rounded-md p-2 text-left hover:bg-sidebar-accent">
+          <Avatar size="sm">
+            {logoUrl && <AvatarImage src={logoUrl} alt={name} />}
+            <AvatarFallback>{initials(name, email)}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+            <p className="truncate text-sm font-medium text-sidebar-foreground">{name}</p>
+            <p className="truncate text-xs text-sidebar-foreground/70">{email}</p>
+          </div>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" className="w-56">
+        <DropdownMenuItem onClick={handleSignOut}>
+          <SignOut />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function AppShell({ nav, user, actions, children }: AppShellProps) {
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
                 {nav.map((item) => (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={item.active}>
+                    <SidebarMenuButton asChild isActive={item.active} tooltip={item.label}>
                       <a href={item.href}>
                         <item.icon />
                         <span>{item.label}</span>
@@ -52,38 +102,21 @@ export function AppShell({ nav, user, actions, footer, children }: AppShellProps
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        {(footer || user) && (
+        {user && (
           <SidebarFooter>
-            {footer}
-            {user}
+            <SidebarUserMenu {...user} />
           </SidebarFooter>
         )}
+        <SidebarRail />
       </Sidebar>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {actions && (
-          <div className="hidden items-center justify-end gap-2 border-b border-border px-6 py-3 md:flex">
-            {actions}
-          </div>
-        )}
-        <main className="flex-1 px-4 py-4 pb-20 md:px-6 md:py-6 md:pb-6">{children}</main>
-      </div>
-
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-around border-t border-border bg-background py-1 md:hidden">
-        {nav.map((item) => (
-          <a
-            key={item.href}
-            href={item.href}
-            className={cn(
-              'flex min-w-11 flex-col items-center gap-0.5 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground',
-              item.active && 'text-foreground',
-            )}
-          >
-            <item.icon className="size-5" />
-            {item.label}
-          </a>
-        ))}
-      </nav>
+      <SidebarInset>
+        <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 md:px-6">
+          <SidebarTrigger />
+          {actions && <div className="flex items-center gap-2">{actions}</div>}
+        </header>
+        <main className="flex-1 px-4 py-4 md:px-6 md:py-6">{children}</main>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
