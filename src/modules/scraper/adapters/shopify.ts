@@ -4,7 +4,7 @@ import type { Ctx } from '@/lib/adapter';
 import type { DetectResult, HomepageProbe, ScraperAdapter, StoreRef } from '../types';
 import type { NormalizedProduct } from '../schema';
 import { mapVariantOptions } from '../shared/options';
-import { centsFromMinorUnits, parsePriceStringToCents } from '../shared/price';
+import { centsFromMinorUnits, parsePriceStringToCents } from '@/lib/util';
 
 const shopifyMediaSchema = z.object({
   id: z.number(),

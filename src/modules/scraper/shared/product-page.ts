@@ -11,8 +11,7 @@ import {
   jsonLdPriceCents,
 } from './jsonld';
 import { extractH1, extractMetaTags, extractTitleTag } from './opengraph';
-import { toAbsoluteUrl } from '@/lib/util';
-import { parsePriceStringToCents } from './price';
+import { parsePriceStringToCents, toAbsoluteUrl } from '@/lib/util';
 
 export const productPageRawSchema = z.object({
   url: z.string(),

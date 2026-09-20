@@ -1,4 +1,4 @@
-import { parsePriceStringToCents } from './price';
+import { parsePriceStringToCents } from '@/lib/util';
 
 // Regex-extracted rather than a full DOM parse: no HTML parser is in the
 // dependency list, and JSON-LD blocks are trivially isolated by their own
