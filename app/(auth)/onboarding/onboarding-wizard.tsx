@@ -14,6 +14,8 @@ import { SwatchField } from '@/components/forms/swatch-field';
 import { LoadingButton } from '@/components/loading-button';
 import { InlineAlert } from '@/components/inline-alert';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { MediaTile } from '@/components/media-tile';
 import { CopyField } from '@/components/copy-field';
@@ -152,9 +154,9 @@ function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) 
 
       {somethingElse && (
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">What do you use to sell?</label>
-          <input
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+          <Label htmlFor="platform-notes">What do you use to sell?</Label>
+          <Input
+            id="platform-notes"
             placeholder="e.g. a custom cart, Etsy, ..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

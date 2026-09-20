@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ShareSheet } from '@/components/share-sheet';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Section } from '@/components/section';
 
 type ClosetRender = {
@@ -156,12 +157,12 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
       {!hasEmail && !emailSaved && (
         <Section title="Save your closet">
           <div className="flex gap-2">
-            <input
+            <Input
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm"
+              className="flex-1"
             />
             <Button onClick={handleSaveEmail} disabled={!email}>
               Save
