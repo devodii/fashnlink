@@ -10,3 +10,17 @@ export async function enqueueJob(type: string, payload: unknown, opts: { runAfte
     runAfter: opts.runAfter ?? new Date(),
   });
 }
+
+export async function enqueueJobs(
+  entries: { type: string; payload: unknown; runAfter?: Date }[],
+): Promise<void> {
+  if (entries.length === 0) return;
+  await db.insert(jobs).values(
+    entries.map((entry) => ({
+      id: newId('job'),
+      type: entry.type,
+      payload: entry.payload as Record<string, unknown>,
+      runAfter: entry.runAfter ?? new Date(),
+    })),
+  );
+}
