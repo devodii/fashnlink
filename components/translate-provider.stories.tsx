@@ -10,7 +10,7 @@ export default meta;
 
 type Story = StoryObj<typeof TranslateProvider>;
 
-// A script-injecting context provider, not a visible component — this story
+// A script-injecting context provider, not a visible component, so this story
 // only proves it mounts and renders its children without throwing.
 export const Default: Story = {
   args: {

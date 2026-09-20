@@ -11,7 +11,7 @@ export default meta;
 
 type Story = StoryObj;
 
-// The real upload flow talks to UploadThing (no key in Storybook) — this
+// The real upload flow talks to UploadThing (no key in Storybook), so this
 // only proves the field mounts and wires a control into UploadDropzone.
 export const Default: Story = {
   render: () => (

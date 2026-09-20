@@ -19,7 +19,7 @@ export const Large: Story = { args: { size: 240 } };
 export const CssCheck: Story = {
   play: async ({ canvas }) => {
     const svg = canvas.getByRole('img');
-    // fill="currentColor" on a text-foreground root — themes with the page
+    // fill="currentColor" on a text-foreground root, so it themes with the page
     // instead of hardcoding black modules.
     await expect(getComputedStyle(svg).color).not.toBe('rgba(0, 0, 0, 0)');
   },

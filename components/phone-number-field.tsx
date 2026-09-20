@@ -104,7 +104,7 @@ function formatAsYouType(raw: string, countryCode: string): string {
   const formatted = new AsYouType(countryCode as CountryCode).input(raw);
   const digits = raw.replace(/\D/g, '');
 
-  // AsYouType echoes back raw digits when it can't match a pattern — fall back to simple grouping.
+  // AsYouType echoes back raw digits when it can't match a pattern, so fall back to simple grouping.
   if (formatted === digits && digits.length >= 6) {
     if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
     if (digits.length <= 9) return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
@@ -156,7 +156,7 @@ export function PhoneNumberField({
     const prevDigits = displayNumber.replace(/\D/g, '');
 
     // When the user backspaces a formatting character (paren, space, dash) the digit
-    // count stays the same but the raw string shrinks — remove the preceding digit too
+    // count stays the same but the raw string shrinks, so remove the preceding digit too
     // so the field doesn't get stuck (e.g. perpetually showing "(708)").
     const digits =
       newDigits.length === prevDigits.length && raw.length < displayNumber.length

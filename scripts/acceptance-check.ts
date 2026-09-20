@@ -124,7 +124,7 @@ async function main() {
 
   console.log('\n=== ACCEPTANCE CHECK RESULTS ===\n');
   for (const r of results) {
-    console.log(`[${r.outcome}] ${r.platform} — ${r.url}\n  ${r.detail}`);
+    console.log(`[${r.outcome}] ${r.platform}: ${r.url}\n  ${r.detail}`);
   }
 
   const counts: Record<string, number> = {};

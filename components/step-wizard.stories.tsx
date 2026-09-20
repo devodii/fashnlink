@@ -16,7 +16,7 @@ function Demo() {
             title: 'Product',
             render: (api) => (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">Step 1 of 3 — paste a product link.</p>
+                <p className="text-sm text-muted-foreground">Step 1 of 3: paste a product link.</p>
                 <Button type="button" onClick={api.next}>
                   Continue
                 </Button>
@@ -29,7 +29,7 @@ function Demo() {
             optional: true,
             render: (api) => (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">Step 2 of 3 — pick an accent.</p>
+                <p className="text-sm text-muted-foreground">Step 2 of 3: pick an accent.</p>
                 <SwatchPicker options={BRAND_OPTIONS} value="1" onChange={() => {}} />
                 <Button type="button" onClick={api.next}>
                   Continue
@@ -41,7 +41,7 @@ function Demo() {
             id: 'done',
             title: 'Done',
             render: () => (
-              <p className="text-sm text-muted-foreground">Step 3 of 3 — your link is ready.</p>
+              <p className="text-sm text-muted-foreground">Step 3 of 3: your link is ready.</p>
             ),
           },
         ]}
@@ -65,7 +65,7 @@ export const Default: Story = {};
 // from `useSearchParams()` (no local React state fallback), and Storybook's
 // mocked next/navigation doesn't reflect a `router.push()` call back into
 // `useSearchParams()`, so a click-through can't be proven in this
-// environment — the real URL-persistence behavior is already covered by the
+// environment; the real URL-persistence behavior is already covered by the
 // app's own integration tests.
 
 export const Mobile: Story = {

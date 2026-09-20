@@ -13,7 +13,7 @@ type Story = StoryObj<typeof Section>;
 export const Default: Story = {
   args: {
     title: 'Data display',
-    description: 'Links, renders, leads — everything a merchant checks daily.',
+    description: 'Links, renders, leads: everything a merchant checks daily.',
     children: <div className="rounded-md border border-border bg-card p-4 text-sm">Content</div>,
   },
 };
