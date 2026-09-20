@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { err, ok, type Result } from '@/lib/result';
-import { registerJobHandler } from '@/modules/jobs/registry';
+import { defineJobHandler } from '@/modules/jobs/registry';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { retrieveStores, updateStores } from '@/actions/stores';
@@ -9,6 +9,7 @@ import { retrieveProducts, updateProducts } from '@/actions/products';
 import { scraperRegistry } from './index';
 
 const payloadSchema = z.object({ storeId: z.string() });
+type StoreCrawledPayload = z.infer<typeof payloadSchema>;
 
 /**
  * Scoped to refreshing products that already exist (price, availability,
@@ -19,7 +20,7 @@ const payloadSchema = z.object({ storeId: z.string() });
  * currently factored out into a reusable single-product function. New
  * products still need to be pasted in manually (onboarding / new link).
  */
-registerJobHandler('store.crawled', async (payload): Promise<Result<void>> => {
+defineJobHandler<StoreCrawledPayload>('store.crawled', async (payload): Promise<Result<void>> => {
   const parsed = payloadSchema.safeParse(payload);
   if (!parsed.success)
     return err({ code: 'INVALID_INPUT', message: 'invalid store.crawled payload' });
