@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { expect } from 'storybook/test';
 import { InlineAlert } from './inline-alert';
 
 const meta: Meta<typeof InlineAlert> = {
@@ -28,4 +29,20 @@ export const Warning: Story = {
 
 export const Neutral: Story = {
   args: { children: 'Renders reset at the start of each billing cycle.' },
+};
+
+export const NotDismissible: Story = {
+  args: {
+    tone: 'warning',
+    dismissible: false,
+    children: 'This one has no close button.',
+  },
+};
+
+export const DismissesOnClick: Story = {
+  args: { tone: 'destructive', children: 'That link could not be created.' },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Dismiss' }));
+    await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
+  },
 };

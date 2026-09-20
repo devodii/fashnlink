@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { z } from 'zod';
-import { expect } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { FieldStory } from './story-utils';
 import { PhoneField } from './phone-field';
 
@@ -40,7 +40,7 @@ export const TypesIntoField: Story = {
   play: async ({ canvas, userEvent }) => {
     const input = canvas.getByPlaceholderText('Phone number');
     await userEvent.type(input, '4155550132');
-    await expect(input).toHaveValue('415 555 0132');
+    await expect(input).toHaveValue('(415) 555-0132');
   },
 };
 
@@ -50,11 +50,13 @@ export const SwitchesCountry: Story = {
       {(control) => <PhoneField control={control} name="contact" label="Contact detail" />}
     </FieldStory>
   ),
-  play: async ({ canvas, userEvent }) => {
+  play: async ({ canvas, canvasElement, userEvent }) => {
     await userEvent.click(canvas.getByRole('combobox'));
-    const listbox = canvas.getByPlaceholderText('Search country...');
+    // Popover content portals to document.body, not the story root.
+    const body = within(canvasElement.ownerDocument.body);
+    const listbox = await body.findByPlaceholderText('Search country...');
     await userEvent.type(listbox, 'United Kingdom');
-    await userEvent.click(await canvas.findByText('United Kingdom'));
+    await userEvent.click(await body.findByText('United Kingdom'));
     await expect(canvas.getByText('+44')).toBeInTheDocument();
   },
 };
