@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Package } from 'lucide-react';
+import { Package } from '@phosphor-icons/react/ssr';
 import { EmptyState } from './empty-state';
 import { Button } from './ui/button';
 

@@ -3,7 +3,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
-import { Receipt } from 'lucide-react';
+import { Receipt } from '@phosphor-icons/react/ssr';
 
 type LedgerRow = { delta: number; reason: string; refAfter: number; createdAt: Date };
 

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Package, ShoppingBag } from 'lucide-react';
+import { Package, ShoppingBag } from '@phosphor-icons/react/ssr';
 import { AppShell, type NavItem } from './app-shell';
 import { LanguagePicker } from './language-picker';
 

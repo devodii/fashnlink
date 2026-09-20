@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy } from '@phosphor-icons/react/ssr';
 import { useCopy } from '@/hooks/use-copy';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

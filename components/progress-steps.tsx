@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check, X } from '@phosphor-icons/react';
+import { Check, X } from '@phosphor-icons/react/ssr';
 import { Spinner } from '@/components/spinner';
 
 export type ProgressStepState = 'pending' | 'active' | 'done' | 'error';

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as RHF from 'react-hook-form';
 import { cn } from 'cn';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { Check, CaretUpDown, X } from '@phosphor-icons/react/ssr';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -85,7 +85,7 @@ export function MultiSelectField<TValues extends RHF.FieldValues, TName extends 
                         .join(', ')
                     )}
                   </span>
-                  <ChevronsUpDown className="size-4 shrink-0 opacity-50" />
+                  <CaretUpDown className="size-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">

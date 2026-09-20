@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Copy, Download, MessageCircle, Share2 } from 'lucide-react';
+import { Copy, Download, ChatCircle, Share } from '@phosphor-icons/react/ssr';
 import { useCopy } from '@/hooks/use-copy';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
@@ -80,7 +80,7 @@ export function ShareSheet({
       <span onClick={handleOpen}>
         {trigger ?? (
           <Button type="button">
-            <Share2 className="size-4" /> Share
+            <Share className="size-4" /> Share
           </Button>
         )}
       </span>
@@ -96,9 +96,9 @@ export function ShareSheet({
               {channel === 'copy' && <Copy className="size-4" />}
               {channel === 'download' && <Download className="size-4" />}
               {(channel === 'whatsapp' || channel === 'instagram') && (
-                <MessageCircle className="size-4" />
+                <ChatCircle className="size-4" />
               )}
-              {channel === 'x' && <Share2 className="size-4" />}
+              {channel === 'x' && <Share className="size-4" />}
               {CHANNEL_LABEL[channel]}
             </Button>
           ))}

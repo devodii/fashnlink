@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import type { LucideIcon } from 'lucide-react';
+import type { Icon } from '@phosphor-icons/react';
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +18,7 @@ import {
 export interface NavItem {
   label: string;
   href: string;
-  icon: LucideIcon;
+  icon: Icon;
   active?: boolean;
 }
 

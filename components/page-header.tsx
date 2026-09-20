@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { ChevronRight } from 'lucide-react';
+import { CaretRight } from '@phosphor-icons/react/ssr';
 
 export interface Breadcrumb {
   label: string;
@@ -48,7 +48,7 @@ export function PageHeader({
         >
           {breadcrumbs.map((crumb, i) => (
             <React.Fragment key={crumb.label}>
-              {i > 0 && <ChevronRight className="size-3.5" />}
+              {i > 0 && <CaretRight className="size-3.5" />}
               {crumb.href ? (
                 <a href={crumb.href} className="hover:text-foreground">
                   {crumb.label}

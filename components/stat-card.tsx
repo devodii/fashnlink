@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp } from '@phosphor-icons/react/ssr';
 import { CountUp } from '@/components/count-up';
 import { Skeleton } from '@/components/ui/skeleton';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Info, XCircle, Warning } from '@phosphor-icons/react';
+import { CheckCircle, Info, XCircle, Warning } from '@phosphor-icons/react/ssr';
 import { useTheme } from 'next-themes';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 import { Spinner } from '@/components/spinner';

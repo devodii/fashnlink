@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check } from 'lucide-react';
+import { Check } from '@phosphor-icons/react/ssr';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 

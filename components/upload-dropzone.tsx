@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Image as ImageIcon, CloudArrowUp, X } from '@phosphor-icons/react';
+import { Image as ImageIcon, CloudArrowUp, X } from '@phosphor-icons/react/ssr';
 import { Spinner } from '@/components/spinner';
 import { useUploadThing } from '@/lib/uploadthing-client';
 

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { Images, Trash2 } from 'lucide-react';
+import { Images, Trash } from '@phosphor-icons/react/ssr';
 import { MediaGrid } from '@/components/media-grid';
 import { EmptyState } from '@/components/empty-state';
 import { ShareSheet } from '@/components/share-sheet';
@@ -143,7 +143,7 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
                       variant="secondary"
                       onClick={() => handleDelete(render.renderId)}
                     >
-                      <Trash2 className="size-3.5" />
+                      <Trash className="size-3.5" />
                     </Button>
                   </div>
                 ),

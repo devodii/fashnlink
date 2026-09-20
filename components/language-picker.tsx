@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Globe } from 'lucide-react';
+import { Globe } from '@phosphor-icons/react/ssr';
 import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/config/languages';
 import { getCurrentLanguageCode, setLanguage } from '@/lib/google-translate';
 import { useIsDesktop } from '@/hooks/use-media-query';

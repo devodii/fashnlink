@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Package } from 'lucide-react';
+import { Package } from '@phosphor-icons/react/ssr';
 import { DataTable } from './data-table';
 import { StatusBadge } from './status-badge';
 import { EmptyState } from './empty-state';

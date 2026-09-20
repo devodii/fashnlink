@@ -4,7 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
-import { Users, Download } from 'lucide-react';
+import { Users, Download } from '@phosphor-icons/react/ssr';
 
 type LeadRow = {
   email: string;

@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { cn } from 'cn';
-import { AlertTriangle, CheckCircle2, Info } from 'lucide-react';
+import { Warning, CheckCircle, Info } from '@phosphor-icons/react/ssr';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export type InlineAlertTone = 'neutral' | 'success' | 'warning' | 'destructive';
 
 const TONE_ICON: Record<InlineAlertTone, React.ComponentType<{ className?: string }>> = {
   neutral: Info,
-  success: CheckCircle2,
-  warning: AlertTriangle,
-  destructive: AlertTriangle,
+  success: CheckCircle,
+  warning: Warning,
+  destructive: Warning,
 };
 
 const TONE_CLASS: Record<InlineAlertTone, string> = {

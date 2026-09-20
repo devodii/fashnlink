@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { X } from 'lucide-react';
+import { X } from '@phosphor-icons/react/ssr';
 
 export interface TagInputProps {
   value: string[];

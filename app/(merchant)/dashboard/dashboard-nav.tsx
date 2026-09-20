@@ -2,26 +2,26 @@
 
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  Link2,
+  SquaresFour,
+  Link,
   Package,
   Users,
-  Sparkles,
+  Sparkle,
   CreditCard,
-  Settings,
-  Mail,
-} from 'lucide-react';
+  Gear,
+  Envelope,
+} from '@phosphor-icons/react/ssr';
 import { AppShell, type NavItem } from '@/components/app-shell';
 
 const BASE_ITEMS: Omit<NavItem, 'active'>[] = [
-  { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Links', href: '/dashboard/links', icon: Link2 },
+  { label: 'Overview', href: '/dashboard', icon: SquaresFour },
+  { label: 'Links', href: '/dashboard/links', icon: Link },
   { label: 'Products', href: '/dashboard/products', icon: Package },
   { label: 'Leads', href: '/dashboard/leads', icon: Users },
-  { label: 'Model pack', href: '/dashboard/model-pack', icon: Sparkles },
-  { label: 'Retargeting', href: '/dashboard/retargeting', icon: Mail },
+  { label: 'Model pack', href: '/dashboard/model-pack', icon: Sparkle },
+  { label: 'Retargeting', href: '/dashboard/retargeting', icon: Envelope },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { label: 'Gear', href: '/dashboard/settings', icon: Gear },
 ];
 
 export function DashboardNav({

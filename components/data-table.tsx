@@ -12,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { DotsThree } from '@phosphor-icons/react/ssr';
 import { type MixinProps, splitProps } from '@/lib/mixin';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -142,7 +142,7 @@ export function DataTable<TData, TValue>({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="size-8">
-                    <MoreHorizontal className="size-4" />
+                    <DotsThree className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

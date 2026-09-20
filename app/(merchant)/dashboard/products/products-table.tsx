@@ -6,7 +6,7 @@ import { DataTable } from '@/components/data-table';
 import { StatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
 import { InlineAlert } from '@/components/inline-alert';
-import { Package } from 'lucide-react';
+import { Package } from '@phosphor-icons/react/ssr';
 
 type ProductRow = {
   product: {

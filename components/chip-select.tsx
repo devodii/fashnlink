@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Check } from 'lucide-react';
+import { Check } from '@phosphor-icons/react/ssr';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Pressable } from '@/components/motion/pressable';
 import { Presence } from '@/components/motion/presence';

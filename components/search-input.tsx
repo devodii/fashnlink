@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Search, X } from 'lucide-react';
+import { MagnifyingGlass, X } from '@phosphor-icons/react/ssr';
 import { Input } from '@/components/ui/input';
 
 export interface SearchInputProps {
@@ -16,7 +16,7 @@ export interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = 'Search…',
+  placeholder = 'MagnifyingGlass…',
   debounceMs = 300,
   className,
 }: SearchInputProps) {
@@ -35,7 +35,7 @@ export function SearchInput({
 
   return (
     <div className={cn('relative', className)}>
-      <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+      <MagnifyingGlass className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={draft}
         onChange={(e) => setDraft(e.target.value)}

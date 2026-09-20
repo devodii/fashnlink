@@ -5,7 +5,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/data-table';
 import { StatusBadge } from '@/components/status-badge';
 import { EmptyState } from '@/components/empty-state';
-import { Link2 } from 'lucide-react';
+import { Link as LinkIcon } from '@phosphor-icons/react/ssr';
 
 type LinkRow = {
   link: {
@@ -61,7 +61,7 @@ export function LinksTable({ rows }: { rows: LinkRow[] }) {
       getRowId={(row) => row.link.id}
       emptyState={
         <EmptyState
-          icon={Link2}
+          icon={LinkIcon}
           title="No links yet"
           description="Paste a product URL to create your first try-on link."
         />

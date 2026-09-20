@@ -4,7 +4,7 @@ import { links, merchants, products, renders, retargetOptins, shoppers, twins } 
 import { readShopperId } from '@/modules/shoppers';
 import { Container } from '@/components/container';
 import { EmptyState } from '@/components/empty-state';
-import { Images } from 'lucide-react';
+import { Images } from '@phosphor-icons/react/ssr';
 import { Closet } from './closet';
 import { RetargetOptins } from './retarget-optins';
 
