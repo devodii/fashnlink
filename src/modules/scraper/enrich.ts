@@ -41,19 +41,6 @@ function imageRoleFromVisionKind(kind: string | undefined): ImageRole {
   }
 }
 
-const SIZE_CHART_HINT = /size\s*chart|size\s*guide/i;
-
-export function detectSizeChart(
-  descriptionText: string,
-  images: { alt: string | null; url: string }[],
-) {
-  const inDescription = SIZE_CHART_HINT.test(descriptionText);
-  const imageHit = images.find(
-    (image) => SIZE_CHART_HINT.test(image.alt ?? '') || SIZE_CHART_HINT.test(image.url),
-  );
-  return { hasSizeChartText: inDescription, sizeChartImageUrl: imageHit?.url ?? null };
-}
-
 export async function enrichProduct(
   product: NormalizedProduct,
   storeId: string,
