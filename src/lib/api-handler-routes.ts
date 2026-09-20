@@ -23,7 +23,6 @@ import '@/app/api/og/render/[renderId]/route';
 import '@/app/api/links/route';
 import '@/app/api/links/[id]/route';
 import '@/app/api/merchants/me/route';
-import '@/app/api/merchants/me/delete/route';
 import '@/app/api/platform-requests/route';
 import '@/app/api/webhooks/paykit/route';
 import '@/app/api/polls/[linkId]/route';
