@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-import { Image as ImageIcon, CloudArrowUp, X } from '@phosphor-icons/react/ssr';
+import { Image as ImageIcon, ArrowUp, Warning, X } from '@phosphor-icons/react/ssr';
 import { Spinner } from '@/components/spinner';
 import { useUploadThing } from '@/lib/uploadthing-client';
 
@@ -23,6 +23,7 @@ export interface UploadDropzoneProps {
   capture?: 'user' | 'environment';
   multiple?: boolean;
   aspect?: keyof typeof ASPECT_CLASS;
+  disabled?: boolean;
   onFiles: (files: UploadedFile[]) => void;
   preview?: string | null;
   progress?: number | null;
@@ -36,6 +37,7 @@ export function UploadDropzone({
   capture,
   multiple = false,
   aspect = '3/4',
+  disabled,
   onFiles,
   preview,
   progress: progressProp,
@@ -65,7 +67,7 @@ export function UploadDropzone({
     const files = Array.from(fileList);
     const tooBig = files.find((f) => f.size > maxSizeMb * 1024 * 1024);
     if (tooBig) {
-      setLocalError(`${tooBig.name} is over ${maxSizeMb}MB`);
+      setLocalError(`That file is over ${maxSizeMb}MB. Try a smaller one.`);
       return;
     }
     setLocalError(null);
@@ -89,50 +91,77 @@ export function UploadDropzone({
     <div className={cn('space-y-1.5', className)}>
       <button
         type="button"
+        disabled={disabled}
         onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
-          setDragActive(true);
+          if (!disabled) setDragActive(true);
         }}
         onDragLeave={() => setDragActive(false)}
         onDrop={(e) => {
           e.preventDefault();
           setDragActive(false);
-          handleFiles(e.dataTransfer.files);
+          if (!disabled) handleFiles(e.dataTransfer.files);
         }}
         className={cn(
-          'relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-md border border-dashed border-border bg-muted text-muted-foreground transition-colors',
+          'relative flex w-full flex-col items-center justify-center gap-1.5 overflow-hidden rounded-md border border-dashed bg-muted/40 text-muted-foreground transition-colors',
           ASPECT_CLASS[aspect],
-          dragActive && 'border-ring bg-accent',
+          !displayPreview && !displayError && 'border-input hover:border-ring hover:bg-accent',
+          dragActive && 'border-primary bg-primary/5 text-primary',
+          displayError && 'border-destructive/50 bg-destructive/5 text-destructive',
+          disabled && 'pointer-events-none opacity-50',
         )}
       >
         {displayPreview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={displayPreview} alt="" className="absolute inset-0 size-full object-cover" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={displayPreview} alt="" className="absolute inset-0 size-full object-cover" />
+            {isLoading && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-background/70 text-foreground">
+                <Spinner size={24} />
+                {displayProgress !== null && (
+                  <span className="text-xs font-medium">{Math.round(displayProgress)}%</span>
+                )}
+              </div>
+            )}
+            {!isLoading && (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLocalPreview(null);
+                  onFiles([]);
+                }}
+                className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm"
+              >
+                <X className="size-4" />
+              </span>
+            )}
+          </>
+        ) : displayError ? (
+          <>
+            <Warning className="size-6" />
+            <span className="px-4 text-center text-sm font-medium">{displayError}</span>
+            <span className="text-xs">
+              Drag an image here or <span className="underline">browse</span>
+            </span>
+          </>
+        ) : dragActive ? (
+          <>
+            <ArrowUp className="size-6" />
+            <span className="text-sm">
+              Drop to <span className="font-semibold">upload</span>
+            </span>
+          </>
         ) : (
           <>
-            {isLoading ? <Spinner size={24} /> : <CloudArrowUp className="size-6" />}
-            <span className="px-4 text-center text-sm">Tap to upload, or drag a photo here</span>
+            <ImageIcon className="size-6" />
+            <span className="text-sm">
+              Drag an image here or <span className="font-medium text-foreground">browse</span>
+            </span>
+            <span className="text-xs">PNG or JPG, up to {maxSizeMb}MB</span>
           </>
-        )}
-        {isLoading && displayPreview && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/60">
-            <Spinner size={24} />
-          </div>
-        )}
-        {displayPreview && !isLoading && (
-          <span
-            role="button"
-            tabIndex={0}
-            onClick={(e) => {
-              e.stopPropagation();
-              setLocalPreview(null);
-              onFiles([]);
-            }}
-            className="absolute top-2 right-2 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm"
-          >
-            <X className="size-4" />
-          </span>
         )}
       </button>
       <input
@@ -141,15 +170,10 @@ export function UploadDropzone({
         accept={accept}
         capture={capture}
         multiple={multiple}
+        disabled={disabled}
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
       />
-      {displayError && <p className="text-sm text-destructive">{displayError}</p>}
-      {!displayPreview && !displayError && (
-        <p className="flex items-center gap-1 text-xs text-muted-foreground">
-          <ImageIcon className="size-3" /> up to {maxSizeMb}MB
-        </p>
-      )}
     </div>
   );
 }

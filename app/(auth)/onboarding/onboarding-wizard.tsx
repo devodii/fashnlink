@@ -203,12 +203,12 @@ function BrandStep({
       <TextField control={form.control} name="name" label="Brand name" placeholder="Studio Ada" />
 
       {logo ? (
-        <MediaTile src={logo.url} alt="Logo" aspect="1/1" className="size-20" />
+        <MediaTile src={logo.url} alt="Logo" aspect="1/1" className="size-48" />
       ) : (
         <UploadDropzone
           accept="image/*"
           aspect="1/1"
-          className="w-32"
+          className="w-48"
           onFiles={(files) => onLogo(files[0] ?? null)}
         />
       )}

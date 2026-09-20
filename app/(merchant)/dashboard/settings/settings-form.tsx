@@ -12,9 +12,7 @@ import { SegmentedField } from '@/components/forms/segmented-field';
 import { LoadingButton } from '@/components/loading-button';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { MediaTile } from '@/components/media-tile';
-import { ConfirmDialog } from '@/components/confirm-dialog';
 import { SplitPane } from '@/components/split-pane';
-import { Button } from '@/components/ui/button';
 
 const schema = z.object({
   name: z.string().min(1, 'Required'),
@@ -49,7 +47,6 @@ export function SettingsForm({
     initial.logoUrl ? { url: initial.logoUrl, key: '', name: 'logo' } : null,
   );
   const contactType = form.watch('contactType');
-  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   async function onSubmit(values: z.infer<typeof schema>) {
     await fetch('/api/merchants/me', {
@@ -63,11 +60,6 @@ export function SettingsForm({
       }),
     });
     router.refresh();
-  }
-
-  async function onDelete() {
-    await fetch('/api/merchants/me/delete', { method: 'POST' });
-    window.location.href = '/login';
   }
 
   return (
@@ -86,12 +78,23 @@ export function SettingsForm({
               <TextField control={form.control} name="name" label="Brand name" />
 
               {logo ? (
-                <MediaTile src={logo.url} alt="Logo" aspect="1/1" className="size-20" />
+                <MediaTile
+                  src={logo.url}
+                  alt="Logo"
+                  aspect="1/1"
+                  className="size-48"
+                  onClick={() => setLogo(null)}
+                  overlay={
+                    <div className="flex size-full items-center justify-center bg-background/70 text-sm font-medium text-foreground opacity-0 transition-opacity hover:opacity-100">
+                      Change logo
+                    </div>
+                  }
+                />
               ) : (
                 <UploadDropzone
                   accept="image/*"
                   aspect="1/1"
-                  className="w-32"
+                  className="w-48"
                   onFiles={(files) => setLogo(files[0] ?? null)}
                 />
               )}
@@ -134,26 +137,6 @@ export function SettingsForm({
           }
         />
       </Form>
-
-      <div className="space-y-2 border-t border-border pt-6">
-        <p className="text-sm font-medium text-destructive">Delete account</p>
-        <p className="text-sm text-muted-foreground">
-          Removes your links, leads, and credit history. Product and render history tied to your
-          store is preserved for the shoppers who created it.
-        </p>
-        <Button variant="destructive" size="sm" onClick={() => setConfirmOpen(true)}>
-          Delete account
-        </Button>
-        <ConfirmDialog
-          open={confirmOpen}
-          onOpenChange={setConfirmOpen}
-          title="Delete your account?"
-          description="This can't be undone."
-          confirmLabel="Delete"
-          tone="destructive"
-          onConfirm={onDelete}
-        />
-      </div>
     </div>
   );
 }

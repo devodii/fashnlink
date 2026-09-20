@@ -18,5 +18,8 @@ export const Default: Story = {};
 export const WithPreview: Story = {
   args: { preview: 'https://picsum.photos/seed/selfie/300/300' },
 };
-export const Uploading: Story = { args: { progress: 45 } };
-export const Error: Story = { args: { error: 'Upload failed — try again' } };
+export const Uploading: Story = {
+  args: { preview: 'https://picsum.photos/seed/selfie/300/300', progress: 45 },
+};
+export const Error: Story = { args: { error: 'That file is over 10MB. Try a smaller one.' } };
+export const Disabled: Story = { args: { disabled: true } };
