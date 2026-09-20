@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { TranslateProvider } from '@/components/translate-provider';
 import { ThemeProvider } from '@/components/theme-provider';
+import { GlobalThemeToggle } from '@/components/global-theme-toggle';
 import './globals.css';
 
 const outfit = Outfit({
@@ -25,14 +26,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       suppressHydrationWarning
     >
       <body data-gt-root className="flex min-h-full flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
           <TranslateProvider>
             <TooltipProvider>{children}</TooltipProvider>
+            <GlobalThemeToggle />
             <Toaster />
           </TranslateProvider>
         </ThemeProvider>

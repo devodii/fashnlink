@@ -11,13 +11,38 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   React.useEffect(() => setMounted(true), []);
 
+  function toggleTheme(e: React.MouseEvent<HTMLButtonElement>) {
+    const next = resolvedTheme === 'dark' ? 'light' : 'dark';
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!document.startViewTransition || reducedMotion) {
+      setTheme(next);
+      return;
+    }
+
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y),
+    );
+
+    const root = document.documentElement;
+    root.style.setProperty('--theme-toggle-x', `${x}px`);
+    root.style.setProperty('--theme-toggle-y', `${y}px`);
+    root.style.setProperty('--theme-toggle-r', `${radius}px`);
+
+    document.startViewTransition(() => setTheme(next));
+  }
+
   return (
     <Button
       type="button"
       variant="ghost"
       size="icon"
       className={className}
-      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+      onClick={toggleTheme}
       disabled={!mounted}
     >
       {mounted && resolvedTheme === 'dark' ? (
