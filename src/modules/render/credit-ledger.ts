@@ -24,8 +24,8 @@ export type CreateRenderInput = {
  * both lock the same pre-existing "latest" row (a concurrent transaction's
  * not-yet-committed INSERT of a newer row is invisible to them), and once
  * the first commits, the second's lock wait is satisfied against that same
- * unchanged row — Postgres only re-checks a locked row's WHERE clause when
- * the row itself was updated, not when a newer sibling row appears — so the
+ * unchanged row (Postgres only re-checks a locked row's WHERE clause when
+ * the row itself was updated, not when a newer sibling row appears), so the
  * second transaction reads a stale balance instead of the true latest one.
  * A session-scoped advisory lock keyed on the merchant id forces every
  * ledger-mutating transaction for that merchant to run one at a time,
