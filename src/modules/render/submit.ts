@@ -47,7 +47,15 @@ export async function submitRender(
     garmentPhotoType: input.garmentPhotoType,
   };
 
-  const submission = await submitWithRouting(input.category, renderInput, webhookUrl, ctx);
+  const submission = await submitWithRouting(
+    input.category,
+    renderInput,
+    webhookUrl,
+    ctx,
+    async (provider) => {
+      await db.update(renders).set({ provider, status: 'running' }).where(eq(renders.id, renderId));
+    },
+  );
   if (!submission.ok) {
     await refundFailedRender(input.merchantId, renderId);
     return submission;
@@ -55,11 +63,7 @@ export async function submitRender(
 
   await db
     .update(renders)
-    .set({
-      provider: submission.value.provider,
-      providerJobId: submission.value.providerJobId,
-      status: 'running',
-    })
+    .set({ providerJobId: submission.value.providerJobId })
     .where(eq(renders.id, renderId));
 
   return ok({ renderId });

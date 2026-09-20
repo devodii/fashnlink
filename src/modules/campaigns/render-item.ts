@@ -115,7 +115,15 @@ registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>>
   };
   const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
 
-  const submission = await submitWithRouting(product.garmentCategory, renderInput, webhookUrl, ctx);
+  const submission = await submitWithRouting(
+    product.garmentCategory,
+    renderInput,
+    webhookUrl,
+    ctx,
+    async (provider) => {
+      await db.update(renders).set({ provider, status: 'running' }).where(eq(renders.id, renderId));
+    },
+  );
   if (!submission.ok) {
     await db
       .update(renders)
@@ -132,11 +140,7 @@ registerJobHandler('campaign.renderItem', async (payload): Promise<Result<void>>
 
   await db
     .update(renders)
-    .set({
-      provider: submission.value.provider,
-      providerJobId: submission.value.providerJobId,
-      status: 'running',
-    })
+    .set({ providerJobId: submission.value.providerJobId })
     .where(eq(renders.id, renderId));
   await db.update(campaignItems).set({ renderId }).where(eq(campaignItems.id, item.id));
 

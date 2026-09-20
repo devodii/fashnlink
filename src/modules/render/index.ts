@@ -25,12 +25,25 @@ export async function submitWithRouting(
   input: RenderInput,
   webhookUrl: string,
   ctx: Ctx,
+  onAttempt?: (provider: ProviderKey) => Promise<void>,
 ): Promise<Result<SubmitResult & { provider: ProviderKey }>> {
   const chain = ROUTING[category];
   let lastError: Result<SubmitResult> | null = null;
 
   for (const key of chain) {
     const provider = getProvider(key);
+    /**
+     * openai_image's `submit()` delivers its own webhook synchronously,
+     * before it returns, unlike fal's real async queue. The webhook route
+     * looks up the render row and requires `provider` to already be set to
+     * know how to parse the body; if that column is still null because the
+     * caller only persists it after this call returns, the self-delivered
+     * webhook 404s, `submit()` treats that as a submission failure, and the
+     * "fallback" provider always fails. `onAttempt` lets the caller persist
+     * the in-flight provider before this specific attempt, closing that
+     * race for every provider, not just the synchronous one.
+     */
+    if (onAttempt) await onAttempt(key);
     const result = await provider.submit(input, webhookUrl, ctx);
     if (result.ok) return ok({ ...result.value, provider: key });
     lastError = result;
