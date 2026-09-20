@@ -1,9 +1,9 @@
-import { and, eq, isNull, lt } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
 import { db } from '@/db';
 import { renders, shoppers } from '@/db/schema';
-import { deleteObject } from '@/modules/storage';
+import { deleteObjects } from '@/modules/storage';
 import { childLogger } from '@/lib/log';
 
 export const dynamic = 'force-dynamic';
@@ -23,17 +23,20 @@ export const GET = apiHandler({
       .innerJoin(shoppers, eq(shoppers.id, renders.shopperId))
       .where(and(isNull(shoppers.email), lt(renders.createdAt, cutoff)));
 
-    let deleted = 0;
-    for (const render of expiredRenders) {
-      if (render.outputR2Key) {
-        await deleteObject(render.outputR2Key).catch((cause) =>
-          log.warn({ cause, renderId: render.id }, 'failed to delete orphaned render object'),
-        );
-      }
-      await db.delete(renders).where(eq(renders.id, render.id));
-      deleted++;
+    if (expiredRenders.length === 0) {
+      return ok({ rendersDeleted: 0 });
     }
 
-    return ok({ rendersDeleted: deleted });
+    const keys = expiredRenders
+      .map((render) => render.outputR2Key)
+      .filter((key): key is string => !!key);
+    await deleteObjects(keys).catch((cause) =>
+      log.warn({ cause, count: keys.length }, 'failed to delete orphaned render objects'),
+    );
+
+    const ids = expiredRenders.map((render) => render.id);
+    await db.delete(renders).where(inArray(renders.id, ids));
+
+    return ok({ rendersDeleted: ids.length });
   },
 });

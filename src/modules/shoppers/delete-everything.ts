@@ -1,7 +1,7 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { campaignItems, renders, shoppers, twins } from '@/db/schema';
-import { deleteObject } from '@/modules/storage';
+import { deleteObjects } from '@/modules/storage';
 import { childLogger } from '@/lib/log';
 
 const log = childLogger('shoppers.delete-everything');
@@ -12,17 +12,16 @@ export async function deleteEverythingForShopper(shopperId: string): Promise<voi
     .from(twins)
     .where(eq(twins.shopperId, shopperId));
 
-  for (const twin of shopperTwins) {
-    await deleteObject(twin.selfieR2Key).catch((cause) =>
-      log.error({ cause, twinId: twin.id }, 'failed to delete selfie during shopper erasure'),
-    );
-    if (twin.twinR2Key) {
-      await deleteObject(twin.twinR2Key).catch((cause) =>
-        log.error({ cause, twinId: twin.id }, 'failed to delete twin image during shopper erasure'),
-      );
-    }
-  }
   if (shopperTwins.length > 0) {
+    const twinKeys = shopperTwins.flatMap((twin) =>
+      [twin.selfieR2Key, twin.twinR2Key].filter((key): key is string => !!key),
+    );
+    await deleteObjects(twinKeys).catch((cause) =>
+      log.error(
+        { cause, shopperId, count: twinKeys.length },
+        'failed to delete twin images during shopper erasure',
+      ),
+    );
     await db.delete(twins).where(eq(twins.shopperId, shopperId));
   }
 
@@ -35,15 +34,22 @@ export async function deleteEverythingForShopper(shopperId: string): Promise<voi
     .from(renders)
     .where(eq(renders.shopperId, shopperId));
 
-  for (const render of shopperRenders) {
-    if (!render.outputR2Key) continue;
-    await deleteObject(render.outputR2Key).catch((cause) =>
-      log.error({ cause, renderId: render.id }, 'failed to delete render image during erasure'),
+  if (shopperRenders.length > 0) {
+    const renderKeys = shopperRenders
+      .map((render) => render.outputR2Key)
+      .filter((key): key is string => !!key);
+    await deleteObjects(renderKeys).catch((cause) =>
+      log.error(
+        { cause, shopperId, count: renderKeys.length },
+        'failed to delete render images during erasure',
+      ),
     );
+
+    const renderIds = shopperRenders.map((render) => render.id);
     await db
       .update(renders)
       .set({ outputR2Key: null, outputUrl: null })
-      .where(eq(renders.id, render.id));
+      .where(inArray(renders.id, renderIds));
   }
 
   await db

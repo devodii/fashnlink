@@ -4,7 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { renders } from '@/db/schema';
 import { err, ok } from '@/lib/result';
-import { deleteObject } from '@/modules/storage';
+import { deleteObjects } from '@/modules/storage';
 
 const paramsSchema = z.object({ id: z.string() });
 
@@ -26,7 +26,7 @@ export const DELETE = apiHandler({
     if (!render) return err({ code: 'NOT_FOUND', message: 'render not found' });
 
     if (render.outputR2Key) {
-      await deleteObject(render.outputR2Key).catch(() => {});
+      await deleteObjects([render.outputR2Key]).catch(() => {});
     }
     await db
       .update(renders)

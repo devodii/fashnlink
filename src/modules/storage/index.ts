@@ -10,5 +10,5 @@ export const storageRegistry = new AdapterRegistry<StorageInput, StorageOutput, 
   uploadthingAdapter,
 ]);
 
-export { putObject, deleteObject, getSignedUrl } from './uploadthing';
+export { putObject, deleteObjects, getSignedUrl } from './uploadthing';
 export type { StorageInput, StorageOutput, StorageKey } from './adapter';

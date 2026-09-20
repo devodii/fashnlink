@@ -22,7 +22,7 @@ export const uploadthingAdapter: Adapter<StorageInput, StorageOutput, StorageKey
           return ok(result);
         }
         case 'delete':
-          await uploadthing.deleteObject(input.key);
+          await uploadthing.deleteObjects([input.key]);
           return ok({ key: input.key, url: null });
         case 'getSignedUrl': {
           const url = await uploadthing.getSignedUrl(input.key, input.expiresInSeconds);

@@ -27,8 +27,9 @@ export async function putObject(
   return { key, url: data.ufsUrl };
 }
 
-export async function deleteObject(key: string): Promise<void> {
-  await utapi.deleteFiles(key, { keyType: 'customId' });
+export async function deleteObjects(keys: string[]): Promise<void> {
+  if (keys.length === 0) return;
+  await utapi.deleteFiles(keys, { keyType: 'customId' });
 }
 
 // Requires the object to have been uploaded with a private ACL.

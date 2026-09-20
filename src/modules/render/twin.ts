@@ -8,7 +8,7 @@ import { err, ok, type Result } from '@/lib/result';
 import type { Ctx } from '@/lib/adapter';
 import { openai } from '@/lib/openai';
 import { env, publicUrl } from '@/lib/env';
-import { deleteObject } from '@/modules/storage';
+import { deleteObjects } from '@/modules/storage';
 import {
   TWIN_BACKGROUND_CLEANUP,
   TWIN_PHOTO_CLASSIFY,
@@ -65,7 +65,7 @@ export async function createTwin(
 
   const moderation = await moderateImage(input.selfieUrl);
   if (!moderation.ok) {
-    await deleteObject(input.selfieKey).catch((cause) =>
+    await deleteObjects([input.selfieKey]).catch((cause) =>
       ctx.log.error({ cause }, 'failed to delete moderated-out selfie'),
     );
     return moderation;
@@ -75,7 +75,7 @@ export async function createTwin(
   if (!classification.ok) return classification;
 
   if (classification.value.is_minor_present) {
-    await deleteObject(input.selfieKey).catch((cause) =>
+    await deleteObjects([input.selfieKey]).catch((cause) =>
       ctx.log.error({ cause }, 'failed to delete minor-flagged selfie'),
     );
     return err({ code: 'MODERATION_BLOCKED', message: 'This photo can’t be used.' });
