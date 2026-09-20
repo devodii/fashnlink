@@ -57,3 +57,13 @@ export function StatCard({
     </div>
   );
 }
+
+export function StatCardRowSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <StatCard key={i} label="" value={0} loading />
+      ))}
+    </div>
+  );
+}

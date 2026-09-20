@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from 'cn';
 import { CaretRight } from '@phosphor-icons/react/ssr';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export interface Breadcrumb {
   label: string;
@@ -77,5 +78,14 @@ export function PageHeader({
         {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
     </header>
+  );
+}
+
+export function PageHeaderSkeleton() {
+  return (
+    <div className="space-y-2">
+      <Skeleton className="h-8 w-40" />
+      <Skeleton className="h-4 w-64" />
+    </div>
   );
 }

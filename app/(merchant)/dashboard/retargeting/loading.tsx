@@ -1,5 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { PageHeaderSkeleton, KpiRowSkeleton } from '@/components/dashboard-skeleton';
+import { PageHeaderSkeleton } from '@/components/page-header';
+import { StatCardRowSkeleton } from '@/components/stat-card';
 
 export default function Loading() {
   return (
@@ -8,7 +9,7 @@ export default function Loading() {
 
       <div className="space-y-4">
         <Skeleton className="h-5 w-20" />
-        <KpiRowSkeleton count={3} />
+        <StatCardRowSkeleton count={3} />
       </div>
 
       <div className="space-y-4">
