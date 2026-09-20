@@ -5,7 +5,7 @@ import { PayKit } from '@paykit-sdk/core';
 import { createPolar } from '@paykit-sdk/polar';
 
 /**
- * Runs the real `paykit.webhooks` path (the one `app/api/webhooks/polar/route.ts`
+ * Runs the real `paykit.webhooks` path (the one `app/api/webhooks/paykit/route.ts`
  * actually calls) against the real `@polar-sh/sdk` verification and the real
  * `standardwebhooks` signer it's built on, rather than a hand-rolled HMAC
  * check. Signature verification is pure local crypto, so no live Polar
@@ -28,10 +28,10 @@ function signedHeaders(body: string, webhookId = 'evt_test', timestamp = new Dat
 async function handle(body: string, headersAsObject: Record<string, string>) {
   await paykit.webhooks
     .setup({ webhookSecret: WEBHOOK_SECRET })
-    .handle({ body, headersAsObject, fullUrl: 'https://example.com/api/webhooks/polar' });
+    .handle({ body, headersAsObject, fullUrl: 'https://example.com/api/webhooks/paykit' });
 }
 
-describe('polar webhook signature verification through paykit (the path app/api/webhooks/polar/route.ts uses)', () => {
+describe('polar webhook signature verification through paykit (the path app/api/webhooks/paykit/route.ts uses)', () => {
   /**
    * A real `order.paid` payload has dozens of required fields not worth
    * hand-fabricating here. Verification happens before payload-shape
@@ -69,7 +69,7 @@ describe('polar webhook signature verification through paykit (the path app/api/
       paykit.webhooks.setup({ webhookSecret: 'not-the-real-secret' }).handle({
         body,
         headersAsObject: headers,
-        fullUrl: 'https://example.com/api/webhooks/polar',
+        fullUrl: 'https://example.com/api/webhooks/paykit',
       }),
     ).rejects.toThrow();
   });

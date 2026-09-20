@@ -9,12 +9,6 @@ import { PLANS } from '@/config/pricing';
 import { childLogger } from '@/lib/log';
 import { grantCredits } from '@/modules/render/credit-ledger';
 
-/**
- * A Fetch `Request` body can only be read once, so `webhookVerify` reads a
- * clone through a zero-handler `paykit.webhooks` dispatch (verification only,
- * nothing to run) and leaves the original untouched for the handler to read
- * again with the real `.on('payment.succeeded', ...)` registered.
- */
 function headersToRecord(headers: Headers): Record<string, string> {
   const record: Record<string, string> = {};
   headers.forEach((value, key) => {
@@ -24,30 +18,14 @@ function headersToRecord(headers: Headers): Record<string, string> {
 }
 
 export const POST = apiHandler({
-  name: 'webhooks.polar',
-  auth: ['webhook'],
-  webhookVerify: async (req) => {
-    if (!paykit || !env.POLAR_WEBHOOK_SECRET) {
-      return err({ code: 'UNAUTHORIZED', message: 'polar not configured' });
-    }
-    try {
-      const rawBody = await req.clone().text();
-      await paykit.webhooks.setup({ webhookSecret: env.POLAR_WEBHOOK_SECRET }).handle({
-        body: rawBody,
-        headersAsObject: headersToRecord(req.headers),
-        fullUrl: req.url,
-      });
-      return ok(undefined);
-    } catch (cause) {
-      return err({ code: 'UNAUTHORIZED', message: 'invalid polar signature', cause });
-    }
-  },
+  name: 'webhooks.paykit',
+  auth: ['public'],
   handler: async ({ req, requestId }) => {
     if (!paykit || !env.POLAR_WEBHOOK_SECRET) {
       return err({ code: 'UNAUTHORIZED', message: 'polar not configured' });
     }
 
-    const log = childLogger(requestId, { route: 'webhooks.polar' });
+    const log = childLogger(requestId, { route: 'webhooks.paykit' });
     const rawBody = await req.text();
     const headersRecord = headersToRecord(req.headers);
     const fullUrl = req.url;
