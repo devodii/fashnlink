@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,7 @@ export function GroupFlow({
   defaultTwin,
 }: GroupFlowProps) {
   const { twin, status, errorMessage, errorKey, submitSelfie } = useShopperTwin(defaultTwin);
+  const queryClient = useQueryClient();
   const [consent, setConsent] = React.useState(false);
   const [ageAttested, setAgeAttested] = React.useState(false);
   const [renderId, setRenderId] = React.useState<string | null>(null);
@@ -49,33 +51,44 @@ export function GroupFlow({
   const [showInGroup, setShowInGroup] = React.useState(false);
   const [note, setNote] = React.useState('');
   const [joined, setJoined] = React.useState(false);
-  const [roster, setRoster] = React.useState<{ memberCount: number; avatars: { src: string }[] }>({
-    memberCount: 0,
-    avatars: [],
-  });
 
   const twinReady = twin?.status === 'ready' && !!twin.twinUrl;
 
-  React.useEffect(() => {
-    fetch(`/api/groups/${linkId}`)
-      .then((r) => r.json())
-      .then((json) =>
-        setRoster({ memberCount: json.memberCount ?? 0, avatars: json.avatars ?? [] }),
-      )
-      .catch(() => {});
-  }, [linkId]);
+  const rosterQuery = useQuery({
+    queryKey: ['group-roster', linkId],
+    queryFn: async () => {
+      const res = await fetch(`/api/groups/${linkId}`);
+      const json = await res.json();
+      return { memberCount: json.memberCount ?? 0, avatars: json.avatars ?? [] };
+    },
+  });
+  const roster = rosterQuery.data ?? { memberCount: 0, avatars: [] };
 
-  async function handleTryOn() {
+  const tryOnMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/renders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          linkId,
+          productId,
+          twinId: twin!.id,
+          variantId: null,
+          via: 'group',
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message ?? 'could not start this render');
+      return json as { renderId: string };
+    },
+    onMutate: () => setRenderPending(true),
+    onSuccess: (json) => setRenderId(json.renderId),
+    onError: () => setRenderPending(false),
+  });
+
+  function handleTryOn() {
     if (!twin || !twinReady) return;
-    setRenderPending(true);
-    const res = await fetch('/api/renders', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ linkId, productId, twinId: twin.id, variantId: null, via: 'group' }),
-    });
-    const json = await res.json();
-    if (res.ok) setRenderId(json.renderId);
-    else setRenderPending(false);
+    tryOnMutation.mutate();
   }
 
   usePolling(
@@ -103,22 +116,29 @@ export function GroupFlow({
    * so it's always null; the picks still reach the merchant as free text in
    * `note` instead of being silently dropped.
    */
-  async function handleJoin() {
+  const joinMutation = useMutation({
+    mutationFn: async () => {
+      const variantNote = Object.entries(variantSelection)
+        .map(([name, value]) => `${name}: ${value}`)
+        .join(', ');
+      await fetch(`/api/groups/${linkId}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          renderId,
+          chosenVariantId: null,
+          note: [note, variantNote].filter(Boolean).join('; ') || null,
+          showInGroup,
+        }),
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['group-roster', linkId] }),
+    onSettled: () => setJoined(true),
+  });
+
+  function handleJoin() {
     if (!renderId) return;
-    const variantNote = Object.entries(variantSelection)
-      .map(([name, value]) => `${name}: ${value}`)
-      .join(', ');
-    await fetch(`/api/groups/${linkId}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        renderId,
-        chosenVariantId: null,
-        note: [note, variantNote].filter(Boolean).join('; ') || null,
-        showInGroup,
-      }),
-    }).catch(() => {});
-    setJoined(true);
+    joinMutation.mutate();
   }
 
   return (
