@@ -17,6 +17,7 @@ export const GET = apiHandler({
         status: renders.status,
         outputUrl: renders.outputUrl,
         watermarked: renders.watermarked,
+        error: renders.error,
       })
       .from(renders)
       .where(and(eq(renders.id, params.id), eq(renders.shopperId, shopper.shopperId)))
