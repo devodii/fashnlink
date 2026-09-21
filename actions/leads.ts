@@ -3,7 +3,30 @@ import 'server-only';
 import { desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { leads, products, renders } from '@/db/schema';
-import type { ResolvedLead } from '@/db/schema';
+import type { Lead, ResolvedLead } from '@/db/schema';
+import { newId } from '@/lib/ids';
+
+type CreateLeadInput = Pick<
+  Lead,
+  'merchantId' | 'shopperId' | 'productId' | 'renderId' | 'email' | 'source'
+>;
+
+export async function createLeads(inputs: CreateLeadInput[]): Promise<Lead[]> {
+  if (inputs.length === 0) return [];
+  return Promise.all(
+    inputs.map(async (input) => {
+      const [row] = await db
+        .insert(leads)
+        .values({ id: newId('lead'), ...input })
+        .onConflictDoUpdate({
+          target: [leads.merchantId, leads.shopperId, leads.productId],
+          set: { email: input.email, renderId: input.renderId },
+        })
+        .returning();
+      return row;
+    }),
+  ).then((rows) => rows.filter((r): r is Lead => Boolean(r)));
+}
 
 export async function retrieveLeads(filters: {
   merchantId?: string;

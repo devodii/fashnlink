@@ -2,10 +2,12 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
-import { leads, links, renders, retargetOptins } from '@/db/schema';
-import { newId } from '@/lib/ids';
+import { renders } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 import { updateShoppers } from '@/actions/shoppers';
+import { retrieveLinks } from '@/actions/links';
+import { createLeads } from '@/actions/leads';
+import { createRetargetOptins } from '@/actions/retarget-optins';
 
 const bodySchema = z.object({
   email: z.email(),
@@ -29,47 +31,33 @@ export const POST = apiHandler({
     if (!render) return err({ code: 'NOT_FOUND', message: 'render not found' });
     if (!render.linkId) return err({ code: 'NOT_FOUND', message: 'render has no link' });
 
-    const [link] = await db
-      .select({ merchantId: links.merchantId })
-      .from(links)
-      .where(eq(links.id, render.linkId))
-      .limit(1);
+    const [link] = await retrieveLinks({ ids: [render.linkId] });
     if (!link) return err({ code: 'NOT_FOUND', message: 'link not found' });
 
-    await db
-      .insert(leads)
-      .values({
-        id: newId('lead'),
+    await createLeads([
+      {
         merchantId: link.merchantId,
         shopperId,
         productId: render.productId,
         renderId: body.renderId,
         email: body.email,
         source: 'email_gate',
-      })
-      .onConflictDoUpdate({
-        target: [leads.merchantId, leads.shopperId, leads.productId],
-        set: { email: body.email, renderId: body.renderId },
-      });
+      },
+    ]);
 
     await updateShoppers([shopperId], { email: body.email });
 
     if (body.retargetOptIn) {
-      await db
-        .insert(retargetOptins)
-        .values({
-          id: newId('optin'),
+      await createRetargetOptins([
+        {
           shopperId,
           merchantId: link.merchantId,
           email: body.email,
           source: 'email_gate',
           ip: req.headers.get('x-forwarded-for'),
           userAgent: req.headers.get('user-agent'),
-        })
-        .onConflictDoUpdate({
-          target: [retargetOptins.shopperId, retargetOptins.merchantId],
-          set: { email: body.email, optedOutAt: null },
-        });
+        },
+      ]);
     }
 
     return ok({ recorded: true });
