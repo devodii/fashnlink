@@ -104,7 +104,7 @@ export async function createTwins(
       const prompt = classification.value.is_full_body
         ? TWIN_BACKGROUND_CLEANUP
         : TWIN_STUDIO_GENERATION;
-      const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=twin&id=${twinId}`;
+      const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET}&kind=twin&id=${twinId}`;
 
       const submission = await submitNanoBananaEdit(prompt, [input.selfieUrl], webhookUrl, ctx);
       if (!submission.ok) {

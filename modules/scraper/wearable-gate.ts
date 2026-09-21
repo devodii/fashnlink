@@ -26,7 +26,6 @@ import {
 import type { GarmentCategory } from '@/db/schema';
 
 async function safeRedisGet<T>(ctx: Ctx, key: string): Promise<T | null> {
-  if (!redis) return null;
   try {
     return (await redis.get<T>(key)) ?? null;
   } catch (cause) {
@@ -36,7 +35,6 @@ async function safeRedisGet<T>(ctx: Ctx, key: string): Promise<T | null> {
 }
 
 async function safeRedisSet(ctx: Ctx, key: string, value: unknown, ttlSeconds: number) {
-  if (!redis) return;
   try {
     await redis.set(key, value, { ex: ttlSeconds });
   } catch (cause) {

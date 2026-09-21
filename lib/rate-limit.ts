@@ -6,14 +6,6 @@ export async function consumeRateLimit(
   limit: number,
   windowSeconds: number,
 ): Promise<{ allowed: boolean; limit: number; remaining: number; reset: Date }> {
-  if (!redis)
-    return {
-      allowed: true,
-      limit,
-      remaining: limit,
-      reset: new Date(Date.now() + windowSeconds * 1000),
-    };
-
   const bucket = `ratelimit:${key}:${Math.floor(Date.now() / (windowSeconds * 1000))}`;
   const count = await redis.incr(bucket);
   if (count === 1) await redis.expire(bucket, windowSeconds);

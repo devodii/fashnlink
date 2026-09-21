@@ -10,10 +10,6 @@ export const POST = apiHandler({
   name: 'merchants.checkout.create',
   auth: ['merchant_session'],
   handler: async ({ merchant: session }) => {
-    if (!paykit || !env.POLAR_FOUNDING_PASS_PRODUCT_ID) {
-      return err({ code: 'INTERNAL', message: 'billing is not configured' });
-    }
-
     const [merchant] = await db
       .select()
       .from(merchants)

@@ -115,7 +115,7 @@ defineJobHandler<CampaignRenderItemPayload>(
       category: product.garmentCategory,
       garmentPhotoType,
     };
-    const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
+    const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET}&kind=render&id=${renderId}`;
 
     const submission = await submitWithRouting(
       product.garmentCategory,

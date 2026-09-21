@@ -21,10 +21,6 @@ export const POST = apiHandler({
   name: 'webhooks.paykit',
   auth: ['public'],
   handler: async ({ req, requestId }) => {
-    if (!paykit || !env.POLAR_WEBHOOK_SECRET) {
-      return err({ code: 'UNAUTHORIZED', message: 'polar not configured' });
-    }
-
     const log = childLogger(requestId, { route: 'webhooks.paykit' });
     const rawBody = await req.text();
     const headersRecord = headersToRecord(req.headers);
@@ -62,9 +58,7 @@ export const POST = apiHandler({
           }
 
           const merchantId = payment.metadata['merchantId'];
-          const matchesFoundingPass =
-            !env.POLAR_FOUNDING_PASS_PRODUCT_ID ||
-            payment.item_id === env.POLAR_FOUNDING_PASS_PRODUCT_ID;
+          const matchesFoundingPass = payment.item_id === env.POLAR_FOUNDING_PASS_PRODUCT_ID;
 
           if (merchantId && matchesFoundingPass) {
             const [merchant] = await db

@@ -55,12 +55,10 @@ function normalizeUrl(input: string): URL {
 }
 
 async function getCachedDetection(domain: string): Promise<string | null> {
-  if (!redis) return null;
   return redis.get<string>(`scraper:detect:${domain}`);
 }
 
 async function cacheDetection(domain: string, adapterKey: string) {
-  if (!redis) return;
   await redis.set(`scraper:detect:${domain}`, adapterKey, { ex: 60 * 60 * 24 });
 }
 

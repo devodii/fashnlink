@@ -38,7 +38,7 @@ export async function submitRender(
   if (!reservation.ok) return reservation;
 
   const { renderId } = reservation.value;
-  const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET ?? ''}&kind=render&id=${renderId}`;
+  const webhookUrl = `${publicUrl}/api/webhooks/fal?secret=${env.FAL_WEBHOOK_SECRET}&kind=render&id=${renderId}`;
 
   const renderInput: RenderInput = {
     twinUrl: input.twinUrl,
