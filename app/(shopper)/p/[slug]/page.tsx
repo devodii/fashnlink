@@ -22,24 +22,29 @@ export default async function PollPage({
   const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.kind !== 'poll' || link.status === 'archived') notFound();
 
-  const [[merchant], pollProducts] = await Promise.all([
-    retrieveMerchants({ ids: [link.merchantId] }),
-    retrieveProducts({ ids: link.productIds }),
-  ]);
-
-  const creatorRenders = creatorShopperId
-    ? await db
-        .select()
-        .from(renders)
-        .where(
-          and(
-            eq(renders.linkId, link.id),
-            eq(renders.shopperId, creatorShopperId),
-            eq(renders.status, 'succeeded'),
-          ),
-        )
-        .orderBy(desc(renders.createdAt))
-    : [];
+  // None of these four depend on each other's results: merchant/pollProducts
+  // key off `link`, the creator-renders query keys off `link.id` and
+  // `creatorShopperId` (already resolved from searchParams), and the viewer's
+  // shopper cookie read needs nothing beyond the request itself.
+  const [[merchant], pollProducts, creatorRenders, { shopperId: viewerShopperId }] =
+    await Promise.all([
+      retrieveMerchants({ ids: [link.merchantId] }),
+      retrieveProducts({ ids: link.productIds }),
+      creatorShopperId
+        ? db
+            .select()
+            .from(renders)
+            .where(
+              and(
+                eq(renders.linkId, link.id),
+                eq(renders.shopperId, creatorShopperId),
+                eq(renders.status, 'succeeded'),
+              ),
+            )
+            .orderBy(desc(renders.createdAt))
+        : Promise.resolve([]),
+      retrieveShoppers({ cookieOnly: true }),
+    ]);
 
   const renderByProduct = new Map<string, (typeof creatorRenders)[number]>();
   for (const r of creatorRenders) {
@@ -60,7 +65,6 @@ export default async function PollPage({
     })
     .filter((o): o is NonNullable<typeof o> => !!o);
 
-  const { shopperId: viewerShopperId } = await retrieveShoppers({ cookieOnly: true });
   const [resolvedViewerTwin] = viewerShopperId
     ? await retrieveTwins({ shopperIds: [viewerShopperId], isDefault: true })
     : [];
