@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { InlineAlert } from '@/components/inline-alert';
@@ -33,28 +34,42 @@ export function PollVoteView({
   defaultTwin,
 }: PollVoteViewProps) {
   const { twin, status, errorMessage, errorKey, submitSelfie } = useShopperTwin(defaultTwin);
+  const queryClient = useQueryClient();
   const [consent, setConsent] = React.useState(false);
   const [ageAttested, setAgeAttested] = React.useState(false);
-  const [votes, setVotes] = React.useState<Record<string, number>>({});
   const [myVote, setMyVote] = React.useState<string | null>(null);
   const [showTwinFlow, setShowTwinFlow] = React.useState(false);
 
-  React.useEffect(() => {
-    fetch(`/api/polls/${linkId}`)
-      .then((r) => r.json())
-      .then((json) => setVotes(json.votesByRenderId ?? {}))
-      .catch(() => {});
-  }, [linkId]);
+  const votesQueryKey = ['poll-votes', linkId] as const;
+  const votesQuery = useQuery({
+    queryKey: votesQueryKey,
+    queryFn: async () => {
+      const res = await fetch(`/api/polls/${linkId}`);
+      const json = await res.json();
+      return (json.votesByRenderId ?? {}) as Record<string, number>;
+    },
+  });
+  const votes = votesQuery.data ?? {};
 
-  async function handleVote(renderId: string) {
+  const voteMutation = useMutation({
+    mutationFn: (renderId: string) =>
+      fetch(`/api/polls/${linkId}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'vote', renderId }),
+      }),
+    onMutate: (renderId) => {
+      queryClient.setQueryData<Record<string, number>>(votesQueryKey, (prev) => ({
+        ...(prev ?? {}),
+        [renderId]: (prev?.[renderId] ?? 0) + 1,
+      }));
+    },
+  });
+
+  function handleVote(renderId: string) {
     if (closed || myVote) return;
     setMyVote(renderId);
-    setVotes((prev) => ({ ...prev, [renderId]: (prev[renderId] ?? 0) + 1 }));
-    await fetch(`/api/polls/${linkId}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ action: 'vote', renderId }),
-    }).catch(() => {});
+    voteMutation.mutate(renderId);
   }
 
   const twinReady = twin?.status === 'ready' && !!twin.twinUrl;
