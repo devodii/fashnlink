@@ -95,16 +95,21 @@ export function TryOnFlow({
   const [hasEmail, setHasEmail] = React.useState(false);
   const [retargetOptIn, setRetargetOptIn] = React.useState(false);
 
+  const attributionMutation = useMutation({
+    mutationFn: (renderId: string) =>
+      fetch('/api/shoppers/attribution', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ renderId }),
+      }),
+  });
+  const attributeRender = attributionMutation.mutate;
   const attributedRef = React.useRef(false);
   React.useEffect(() => {
     if (!viaRenderId || attributedRef.current) return;
     attributedRef.current = true;
-    fetch('/api/shoppers/attribution', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ renderId: viaRenderId }),
-    }).catch(() => {});
-  }, [viaRenderId]);
+    attributeRender(viaRenderId);
+  }, [viaRenderId, attributeRender]);
 
   const renderMutation = useMutation({
     mutationFn: async (twinId: string) => {
