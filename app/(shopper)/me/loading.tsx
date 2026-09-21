@@ -9,10 +9,10 @@ export default function Loading() {
       <div className="space-y-4">
         <Skeleton className="h-5 w-24" />
         <div className="grid grid-cols-2 gap-3">
-          <Skeleton className="aspect-[3/4] rounded-md" />
-          <Skeleton className="aspect-[3/4] rounded-md" />
-          <Skeleton className="aspect-[3/4] rounded-md" />
-          <Skeleton className="aspect-[3/4] rounded-md" />
+          <Skeleton className="aspect-3/4 rounded-md" />
+          <Skeleton className="aspect-3/4 rounded-md" />
+          <Skeleton className="aspect-3/4 rounded-md" />
+          <Skeleton className="aspect-3/4 rounded-md" />
         </div>
       </div>
     </Container>

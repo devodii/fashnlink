@@ -33,7 +33,7 @@ export default async function ClaimPage({ params }: { params: Promise<{ storeId:
         {claimRows.slice(0, 6).map((row) => (
           <div
             key={row.id}
-            className="aspect-[3/4] rounded-md bg-muted blur-md"
+            className="aspect-3/4 rounded-md bg-muted blur-md"
             aria-label={row.productTitle ?? undefined}
           />
         ))}

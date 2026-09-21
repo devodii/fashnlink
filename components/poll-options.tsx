@@ -37,7 +37,7 @@ export function PollOptions({ options, value, onVote, results, className }: Poll
           >
             <div
               className={cn(
-                'relative aspect-[3/4] overflow-hidden rounded-md bg-muted ring-2 ring-transparent',
+                'relative aspect-3/4 overflow-hidden rounded-md bg-muted ring-2 ring-transparent',
                 value === option.id && 'ring-ring',
               )}
             >

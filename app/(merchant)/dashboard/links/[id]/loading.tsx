@@ -20,9 +20,9 @@ export default function Loading() {
           <Skeleton className="h-5 w-20" />
           <Skeleton className="h-4 w-40" />
           <div className="grid grid-cols-3 gap-3">
-            <Skeleton className="aspect-[3/4] rounded-md" />
-            <Skeleton className="aspect-[3/4] rounded-md" />
-            <Skeleton className="aspect-[3/4] rounded-md" />
+            <Skeleton className="aspect-3/4 rounded-md" />
+            <Skeleton className="aspect-3/4 rounded-md" />
+            <Skeleton className="aspect-3/4 rounded-md" />
           </div>
         </div>
       </div>

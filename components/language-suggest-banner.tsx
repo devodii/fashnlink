@@ -38,7 +38,7 @@ export function LanguageSuggestBanner() {
   return (
     <InlineAlert
       title={suggested.suggestPrompt}
-      className="[&_[data-slot=alert-description]]:flex [&_[data-slot=alert-description]]:items-center [&_[data-slot=alert-description]]:gap-2"
+      className="**:data-[slot=alert-description]:flex **:data-[slot=alert-description]:items-center **:data-[slot=alert-description]:gap-2"
     >
       <Button type="button" size="sm" onClick={() => setLanguage(suggested.code)}>
         Yes

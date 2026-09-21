@@ -66,7 +66,7 @@ export default async function SharedRenderPage({
         {price && <p className="text-sm text-muted-foreground">{price}</p>}
       </div>
 
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md">
+      <div className="relative aspect-3/4 w-full overflow-hidden rounded-md">
         <Image
           src={row.outputUrl}
           alt={row.productTitle}

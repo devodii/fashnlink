@@ -82,7 +82,7 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
     <div className="flex flex-1 flex-col gap-6">
       {defaultTwin?.twinUrl && (
         <Section title="Your model">
-          <div className="relative aspect-[3/4] w-32 overflow-hidden rounded-md">
+          <div className="relative aspect-3/4 w-32 overflow-hidden rounded-md">
             <Image
               src={defaultTwin.twinUrl}
               alt="Your twin"

@@ -62,7 +62,7 @@ export default async function DropStatusPage({ params }: { params: Promise<{ id:
             {previewRows.map((row, i) => (
               <div
                 key={i}
-                className="flex aspect-[3/4] items-center justify-center rounded-md bg-muted p-2 text-center text-xs text-muted-foreground"
+                className="flex aspect-3/4 items-center justify-center rounded-md bg-muted p-2 text-center text-xs text-muted-foreground"
               >
                 {row.productTitle}
               </div>
