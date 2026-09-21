@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
@@ -23,6 +24,17 @@ const groupSchema = z.object({
   groupNote: z.string().optional(),
 });
 
+async function createLink(body: unknown): Promise<{ linkId: string }> {
+  const res = await fetch('/api/links', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message ?? 'Something went wrong');
+  return json;
+}
+
 export function NewLinkForm() {
   const router = useRouter();
   const [kind, setKind] = React.useState<Kind>('single');
@@ -40,6 +52,19 @@ export function NewLinkForm() {
     defaultValues: { url: '', groupName: '', groupNote: '' },
   });
 
+  const createLinkMutation = useMutation({
+    mutationFn: createLink,
+    onMutate: () => {
+      setStage('working');
+      setError(null);
+    },
+    onSuccess: (data) => router.push(`/dashboard/links/${data.linkId}`),
+    onError: (err) => {
+      setStage('error');
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+    },
+  });
+
   const steps: ProgressStep[] = [
     {
       label: 'Detecting platform',
@@ -55,21 +80,8 @@ export function NewLinkForm() {
     },
   ];
 
-  async function post(path: string, body: unknown) {
-    setStage('working');
-    setError(null);
-    const res = await fetch(path, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      setStage('error');
-      setError(json.error?.message ?? 'Something went wrong');
-      return;
-    }
-    router.push(`/dashboard/links/${json.linkId}`);
+  async function post(body: unknown) {
+    createLinkMutation.mutate(body);
   }
 
   return (
@@ -87,7 +99,7 @@ export function NewLinkForm() {
       {kind === 'single' && (
         <Form
           form={singleForm}
-          onSubmit={(v) => post('/api/links', { kind: 'single', ...v })}
+          onSubmit={(v) => post({ kind: 'single', ...v })}
           className="space-y-4"
         >
           <UrlField
@@ -134,7 +146,7 @@ export function NewLinkForm() {
             loading={stage === 'working'}
             className="w-full"
             disabled={pollUrls.filter(Boolean).length < 2}
-            onClick={() => post('/api/links', { kind: 'poll', urls: pollUrls.filter(Boolean) })}
+            onClick={() => post({ kind: 'poll', urls: pollUrls.filter(Boolean) })}
           >
             Create poll
           </LoadingButton>
@@ -145,7 +157,7 @@ export function NewLinkForm() {
         <Form
           form={groupForm}
           onSubmit={(v) =>
-            post('/api/links', {
+            post({
               kind: 'group',
               url: v.url,
               groupName: v.groupName,

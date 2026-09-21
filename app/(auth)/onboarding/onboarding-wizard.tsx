@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 import { StepWizard, type StepWizardApi } from '@/components/step-wizard';
 import { useZodForm } from '@/hooks/use-zod-form';
@@ -100,6 +101,30 @@ function ProductStep({
   const [trackingScriptSrc, setTrackingScriptSrc] = React.useState<string | null>(null);
   const somethingElse = selectedChip === 'Something else';
 
+  const createLinkMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const res = await fetch('/api/links', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ kind: 'single', url }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message ?? "We couldn't read that page.");
+      return json as CreatedLink;
+    },
+  });
+
+  const platformRequestMutation = useMutation({
+    mutationFn: async (requestNotes: string) => {
+      const res = await fetch('/api/platform-requests', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ notes: requestNotes }),
+      });
+      return res.json().catch(() => null);
+    },
+  });
+
   React.useEffect(() => {
     api.setOnNext(async () => {
       setError(null);
@@ -108,17 +133,12 @@ function ProductStep({
       if (url) {
         const valid = await form.trigger('url');
         if (!valid) return false;
-        const res = await fetch('/api/links', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ kind: 'single', url }),
-        });
-        const json = await res.json();
-        if (!res.ok) {
-          setError(json.error?.message ?? "We couldn't read that page.");
-          return false;
+        try {
+          const json = await createLinkMutation.mutateAsync(url);
+          setPreview(json);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "We couldn't read that page.");
         }
-        setPreview(json);
         return false;
       }
 
@@ -127,12 +147,7 @@ function ProductStep({
           setError('Tell us where you sell so we know what to build next.');
           return false;
         }
-        const res = await fetch('/api/platform-requests', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ notes }),
-        });
-        const json = await res.json().catch(() => null);
+        const json = await platformRequestMutation.mutateAsync(notes);
         if (json?.trackingScriptSrc) {
           setTrackingScriptSrc(json.trackingScriptSrc);
           return false;
@@ -249,6 +264,15 @@ function BrandStep({
   const [referralErrorKey, setReferralErrorKey] = React.useState(0);
   const referralIsOther = referral === 'Something else';
 
+  const updateMerchantMutation = useMutation({
+    mutationFn: (body: Record<string, unknown>) =>
+      fetch('/api/merchants/me', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      }),
+  });
+
   React.useEffect(() => {
     api.setOnNext(async () => {
       setReferralError(null);
@@ -265,16 +289,12 @@ function BrandStep({
 
       let success = false;
       await form.handleSubmit(async (values) => {
-        await fetch('/api/merchants/me', {
-          method: 'PATCH',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            name: values.name,
-            accentToken: values.accentToken,
-            ...(logo && { logoUrl: logo.url }),
-            contactChannel: values.contactChannel,
-            referralSource: referralIsOther ? referralOther.trim() : referral,
-          }),
+        await updateMerchantMutation.mutateAsync({
+          name: values.name,
+          accentToken: values.accentToken,
+          ...(logo && { logoUrl: logo.url }),
+          contactChannel: values.contactChannel,
+          referralSource: referralIsOther ? referralOther.trim() : referral,
         });
         success = true;
       })();
