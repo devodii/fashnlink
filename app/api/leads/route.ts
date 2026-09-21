@@ -34,31 +34,38 @@ export const POST = apiHandler({
     const [link] = await retrieveLinks({ ids: [render.linkId] });
     if (!link) return err({ code: 'NOT_FOUND', message: 'link not found' });
 
-    await createLeads([
-      {
-        merchantId: link.merchantId,
-        shopperId,
-        productId: render.productId,
-        renderId: body.renderId,
-        email: body.email,
-        source: 'email_gate',
-      },
-    ]);
-
-    await updateShoppers([shopperId], { email: body.email });
-
-    if (body.retargetOptIn) {
-      await createRetargetOptins([
+    // Three independent writes to different tables; none reads another's
+    // result, so they can all go out concurrently.
+    const writes: Promise<unknown>[] = [
+      createLeads([
         {
-          shopperId,
           merchantId: link.merchantId,
+          shopperId,
+          productId: render.productId,
+          renderId: body.renderId,
           email: body.email,
           source: 'email_gate',
-          ip: req.headers.get('x-forwarded-for'),
-          userAgent: req.headers.get('user-agent'),
         },
-      ]);
+      ]),
+      updateShoppers([shopperId], { email: body.email }),
+    ];
+
+    if (body.retargetOptIn) {
+      writes.push(
+        createRetargetOptins([
+          {
+            shopperId,
+            merchantId: link.merchantId,
+            email: body.email,
+            source: 'email_gate',
+            ip: req.headers.get('x-forwarded-for'),
+            userAgent: req.headers.get('user-agent'),
+          },
+        ]),
+      );
     }
+
+    await Promise.all(writes);
 
     return ok({ recorded: true });
   },
