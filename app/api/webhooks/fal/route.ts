@@ -34,7 +34,20 @@ export const POST = apiHandler({
 
     const log = childLogger(requestId, { route: 'webhooks/fal', kind: query.kind, id: query.id });
     const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };
-    const body = await req.json().catch(() => null);
+    const rawBody = await req.text();
+    let body: unknown = null;
+    try {
+      body = rawBody ? JSON.parse(rawBody) : null;
+    } catch (cause) {
+      // `.catch(() => null)` on req.json() used to swallow this outright,
+      // leaving no way to tell a redelivered-empty-body from a genuinely
+      // malformed one. Logging the raw text (fal's own payload, safe to
+      // log) turns the next occurrence into something diagnosable.
+      log.error(
+        { cause, rawBodyPreview: rawBody.slice(0, 500) },
+        'fal webhook body failed to parse',
+      );
+    }
 
     if (query.kind === 'twin') {
       const [twin] = await retrieveTwins({ ids: [query.id] });
