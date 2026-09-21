@@ -2,6 +2,15 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
+# A single @types/react(-dom) instance across the workspace — apps/web-app's
+# "^19" and apps/mobile-app's Expo-pinned "~19.2.2" otherwise resolve two
+# separate copies, and TypeScript treats their (structurally identical)
+# `Key` brand types as incompatible, breaking apps/web-app's own typecheck
+# on files that never touch the mobile app.
+overrides:
+  '@types/react': '19.3.0'
+  '@types/react-dom': '19.3.0'
+
 allowBuilds:
   esbuild: true
   msgpackr-extract: true
