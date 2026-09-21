@@ -30,6 +30,7 @@ export interface UploadDropzoneProps {
   aspect?: keyof typeof ASPECT_CLASS;
   disabled?: boolean;
   onFiles: (files: UploadedFile[]) => void;
+  onUploadingChange?: (uploading: boolean) => void;
   preview?: string | null;
   progress?: number | null;
   error?: string | null;
@@ -44,6 +45,7 @@ export function UploadDropzone({
   aspect = '3/4',
   disabled,
   onFiles,
+  onUploadingChange,
   preview,
   progress: progressProp,
   error: errorProp,
@@ -54,18 +56,45 @@ export function UploadDropzone({
   const [localError, setLocalError] = React.useState<string | null>(null);
   const [localPreview, setLocalPreview] = React.useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = React.useState<number | null>(null);
+  const [simulatedProgress, setSimulatedProgress] = React.useState<number | null>(null);
+  const simulatedTimerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function stopSimulatedProgress() {
+    if (simulatedTimerRef.current) clearInterval(simulatedTimerRef.current);
+    simulatedTimerRef.current = null;
+    setSimulatedProgress(null);
+  }
+
+  // UploadThing's real onUploadProgress often stays at 0 then jumps straight
+  // to 100 rather than reporting granularly, so this eases a fake progress
+  // toward 90% while uploading; taking the max with whatever real progress
+  // does arrive means a late real jump to 100 always wins immediately.
+  function startSimulatedProgress() {
+    setSimulatedProgress(0);
+    simulatedTimerRef.current = setInterval(() => {
+      setSimulatedProgress((p) => (p === null ? null : Math.min(p + (90 - p) * 0.08, 89)));
+    }, 200);
+  }
 
   const { startUpload, isUploading } = useUploadThing('imageUploader', {
     onUploadProgress: (p) => setUploadProgress(p),
     onClientUploadComplete: (res) => {
       setUploadProgress(null);
+      stopSimulatedProgress();
       onFiles(res.map((file) => ({ url: file.ufsUrl, key: file.key, name: file.name })));
     },
     onUploadError: (uploadError) => {
       setUploadProgress(null);
+      stopSimulatedProgress();
       setLocalError(uploadError.message);
     },
   });
+
+  React.useEffect(() => {
+    onUploadingChange?.(isUploading);
+  }, [isUploading, onUploadingChange]);
+
+  React.useEffect(() => () => stopSimulatedProgress(), []);
 
   function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
@@ -77,6 +106,7 @@ export function UploadDropzone({
     }
     setLocalError(null);
     setLocalPreview(URL.createObjectURL(files[0]));
+    startSimulatedProgress();
     void startUpload(files);
   }
 
@@ -89,7 +119,11 @@ export function UploadDropzone({
 
   const displayPreview = preview ?? localPreview;
   const displayError = errorProp ?? localError;
-  const displayProgress = progressProp ?? uploadProgress;
+  const liveProgress =
+    uploadProgress !== null || simulatedProgress !== null
+      ? Math.max(uploadProgress ?? 0, simulatedProgress ?? 0)
+      : null;
+  const displayProgress = progressProp ?? liveProgress;
   const isLoading = isUploading || (displayProgress !== null && displayProgress < 100);
 
   return (

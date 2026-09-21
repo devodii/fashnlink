@@ -44,6 +44,7 @@ export function SettingsForm({
   const [logo, setLogo] = React.useState<UploadedFile | null>(
     initial.logoUrl ? { url: initial.logoUrl, key: '', name: 'logo' } : null,
   );
+  const [logoUploading, setLogoUploading] = React.useState(false);
   const contactType = form.watch('contactChannel.type');
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -56,6 +57,18 @@ export function SettingsForm({
         ...(logo && { logoUrl: logo.url }),
         contactChannel: values.contactChannel,
       }),
+    });
+    router.refresh();
+  }
+
+  async function handleLogoUploaded(files: UploadedFile[]) {
+    const uploaded = files[0];
+    if (!uploaded) return;
+    setLogo(uploaded);
+    await fetch('/api/merchants/me', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ logoUrl: uploaded.url }),
     });
     router.refresh();
   }
@@ -93,7 +106,8 @@ export function SettingsForm({
                   accept="image/*"
                   aspect="1/1"
                   className="w-48"
-                  onFiles={(files) => setLogo(files[0] ?? null)}
+                  onFiles={handleLogoUploaded}
+                  onUploadingChange={setLogoUploading}
                 />
               )}
             </div>
@@ -132,7 +146,11 @@ export function SettingsForm({
                 />
               )}
 
-              <LoadingButton type="submit" loading={form.formState.isSubmitting}>
+              <LoadingButton
+                type="submit"
+                loading={form.formState.isSubmitting}
+                disabled={logoUploading}
+              >
                 Save
               </LoadingButton>
             </div>
