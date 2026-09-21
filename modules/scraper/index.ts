@@ -198,10 +198,6 @@ export async function scrapeUrl(
     .digest('hex');
 
   t = Date.now();
-  // Independent: enrichment only uploads images to storage and never touches
-  // the `products` row, and persisting the row only needs data already
-  // resolved above (verdict, garmentCategory, contentHash), not the enriched
-  // images (those are applied in the update below, after both land).
   const [enrichedImages, [savedProduct]] = await Promise.all([
     verdict.eligibility === 'kids'
       ? Promise.resolve<EnrichedImage[]>([])
@@ -236,8 +232,6 @@ export async function scrapeUrl(
     })),
   });
 
-  // Independent: enqueueing the crawl job and stamping `lastCrawledAt` both
-  // only need `store.id`, already known, and neither reads the other's result.
   await Promise.all([
     enqueueJob('store.crawled', { storeId: store.id }),
     updateStores([store.id], { lastCrawledAt: new Date() }),

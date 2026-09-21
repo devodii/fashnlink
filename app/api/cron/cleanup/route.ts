@@ -32,9 +32,6 @@ export const GET = apiHandler({
       .filter((key): key is string => !!key);
     const ids = expiredRenders.map((render) => render.id);
 
-    // Independent: both derive from `expiredRenders`, already fetched above,
-    // not from each other's result, so the storage cleanup and the row
-    // deletion can go out concurrently.
     await Promise.all([
       deleteObjects(keys).catch((cause) =>
         log.warn({ cause, count: keys.length }, 'failed to delete orphaned render objects'),

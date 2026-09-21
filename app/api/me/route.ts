@@ -7,8 +7,6 @@ export const DELETE = apiHandler({
   name: 'me.deleteAll',
   auth: ['shopper_session'],
   handler: async ({ shopper }) => {
-    // Independent: the shopper cookie read needs nothing beyond the request
-    // itself, and doesn't depend on the shopper row being deleted first.
     const [, store] = await Promise.all([deleteShoppers([shopper.shopperId]), cookies()]);
     store.delete('shopper_id');
 

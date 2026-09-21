@@ -17,10 +17,6 @@ export const PATCH = apiHandler({
   auth: ['merchant_session'],
   schema: { body: bodySchema },
   handler: async ({ body, merchant }) => {
-    // Independent writes: the name update sets a plain column, the settings
-    // update patches the jsonb `settings` column (merging against its own
-    // freshly-read row), so the two never touch the same column and can run
-    // concurrently; only the re-read below needs both to have landed.
     const writes: Promise<unknown>[] = [];
     if (body.name) writes.push(updateMerchants([merchant.merchantId], { name: body.name }));
 
