@@ -1,0 +1,49 @@
+import { desc, eq } from 'drizzle-orm';
+import { requireMerchant } from '@/actions/merchants';
+import { db } from '@/db';
+import { creditLedger } from '@tryonlink/shared/schema';
+import { currentBalance } from '@/modules/render/credit-ledger';
+import { PageHeader } from '@/components/page-header';
+import { Section } from '@/components/section';
+import { CreditMeter } from '@/components/credit-meter';
+import { Badge } from '@/components/ui/badge';
+import { LedgerTable } from './ledger-table';
+
+export default async function BillingPage() {
+  const merchant = await requireMerchant();
+  const [balance, ledgerRows] = await Promise.all([
+    currentBalance(merchant.id),
+    db
+      .select()
+      .from(creditLedger)
+      .where(eq(creditLedger.merchantId, merchant.id))
+      .orderBy(desc(creditLedger.createdAt))
+      .limit(100),
+  ]);
+
+  return (
+    <div className="space-y-8 p-4 md:p-8">
+      <PageHeader
+        title="Billing"
+        description="Credits, plan, and purchase history."
+        actions={
+          merchant.plan === 'founder' ? (
+            <Badge>Founder</Badge>
+          ) : (
+            <Badge variant="secondary" className="capitalize">
+              {merchant.plan}
+            </Badge>
+          )
+        }
+      />
+
+      <Section title="Credits">
+        <CreditMeter balance={balance} variant="full" />
+      </Section>
+
+      <Section title="Ledger">
+        <LedgerTable rows={ledgerRows} />
+      </Section>
+    </div>
+  );
+}
