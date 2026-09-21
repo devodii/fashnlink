@@ -68,6 +68,10 @@ export const TWIN_CREATIONS_PER_SHOPPER_PER_DAY = 10;
 export const SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR = 60;
 // marketing homepage's live quick-demo, abuse guard by IP.
 export const QUICK_LINK_DEMO_PER_IP_PER_DAY = 3;
+// custom-site tracking script's public ingestion endpoint, abuse guard by token.
+export const TRACK_INGEST_REQUESTS_PER_TOKEN_PER_HOUR = 120;
+export const TRACK_INGEST_MAX_PATHS_PER_REQUEST = 100;
+export const DISCOVERED_PATHS_MAX_PER_STORE = 500;
 
 // new drop campaigns.
 export const MAX_DROP_PRODUCTS = 3;
@@ -339,3 +343,77 @@ export const WEARABLE_NEGATIVE = [
 // A match here short-circuits straight to the kids verdict rather than
 // adding negative weight to the wearable/not-wearable score.
 export const KIDS_KEYWORDS = ['kids', 'baby', 'toddler', 'infant'] as const;
+
+// ------------------------------ PRODUCT PATH KEYWORDS ------------------------------
+// Same lightweight positives-minus-negatives scoring pattern as the wearable
+// gate's text stage (scoreCandidateText), applied to a discovered path +
+// link text instead of a product's title/tags: signal for "does this look
+// like a product page" on an arbitrary custom site, not garment-wearability.
+
+export const PRODUCT_PATH_POSITIVE = [
+  'product',
+  'products',
+  'shop',
+  'shopping',
+  'store',
+  'collection',
+  'collections',
+  'item',
+  'items',
+  'buy',
+  'catalog',
+  'catalogue',
+  'goods',
+  'merch',
+  'gear',
+  'sale',
+  'new-arrivals',
+  'bestseller',
+  'bestsellers',
+] as const;
+
+export const PRODUCT_PATH_NEGATIVE = [
+  'about',
+  'blog',
+  'cart',
+  'checkout',
+  'contact',
+  'privacy',
+  'terms',
+  'policy',
+  'faq',
+  'help',
+  'support',
+  'account',
+  'login',
+  'signup',
+  'register',
+  'returns',
+  'shipping',
+  'careers',
+  'jobs',
+  'press',
+  'news',
+  'wishlist',
+  'search',
+  'sitemap',
+  'legal',
+  'cookie',
+  'affiliate',
+  'newsletter',
+] as const;
+
+// Path segments that, as the first path segment, strongly imply a product
+// listing/detail page regardless of link text.
+export const PRODUCT_PATH_SEGMENT_PREFIXES = [
+  'product',
+  'products',
+  'shop',
+  'collections',
+  'collection',
+  'p',
+  'item',
+  'items',
+] as const;
+
+export const PRICE_LIKE_PATTERN = /(\$|£|€)\s?\d+(\.\d{2})?/;
