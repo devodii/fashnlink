@@ -78,9 +78,15 @@ export async function ingestDiscoveredPaths(
   }
   if (accepted.length === 0) return ok({ ok: true });
 
+  // Independent per-candidate Jev calls: score them all in parallel rather
+  // than serially awaiting each one inside the map.
+  const scores = await Promise.all(
+    accepted.map((candidate) => scoreDiscoveredPath(candidate, log)),
+  );
+
   await createDiscoveredPaths(
-    accepted.map((candidate) => {
-      const { score, signals } = scoreDiscoveredPath(candidate);
+    accepted.map((candidate, i) => {
+      const { score, signals } = scores[i];
       return {
         storeId: store.id,
         path: candidate.path,
