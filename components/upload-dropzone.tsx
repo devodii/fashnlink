@@ -7,8 +7,6 @@ import { generateReactHelpers } from '@uploadthing/react';
 import type { UploadRouter } from '@/lib/uploadthing';
 import { Spinner } from '@/components/spinner';
 
-// UploadThing uploads go straight from the browser to storage, never
-// through our server, so there is no presigned-URL step to build here.
 const { useUploadThing } = generateReactHelpers<UploadRouter>();
 
 export interface UploadedFile {
@@ -65,10 +63,6 @@ export function UploadDropzone({
     setSimulatedProgress(null);
   }
 
-  // UploadThing's real onUploadProgress often stays at 0 then jumps straight
-  // to 100 rather than reporting granularly, so this eases a fake progress
-  // toward 90% while uploading; taking the max with whatever real progress
-  // does arrive means a late real jump to 100 always wins immediately.
   function startSimulatedProgress() {
     setSimulatedProgress(0);
     simulatedTimerRef.current = setInterval(() => {
