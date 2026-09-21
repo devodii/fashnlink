@@ -22,9 +22,10 @@ export default async function PollPage({
   const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.kind !== 'poll' || link.status === 'archived') notFound();
 
-  const [merchant] = await retrieveMerchants({ ids: [link.merchantId] });
-
-  const pollProducts = await retrieveProducts({ ids: link.productIds });
+  const [[merchant], pollProducts] = await Promise.all([
+    retrieveMerchants({ ids: [link.merchantId] }),
+    retrieveProducts({ ids: link.productIds }),
+  ]);
 
   const creatorRenders = creatorShopperId
     ? await db
