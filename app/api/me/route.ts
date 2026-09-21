@@ -7,9 +7,7 @@ export const DELETE = apiHandler({
   name: 'me.deleteAll',
   auth: ['shopper_session'],
   handler: async ({ shopper }) => {
-    await deleteShoppers([shopper.shopperId]);
-
-    const store = await cookies();
+    const [, store] = await Promise.all([deleteShoppers([shopper.shopperId]), cookies()]);
     store.delete('shopper_id');
 
     return ok({ deleted: true });
