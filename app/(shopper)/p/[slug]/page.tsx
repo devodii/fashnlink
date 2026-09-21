@@ -1,10 +1,12 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { merchants, products, renders } from '@/db/schema';
+import { renders } from '@/db/schema';
 import { retrieveLinks } from '@/actions/links';
 import { retrieveTwins } from '@/actions/twins';
 import { retrieveShoppers } from '@/actions/shoppers';
+import { retrieveMerchants } from '@/actions/merchants';
+import { retrieveProducts } from '@/actions/products';
 import { PollVoteView } from './poll-vote-view';
 
 export default async function PollPage({
@@ -20,16 +22,9 @@ export default async function PollPage({
   const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.kind !== 'poll' || link.status === 'archived') notFound();
 
-  const [merchant] = await db
-    .select({ name: merchants.name })
-    .from(merchants)
-    .where(eq(merchants.id, link.merchantId))
-    .limit(1);
+  const [merchant] = await retrieveMerchants({ ids: [link.merchantId] });
 
-  const pollProducts = await db
-    .select()
-    .from(products)
-    .where(inArray(products.id, link.productIds));
+  const pollProducts = await retrieveProducts({ ids: link.productIds });
 
   const creatorRenders = creatorShopperId
     ? await db
