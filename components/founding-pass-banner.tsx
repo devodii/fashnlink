@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { InfoIcon } from '@phosphor-icons/react/ssr';
 
@@ -11,16 +12,24 @@ export interface FoundingPassBannerProps {
 
 export function FoundingPassBanner({ label, note }: FoundingPassBannerProps) {
   const [visible, setVisible] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
 
+  // Reveal-on-mount animation trigger, unrelated to the checkout fetch below.
   React.useEffect(() => setVisible(true), []);
 
-  async function handleClick() {
-    setLoading(true);
-    const res = await fetch('/api/merchants/me/checkout', { method: 'POST' });
-    const json = await res.json();
-    setLoading(false);
-    if (res.ok) window.location.href = json.paymentUrl;
+  const checkoutMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/merchants/me/checkout', { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message ?? 'could not start checkout');
+      return json as { paymentUrl: string };
+    },
+    onSuccess: (json) => {
+      window.location.href = json.paymentUrl;
+    },
+  });
+
+  function handleClick() {
+    checkoutMutation.mutate();
   }
 
   return (
@@ -31,7 +40,12 @@ export function FoundingPassBanner({ label, note }: FoundingPassBannerProps) {
       )}
     >
       <InfoIcon className="size-4 shrink-0" />
-      <button type="button" onClick={handleClick} disabled={loading} className="hover:underline">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={checkoutMutation.isPending}
+        className="hover:underline"
+      >
         {label}
       </button>
       {note && <span className="text-warning-foreground/70">· {note}</span>}
