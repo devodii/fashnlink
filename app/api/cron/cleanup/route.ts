@@ -30,12 +30,14 @@ export const GET = apiHandler({
     const keys = expiredRenders
       .map((render) => render.outputR2Key)
       .filter((key): key is string => !!key);
-    await deleteObjects(keys).catch((cause) =>
-      log.warn({ cause, count: keys.length }, 'failed to delete orphaned render objects'),
-    );
-
     const ids = expiredRenders.map((render) => render.id);
-    await db.delete(renders).where(inArray(renders.id, ids));
+
+    await Promise.all([
+      deleteObjects(keys).catch((cause) =>
+        log.warn({ cause, count: keys.length }, 'failed to delete orphaned render objects'),
+      ),
+      db.delete(renders).where(inArray(renders.id, ids)),
+    ]);
 
     return ok({ rendersDeleted: ids.length });
   },

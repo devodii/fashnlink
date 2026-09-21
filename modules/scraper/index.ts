@@ -22,7 +22,7 @@ import { bigcartelAdapter } from './adapters/bigcartel';
 import { genericAdapter } from './adapters/generic';
 import { manualAdapter } from './adapters/manual';
 import { assessWearability } from './wearable-gate';
-import { enrichProduct } from './enrich';
+import { enrichProduct, type EnrichedImage } from './enrich';
 import { WEARABLE_TYPE_CATEGORY } from '@/wearable-rules';
 import { buildStoreFingerprint } from './detect';
 import type { ScrapeResult } from './schema';
@@ -182,13 +182,6 @@ export async function scrapeUrl(
   });
   const productId = existingProduct?.id ?? newId('prod');
 
-  t = Date.now();
-  const enrichedImages =
-    verdict.eligibility === 'kids'
-      ? []
-      : await enrichProduct(product, store.id, productId, verdict, perImageVisionVerdicts, ctx);
-  mark('enrich', t);
-
   const garmentCategory =
     verdict.garmentCategory !== 'unknown'
       ? verdict.garmentCategory
@@ -205,19 +198,25 @@ export async function scrapeUrl(
     .digest('hex');
 
   t = Date.now();
-  const [savedProduct] = await createProducts([
-    {
-      id: productId,
-      storeId: store.id,
-      normalized: product,
-      garmentCategory,
-      wearableType: verdict.wearableType,
-      eligibility: verdict.eligibility,
-      eligibilityReason: verdict.eligibilityReason,
-      genderHint: null,
-      contentHash,
-    },
+  const [enrichedImages, [savedProduct]] = await Promise.all([
+    verdict.eligibility === 'kids'
+      ? Promise.resolve<EnrichedImage[]>([])
+      : enrichProduct(product, store.id, productId, verdict, perImageVisionVerdicts, ctx),
+    createProducts([
+      {
+        id: productId,
+        storeId: store.id,
+        normalized: product,
+        garmentCategory,
+        wearableType: verdict.wearableType,
+        eligibility: verdict.eligibility,
+        eligibilityReason: verdict.eligibilityReason,
+        genderHint: null,
+        contentHash,
+      },
+    ]),
   ]);
+  mark('enrichAndPersist', t);
   if (!savedProduct) return err({ code: 'INTERNAL', message: 'Failed to persist product' });
 
   await updateProducts([savedProduct.id], {
@@ -232,10 +231,11 @@ export async function scrapeUrl(
       available: v.available,
     })),
   });
-  mark('persist', t);
 
-  await enqueueJob('store.crawled', { storeId: store.id });
-  await updateStores([store.id], { lastCrawledAt: new Date() });
+  await Promise.all([
+    enqueueJob('store.crawled', { storeId: store.id }),
+    updateStores([store.id], { lastCrawledAt: new Date() }),
+  ]);
 
   return ok({
     store: {

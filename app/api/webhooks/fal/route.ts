@@ -140,14 +140,15 @@ export const POST = apiHandler({
       return ok({ handled: true });
     }
 
-    const imageResponse = await ctx.fetch(parsed.value.imageUrl);
+    const [imageResponse, [merchant]] = await Promise.all([
+      ctx.fetch(parsed.value.imageUrl),
+      db
+        .select({ watermarkEnabled: merchants.watermarkEnabled })
+        .from(merchants)
+        .where(eq(merchants.id, merchantId as string))
+        .limit(1),
+    ]);
     let bytes = Buffer.from(await imageResponse.arrayBuffer());
-
-    const [merchant] = await db
-      .select({ watermarkEnabled: merchants.watermarkEnabled })
-      .from(merchants)
-      .where(eq(merchants.id, merchantId as string))
-      .limit(1);
     const watermarked = merchant?.watermarkEnabled ?? true;
 
     if (watermarked) {

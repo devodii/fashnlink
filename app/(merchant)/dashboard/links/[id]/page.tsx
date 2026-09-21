@@ -34,24 +34,25 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
 
   const productId = link.productIds[0];
 
-  const [resolvedProduct] = await retrieveProducts({ ids: [productId], withImages: true });
+  const [[resolvedProduct], linkRenders] = await Promise.all([
+    retrieveProducts({ ids: [productId], withImages: true }),
+    db
+      .select({
+        id: renders.id,
+        status: renders.status,
+        via: renders.via,
+        createdAt: renders.createdAt,
+        leadEmail: leads.email,
+      })
+      .from(renders)
+      .leftJoin(leads, eq(leads.renderId, renders.id))
+      .where(eq(renders.linkId, link.id))
+      .orderBy(desc(renders.createdAt))
+      .limit(50),
+  ]);
   if (!resolvedProduct) notFound();
 
   const images = resolvedProduct?.images ?? [];
-
-  const linkRenders = await db
-    .select({
-      id: renders.id,
-      status: renders.status,
-      via: renders.via,
-      createdAt: renders.createdAt,
-      leadEmail: leads.email,
-    })
-    .from(renders)
-    .leftJoin(leads, eq(leads.renderId, renders.id))
-    .where(eq(renders.linkId, link.id))
-    .orderBy(desc(renders.createdAt))
-    .limit(50);
 
   const fullUrl = `${env.NEXT_PUBLIC_APP_URL}/t/${link.slug}`;
 

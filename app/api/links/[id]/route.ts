@@ -21,14 +21,17 @@ export const PATCH = apiHandler({
       return err({ code: 'NOT_FOUND', message: 'Link not found' });
     }
 
-    if (body.status) await updateLinks([link.id], { status: body.status });
+    const writes: Promise<unknown>[] = [];
+    if (body.status) writes.push(updateLinks([link.id], { status: body.status }));
 
     if (body.garmentCategory) {
       const productId = link.productIds[0];
       if (productId) {
-        await updateProducts([productId], { garmentCategory: body.garmentCategory });
+        writes.push(updateProducts([productId], { garmentCategory: body.garmentCategory }));
       }
     }
+
+    await Promise.all(writes);
 
     return ok({ id: link.id });
   },

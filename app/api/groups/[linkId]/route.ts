@@ -44,12 +44,13 @@ export const POST = apiHandler({
   auth: ['shopper_session'],
   schema: { body: joinBodySchema, params: paramsSchema },
   handler: async ({ body, params, shopper }) => {
-    const [link] = await retrieveLinks({ ids: [params.linkId] });
+    const [[link], [render]] = await Promise.all([
+      retrieveLinks({ ids: [params.linkId] }),
+      retrieveRenders({ ids: [body.renderId] }),
+    ]);
     if (!link || link.kind !== 'group') {
       return err({ code: 'NOT_FOUND', message: 'group link not found' });
     }
-
-    const [render] = await retrieveRenders({ ids: [body.renderId] });
     if (!render || render.linkId !== link.id) {
       return err({ code: 'INVALID_INPUT', message: 'this render does not belong to this group' });
     }

@@ -17,19 +17,24 @@ export const PATCH = apiHandler({
   auth: ['merchant_session'],
   schema: { body: bodySchema },
   handler: async ({ body, merchant }) => {
-    if (body.name) await updateMerchants([merchant.merchantId], { name: body.name });
+    const writes: Promise<unknown>[] = [];
+    if (body.name) writes.push(updateMerchants([merchant.merchantId], { name: body.name }));
 
     const { logoUrl, accentToken, contactChannel, referralSource } = body;
     if (logoUrl || accentToken || contactChannel || referralSource) {
-      await updateMerchants([merchant.merchantId], {
-        settings: {
-          ...(logoUrl && { logoUrl }),
-          ...(accentToken && { accentToken }),
-          ...(contactChannel && { contactChannel }),
-          ...(referralSource && { referralSource }),
-        },
-      });
+      writes.push(
+        updateMerchants([merchant.merchantId], {
+          settings: {
+            ...(logoUrl && { logoUrl }),
+            ...(accentToken && { accentToken }),
+            ...(contactChannel && { contactChannel }),
+            ...(referralSource && { referralSource }),
+          },
+        }),
+      );
     }
+
+    await Promise.all(writes);
 
     const [updated] = await retrieveMerchants({ ids: [merchant.merchantId] });
     if (!updated) return err({ code: 'INTERNAL', message: 'Merchant not found after update' });
