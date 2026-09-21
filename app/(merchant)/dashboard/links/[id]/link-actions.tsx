@@ -108,8 +108,6 @@ export function GarmentCategoryField({
   });
   const mutate = categoryMutation.mutate;
 
-  // Auto-saves whenever the user picks a new category; not a data read, so
-  // this effect stays, it just delegates the actual PATCH to the mutation.
   React.useEffect(() => {
     if (watched === value) return;
     mutate(watched);

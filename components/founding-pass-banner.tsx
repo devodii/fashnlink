@@ -13,7 +13,6 @@ export interface FoundingPassBannerProps {
 export function FoundingPassBanner({ label, note }: FoundingPassBannerProps) {
   const [visible, setVisible] = React.useState(false);
 
-  // Reveal-on-mount animation trigger, unrelated to the checkout fetch below.
   React.useEffect(() => setVisible(true), []);
 
   const checkoutMutation = useMutation({
