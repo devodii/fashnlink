@@ -1,9 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { LoadingButton } from '@/components/loading-button';
-import { ResponsiveDialog } from '@/components/responsive-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/loading-button';
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -11,6 +18,7 @@ export interface ConfirmDialogProps {
   title: string;
   description?: string;
   confirmLabel?: string;
+  cancelLabel?: string;
   tone?: 'default' | 'destructive';
   onConfirm: () => void | Promise<void>;
 }
@@ -21,43 +29,45 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
   tone = 'default',
   onConfirm,
 }: ConfirmDialogProps) {
-  const [pending, setPending] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   async function handleConfirm() {
-    setPending(true);
-    try {
-      await onConfirm();
-      onOpenChange(false);
-    } finally {
-      setPending(false);
-    }
+    setLoading(true);
+    await onConfirm();
+    setLoading(false);
+    onOpenChange(false);
   }
 
   return (
-    <ResponsiveDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={title}
-      description={description}
-      footer={
-        <>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={pending}>
-            Cancel
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description && <DialogDescription>{description}</DialogDescription>}
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+          >
+            {cancelLabel}
           </Button>
           <LoadingButton
+            type="button"
             variant={tone === 'destructive' ? 'destructive' : 'default'}
-            loading={pending}
+            loading={loading}
             onClick={handleConfirm}
           >
             {confirmLabel}
           </LoadingButton>
-        </>
-      }
-    >
-      <></>
-    </ResponsiveDialog>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

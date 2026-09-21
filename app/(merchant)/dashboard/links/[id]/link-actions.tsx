@@ -4,10 +4,11 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { LoadingButton } from '@/components/loading-button';
 import { SelectField } from '@/components/forms/select-field';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { z } from 'zod';
 
-// todo: generate this using jev based on the scraped product image 
+// todo: generate this using jev based on the scraped product image
 const GARMENT_CATEGORIES = [
   'top',
   'bottom',
@@ -30,6 +31,7 @@ async function patchLink(id: string, body: Record<string, unknown>) {
 export function PauseArchiveButtons({ linkId, status }: { linkId: string; status: string }) {
   const router = useRouter();
   const [loading, setLoading] = React.useState<string | null>(null);
+  const [confirming, setConfirming] = React.useState<'paused' | 'archived' | null>(null);
 
   async function setStatus(next: 'active' | 'paused' | 'archived') {
     setLoading(next);
@@ -55,7 +57,7 @@ export function PauseArchiveButtons({ linkId, status }: { linkId: string; status
           size="sm"
           variant="outline"
           loading={loading === 'paused'}
-          onClick={() => setStatus('paused')}
+          onClick={() => setConfirming('paused')}
         >
           Pause
         </LoadingButton>
@@ -65,11 +67,26 @@ export function PauseArchiveButtons({ linkId, status }: { linkId: string; status
           size="sm"
           variant="outline"
           loading={loading === 'archived'}
-          onClick={() => setStatus('archived')}
+          onClick={() => setConfirming('archived')}
         >
           Archive
         </LoadingButton>
       )}
+      <ConfirmDialog
+        open={confirming !== null}
+        onOpenChange={(open) => !open && setConfirming(null)}
+        title={confirming === 'paused' ? 'Pause this link?' : 'Archive this link?'}
+        description={
+          confirming === 'paused'
+            ? 'Shoppers will no longer be able to try this on until you reactivate it.'
+            : 'Archived links are removed from your active list. You can reactivate it later.'
+        }
+        confirmLabel={confirming === 'paused' ? 'Pause' : 'Archive'}
+        tone="destructive"
+        onConfirm={async () => {
+          if (confirming) await setStatus(confirming);
+        }}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +48,7 @@ function initials(name: string, email: string) {
 
 function SidebarUserFooter({ name, email, logoUrl }: NonNullable<AppShellProps['user']>) {
   const router = useRouter();
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   async function handleSignOut() {
     await authClient.signOut();
@@ -55,16 +57,6 @@ function SidebarUserFooter({ name, email, logoUrl }: NonNullable<AppShellProps['
 
   return (
     <div className="flex items-center gap-2 p-2">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="shrink-0 text-sidebar-foreground group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent"
-        onClick={handleSignOut}
-      >
-        <SignOutIcon className="size-4" />
-        <span className="sr-only">Sign out</span>
-      </Button>
       <Avatar size="sm">
         {logoUrl && <AvatarImage src={logoUrl} alt={name} />}
         <AvatarFallback>{initials(name, email)}</AvatarFallback>
@@ -73,6 +65,25 @@ function SidebarUserFooter({ name, email, logoUrl }: NonNullable<AppShellProps['
         <p className="truncate text-sm font-medium text-sidebar-foreground">{name}</p>
         <p className="truncate text-xs text-sidebar-foreground/70">{email}</p>
       </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="shrink-0 text-sidebar-foreground group-data-[collapsible=icon]:hidden hover:bg-sidebar-accent"
+        onClick={() => setConfirmOpen(true)}
+      >
+        <SignOutIcon className="size-4" />
+        <span className="sr-only">Sign out</span>
+      </Button>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Sign out?"
+        description="You'll need to sign back in to access your dashboard."
+        confirmLabel="Sign out"
+        tone="destructive"
+        onConfirm={handleSignOut}
+      />
     </div>
   );
 }
