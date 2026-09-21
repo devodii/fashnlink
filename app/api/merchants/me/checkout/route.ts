@@ -2,19 +2,13 @@ import { apiHandler } from '@/lib/api-handler';
 import { paykit } from '@/lib/paykit';
 import { err, ok } from '@/lib/result';
 import { env } from '@/lib/env';
-import { db } from '@/db';
-import { merchants } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { retrieveMerchants } from '@/actions/merchants';
 
 export const POST = apiHandler({
   name: 'merchants.checkout.create',
   auth: ['merchant_session'],
   handler: async ({ merchant: session }) => {
-    const [merchant] = await db
-      .select()
-      .from(merchants)
-      .where(eq(merchants.id, session.merchantId))
-      .limit(1);
+    const [merchant] = await retrieveMerchants({ ids: [session.merchantId] });
     if (!merchant) return err({ code: 'NOT_FOUND', message: 'merchant not found' });
 
     try {

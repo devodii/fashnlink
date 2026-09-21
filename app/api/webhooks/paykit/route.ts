@@ -1,13 +1,13 @@
-import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { paykit } from '@/lib/paykit';
 import { err, ok } from '@/lib/result';
 import { env } from '@/lib/env';
 import { db } from '@/db';
-import { merchants, paymentEvents } from '@/db/schema';
+import { paymentEvents } from '@/db/schema';
 import { PLANS } from '@/constants';
 import { childLogger } from '@/lib/log';
 import { grantCredits } from '@/modules/render/credit-ledger';
+import { retrieveMerchants, updateMerchants } from '@/actions/merchants';
 
 function headersToRecord(headers: Headers): Record<string, string> {
   const record: Record<string, string> = {};
@@ -61,18 +61,11 @@ export const POST = apiHandler({
           const matchesFoundingPass = payment.item_id === env.POLAR_FOUNDING_PASS_PRODUCT_ID;
 
           if (merchantId && matchesFoundingPass) {
-            const [merchant] = await db
-              .select()
-              .from(merchants)
-              .where(eq(merchants.id, merchantId))
-              .limit(1);
+            const [merchant] = await retrieveMerchants({ ids: [merchantId] });
 
             if (merchant) {
               await grantCredits(merchantId, PLANS.founder.creditsOnGrant, 'purchase_founder');
-              await db
-                .update(merchants)
-                .set({ plan: 'founder', watermarkEnabled: false })
-                .where(eq(merchants.id, merchantId));
+              await updateMerchants([merchantId], { plan: 'founder', watermarkEnabled: false });
             } else {
               log.error(
                 { merchantId },

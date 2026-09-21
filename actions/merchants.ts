@@ -47,19 +47,23 @@ export async function retrieveMerchants(filters: {
 
 export async function updateMerchants(
   ids: string[],
-  patch: Partial<Pick<Merchant, 'name'>> & { settings?: Partial<MerchantSettings> },
+  patch: Partial<Pick<Merchant, 'name' | 'plan' | 'watermarkEnabled'>> & {
+    settings?: Partial<MerchantSettings>;
+  },
 ): Promise<Merchant[]> {
   if (ids.length === 0) return [];
 
-  if (patch.settings !== undefined) {
+  const { settings, ...liveFields } = patch;
+
+  if (settings !== undefined) {
     const existingRows = await db.select().from(merchants).where(inArray(merchants.id, ids));
     const updated = await Promise.all(
       existingRows.map(async (row) => {
         const [result] = await db
           .update(merchants)
           .set({
-            ...(patch.name !== undefined ? { name: patch.name } : {}),
-            settings: { ...(row.settings as MerchantSettings), ...patch.settings },
+            ...liveFields,
+            settings: { ...(row.settings as MerchantSettings), ...settings },
           })
           .where(eq(merchants.id, row.id))
           .returning();
@@ -69,12 +73,8 @@ export async function updateMerchants(
     return updated.filter((r): r is Merchant => Boolean(r));
   }
 
-  if (patch.name === undefined) return [];
-  return db
-    .update(merchants)
-    .set({ name: patch.name })
-    .where(inArray(merchants.id, ids))
-    .returning();
+  if (Object.keys(liveFields).length === 0) return [];
+  return db.update(merchants).set(liveFields).where(inArray(merchants.id, ids)).returning();
 }
 
 export async function deleteMerchants(ids: string[]): Promise<Merchant[]> {
