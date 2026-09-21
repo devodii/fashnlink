@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
@@ -41,23 +42,39 @@ export function RetargetingForm({
   });
   const [testResult, setTestResult] = React.useState<'idle' | 'ok' | 'failed'>('idle');
   const [testKey, setTestKey] = React.useState(0);
-  const [testing, setTesting] = React.useState(false);
+
+  const connectMutation = useMutation({
+    mutationFn: async (body: Record<string, unknown>) => {
+      await fetch('/api/merchants/me/esp-connection', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    },
+    onSuccess: () => window.location.reload(),
+  });
+
+  const testConnectionMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch('/api/merchants/me/esp-connection?test=true', { method: 'POST' });
+      if (!res.ok) throw new Error('Test failed');
+    },
+    onSuccess: () => {
+      setTestResult('ok');
+      setTestKey((k) => k + 1);
+    },
+    onError: () => {
+      setTestResult('failed');
+      setTestKey((k) => k + 1);
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof schema>) {
-    await fetch('/api/merchants/me/esp-connection', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...values, listId: values.listId || null }),
-    });
-    window.location.reload();
+    await connectMutation.mutateAsync({ ...values, listId: values.listId || null });
   }
 
-  async function handleTest() {
-    setTesting(true);
-    const res = await fetch('/api/merchants/me/esp-connection?test=true', { method: 'POST' });
-    setTestResult(res.ok ? 'ok' : 'failed');
-    setTestKey((k) => k + 1);
-    setTesting(false);
+  function handleTest() {
+    testConnectionMutation.mutate();
   }
 
   return (
@@ -99,7 +116,12 @@ export function RetargetingForm({
             {connected ? 'Update connection' : 'Connect'}
           </LoadingButton>
           {connected && (
-            <Button type="button" variant="outline" disabled={testing} onClick={handleTest}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={testConnectionMutation.isPending}
+              onClick={handleTest}
+            >
               Test connection
             </Button>
           )}
