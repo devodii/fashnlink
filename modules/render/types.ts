@@ -41,7 +41,7 @@ export const falWebhookEnvelopeSchema = z.object({
   gateway_request_id: z.string().optional(),
   status: z.enum(['OK', 'ERROR']),
   payload: z.unknown().optional(),
-  error: z.union([z.string(), z.object({ message: z.string() }).passthrough()]).optional(),
+  error: z.union([z.string(), z.object({ message: z.string() }).passthrough()]).nullable().optional(),
 });
 
 export type FalWebhookEnvelope = z.infer<typeof falWebhookEnvelopeSchema>;
