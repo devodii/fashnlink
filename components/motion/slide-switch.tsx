@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { cn } from 'cn';
 
 export interface SlideSwitchProps {
   activeKey: string;
@@ -16,7 +17,7 @@ export function SlideSwitch({ activeKey, direction = 1, children, className }: S
   if (reduceMotion) return <div className={className}>{children}</div>;
 
   return (
-    <div className={className} style={{ overflow: 'hidden', position: 'relative' }}>
+    <div className={cn('relative -m-1 overflow-hidden p-1', className)}>
       <AnimatePresence mode="popLayout" custom={direction} initial={false}>
         <motion.div
           key={activeKey}
