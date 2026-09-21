@@ -352,7 +352,7 @@ export function TryOnFlow({
             </Label>
           </div>
           {consent && ageAttested ? (
-            <UploadDropzone capture="user" onFiles={handleSelfieFiles} />
+            <UploadDropzone capture="user" onFiles={handleSelfieFiles} className="w-56" />
           ) : (
             <p className="text-xs text-muted-foreground">
               Check both boxes to take or upload a photo.

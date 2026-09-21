@@ -84,7 +84,7 @@ export function PollFlow({
             </Label>
           </div>
           {consent && ageAttested ? (
-            <UploadDropzone capture="user" onFiles={submitSelfie} />
+            <UploadDropzone capture="user" onFiles={submitSelfie} className="w-56" />
           ) : (
             <p className="text-xs text-muted-foreground">
               Check both boxes to take or upload a photo.
