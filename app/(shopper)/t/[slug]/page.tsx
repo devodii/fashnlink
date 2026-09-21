@@ -25,10 +25,14 @@ export default async function LinkPage({
   const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.status === 'archived') notFound();
 
-  const [merchant] = await retrieveMerchants({ ids: [link.merchantId] });
+  // Independent of each other: the merchant lookup needs `link.merchantId`,
+  // the shopper cookie read needs nothing beyond the request itself.
+  const [[merchant], { shopperId }] = await Promise.all([
+    retrieveMerchants({ ids: [link.merchantId] }),
+    retrieveShoppers({ cookieOnly: true }),
+  ]);
   const settings = (merchant?.settings ?? {}) as MerchantSettings;
 
-  const { shopperId } = await retrieveShoppers({ cookieOnly: true });
   const [resolvedTwin] = shopperId
     ? await retrieveTwins({ shopperIds: [shopperId], isDefault: true })
     : [];
