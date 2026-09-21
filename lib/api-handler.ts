@@ -1,26 +1,28 @@
 import 'server-only';
 
-import { and, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import type { z } from 'zod';
 
-import { db } from '@/db';
-import { idempotencyKeys } from '@/db/schema';
 import { auth } from '@/actions/auth';
 import { createShoppers } from '@/actions/shoppers';
 import { retrieveMerchants } from '@/actions/merchants';
+import {
+  getStoredIdempotentResponse,
+  releaseIdempotencyLock,
+  saveIdempotentResult,
+  tryAcquireIdempotencyLock,
+} from '@/actions/idempotency';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import type { AppError, Result } from '@/lib/result';
 
-export type AuthScope = 'merchant_session' | 'shopper_session' | 'cron' | 'webhook' | 'public';
+export type AuthScope = 'merchant_session' | 'shopper_session' | 'cron' | 'public';
 
 export type ResolvedAuth =
   | { type: 'merchant_session'; merchantId: string; email: string }
   | { type: 'shopper_session'; shopperId: string }
   | { type: 'cron' }
-  | { type: 'webhook' }
   | { type: 'public' };
 
 type AuthContext<TScope extends AuthScope> = ('merchant_session' extends TScope
@@ -37,7 +39,6 @@ export type HandlerConfig<TBody, TParams, TQuery, TScope extends AuthScope = Aut
   };
   mcp?: { name: string; description: string };
   auth?: readonly TScope[];
-  webhookVerify?: (req: NextRequest) => Promise<Result<void>> | Result<void>;
   rateLimit?: {
     key: (args: { auth: ResolvedAuth; req: NextRequest }) => string;
     limit: number;
@@ -127,11 +128,7 @@ async function resolveMerchantSession(req: NextRequest): Promise<ResolvedAuth | 
   return { type: 'merchant_session', merchantId: merchant.id, email: merchant.email };
 }
 
-async function resolveAuth<TBody, TParams, TQuery>(
-  scopes: readonly AuthScope[],
-  req: NextRequest,
-  webhookVerify: HandlerConfig<TBody, TParams, TQuery>['webhookVerify'],
-): Promise<ResolvedAuth> {
+async function resolveAuth(scopes: readonly AuthScope[], req: NextRequest): Promise<ResolvedAuth> {
   if (scopes.length === 0 || scopes.includes('public')) return { type: 'public' };
 
   for (const scope of scopes) {
@@ -144,19 +141,7 @@ async function resolveAuth<TBody, TParams, TQuery>(
 
     if (scope === 'cron') {
       const header = req.headers.get('authorization');
-      if (env.CRON_SECRET && header === `Bearer ${env.CRON_SECRET}`) return { type: 'cron' };
-      continue;
-    }
-
-    if (scope === 'webhook') {
-      if (!webhookVerify) {
-        throw appError(
-          'INTERNAL',
-          "route declares 'webhook' auth but supplied no webhookVerify callback",
-        );
-      }
-      const verified = await webhookVerify(req);
-      if (verified.ok) return { type: 'webhook' };
+      if (header === `Bearer ${env.CRON_SECRET}`) return { type: 'cron' };
       continue;
     }
 
@@ -188,67 +173,9 @@ function actorIdFor(resolvedAuth: ResolvedAuth): string {
       return resolvedAuth.shopperId;
     case 'cron':
       return 'cron';
-    case 'webhook':
-      return 'webhook';
     case 'public':
       return 'public';
   }
-}
-
-type IdempotencyLookup = { done: true; status: number; body: unknown } | { done: false } | null;
-
-async function getStoredIdempotentResponse(
-  key: string,
-  actorId: string,
-): Promise<IdempotencyLookup> {
-  const [row] = await db
-    .select()
-    .from(idempotencyKeys)
-    .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)))
-    .limit(1);
-  if (!row) return null;
-  if (row.responseStatus !== null)
-    return { done: true, status: row.responseStatus, body: row.responseBody };
-
-  const lockAgeMs = Date.now() - row.lockedAt.getTime();
-  if (lockAgeMs > 60_000) {
-    await db
-      .delete(idempotencyKeys)
-      .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
-    return null;
-  }
-  return { done: false };
-}
-
-async function tryAcquireIdempotencyLock(
-  key: string,
-  actorId: string,
-  route: string,
-): Promise<boolean> {
-  const inserted = await db
-    .insert(idempotencyKeys)
-    .values({ key, actorId, route })
-    .onConflictDoNothing({ target: [idempotencyKeys.key, idempotencyKeys.actorId] })
-    .returning({ key: idempotencyKeys.key });
-  return inserted.length > 0;
-}
-
-async function saveIdempotentResult(
-  key: string,
-  actorId: string,
-  status: number,
-  body: unknown,
-): Promise<void> {
-  await db
-    .update(idempotencyKeys)
-    .set({ responseStatus: status, responseBody: body as object })
-    .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
-}
-
-async function releaseIdempotencyLock(key: string, actorId: string): Promise<void> {
-  await db
-    .delete(idempotencyKeys)
-    .where(and(eq(idempotencyKeys.key, key), eq(idempotencyKeys.actorId, actorId)));
 }
 
 function toSnakeCase(value: unknown): unknown {
@@ -296,7 +223,7 @@ export const apiHandler = <
     let rateHeaders: Record<string, string> = {};
 
     try {
-      resolvedAuth = await resolveAuth(config.auth ?? ['public'], req, config.webhookVerify);
+      resolvedAuth = await resolveAuth(config.auth ?? ['public'], req);
 
       if (config.rateLimit) {
         const rateLimitKey = config.rateLimit.key({ auth: resolvedAuth, req });

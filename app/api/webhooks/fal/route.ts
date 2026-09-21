@@ -23,16 +23,14 @@ const querySchema = z.object({
 
 export const POST = apiHandler({
   name: 'webhooks.fal',
-  auth: ['webhook'],
+  auth: ['public'],
   schema: { query: querySchema },
-  webhookVerify: (req) => {
+  handler: async ({ query, req, requestId }) => {
     const secret = req.nextUrl.searchParams.get('secret');
-    if (!secret || !env.FAL_WEBHOOK_SECRET || secret !== env.FAL_WEBHOOK_SECRET) {
+    if (secret !== env.FAL_WEBHOOK_SECRET) {
       return err({ code: 'UNAUTHORIZED', message: 'invalid fal webhook secret' });
     }
-    return ok(undefined);
-  },
-  handler: async ({ query, req, requestId }) => {
+
     const log = childLogger(requestId, { route: 'webhooks/fal', kind: query.kind, id: query.id });
     const ctx = { log, requestId, deadlineMs: Date.now() + 55_000, fetch: createFetch({ log }) };
     const body = await req.json().catch(() => null);
