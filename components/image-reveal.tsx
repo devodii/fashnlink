@@ -4,6 +4,7 @@ import { MagnifyingGlassPlusIcon } from '@phosphor-icons/react/ssr';
 import { Reveal } from '@/components/motion/reveal';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { PinchZoomImage } from '@/components/pinch-zoom-image';
+import { useZoomOrigin } from '@/hooks/use-zoom-origin';
 
 export interface ImageRevealProps {
   from: string;
@@ -25,6 +26,7 @@ export function ImageReveal({
 }: ImageRevealProps) {
   const [open, setOpen] = React.useState(false);
   const active = to ?? from;
+  const { style: zoomStyle, handlers } = useZoomOrigin();
 
   const reveal = (
     <Reveal
@@ -41,10 +43,8 @@ export function ImageReveal({
         <img
           src={from}
           alt={alt}
-          className={cn(
-            'size-full object-cover',
-            zoomable && 'transition-transform duration-300 ease-out group-hover:scale-105',
-          )}
+          style={zoomable ? zoomStyle : undefined}
+          className="size-full object-cover"
         />
       }
       to={
@@ -53,10 +53,8 @@ export function ImageReveal({
           <img
             src={to}
             alt={alt}
-            className={cn(
-              'size-full object-cover',
-              zoomable && 'transition-transform duration-300 ease-out group-hover:scale-105',
-            )}
+            style={zoomable ? zoomStyle : undefined}
+            className="size-full object-cover"
           />
         ) : null
       }
@@ -71,6 +69,7 @@ export function ImageReveal({
         type="button"
         onClick={() => setOpen(true)}
         className="group relative block w-full cursor-zoom-in overflow-hidden rounded-md"
+        {...handlers}
       >
         {reveal}
         <span className="pointer-events-none absolute right-2 bottom-2 flex size-7 items-center justify-center rounded-full bg-background/80 text-foreground opacity-0 shadow-sm backdrop-blur transition-opacity group-hover:opacity-100 max-md:opacity-100">
