@@ -12,27 +12,50 @@ export interface ChipSelectOption {
   label: string;
 }
 
-export interface ChipSelectProps {
-  options: ChipSelectOption[];
+type ChipSelectSingleProps = {
+  multiple?: false;
   value?: string | null;
   onChange: (value: string) => void;
-  className?: string;
-}
+};
 
-export function ChipSelect({ options, value, onChange, className }: ChipSelectProps) {
+type ChipSelectMultipleProps = {
+  multiple: true;
+  value?: string[];
+  onChange: (value: string[]) => void;
+};
+
+export type ChipSelectProps = (ChipSelectSingleProps | ChipSelectMultipleProps) & {
+  options: ChipSelectOption[];
+  className?: string;
+};
+
+export function ChipSelect({ options, value, onChange, className, multiple }: ChipSelectProps) {
   const reduceMotion = useReducedMotion();
+  const selectedValues = multiple ? (value ?? []) : [];
+
+  function toggle(optionValue: string) {
+    if (multiple) {
+      onChange(
+        selectedValues.includes(optionValue)
+          ? selectedValues.filter((v) => v !== optionValue)
+          : [...selectedValues, optionValue],
+      );
+      return;
+    }
+    onChange(optionValue);
+  }
 
   return (
-    <div className={cn('flex flex-wrap gap-2', className)} role="radiogroup">
+    <div className={cn('flex flex-wrap gap-2', className)} role={multiple ? 'group' : 'radiogroup'}>
       {options.map((option) => {
-        const selected = option.value === value;
+        const selected = multiple ? selectedValues.includes(option.value) : option.value === value;
         return (
           <Pressable key={option.value} className="inline-flex">
             <button
               type="button"
-              role="radio"
+              role={multiple ? 'checkbox' : 'radio'}
               aria-checked={selected}
-              onClick={() => onChange(option.value)}
+              onClick={() => toggle(option.value)}
               className={cn(
                 'relative rounded-full border px-3 py-1 text-xs font-medium transition-colors',
                 selected

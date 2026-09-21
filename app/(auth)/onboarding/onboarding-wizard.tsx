@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { StepWizard } from '@/components/step-wizard';
+import { StepWizard, type StepWizardApi } from '@/components/step-wizard';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
 import { UrlField } from '@/components/forms/url-field';
@@ -49,9 +49,9 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
           title: 'Show us something you sell',
           render: (api) => (
             <ProductStep
+              api={api}
               onCreated={(link) => {
                 setCreated(link);
-                api.next();
               }}
             />
           ),
@@ -73,37 +73,63 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
   );
 }
 
-function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) {
+function ProductStep({
+  api,
+  onCreated,
+}: {
+  api: StepWizardApi;
+  onCreated: (link: CreatedLink) => void;
+}) {
   const form = useZodForm(urlSchema, { defaultValues: { url: '' } });
   const [preview, setPreview] = React.useState<CreatedLink | null>(null);
   const [error, setError] = React.useState<string | null>(null);
-  const [somethingElse, setSomethingElse] = React.useState(false);
   const [selectedChip, setSelectedChip] = React.useState<string | null>(null);
   const [notes, setNotes] = React.useState('');
+  const somethingElse = selectedChip === 'Something else';
 
-  async function onSubmit(values: z.infer<typeof urlSchema>) {
-    setError(null);
-    const res = await fetch('/api/links', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ kind: 'single', ...values }),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      setError(json.error?.message ?? "We couldn't read that page.");
-      return;
-    }
-    setPreview(json);
-  }
+  React.useEffect(() => {
+    api.setOnNext(async () => {
+      setError(null);
+      const url = form.getValues('url').trim();
 
-  async function sendFreeText() {
-    await fetch('/api/platform-requests', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ notes }),
+      if (url) {
+        const valid = await form.trigger('url');
+        if (!valid) return false;
+        const res = await fetch('/api/links', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ kind: 'single', url }),
+        });
+        const json = await res.json();
+        if (!res.ok) {
+          setError(json.error?.message ?? "We couldn't read that page.");
+          return false;
+        }
+        setPreview(json);
+        return false;
+      }
+
+      if (somethingElse) {
+        if (!notes.trim()) {
+          setError('Tell us where you sell so we know what to build next.');
+          return false;
+        }
+        await fetch('/api/platform-requests', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ notes }),
+        });
+        return true;
+      }
+
+      if (selectedChip) return true;
+
+      setError('Paste a product link, or tell us where you sell below.');
+      return false;
     });
-    setSomethingElse(false);
-  }
+    return () => api.setOnNext(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [somethingElse, selectedChip, notes]);
 
   if (preview) {
     return (
@@ -116,7 +142,14 @@ function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) 
           <Button variant="outline" onClick={() => setPreview(null)}>
             That&apos;s not right
           </Button>
-          <Button onClick={() => onCreated(preview)}>That&apos;s right</Button>
+          <Button
+            onClick={() => {
+              onCreated(preview);
+              api.next();
+            }}
+          >
+            That&apos;s right
+          </Button>
         </div>
       </div>
     );
@@ -124,46 +157,29 @@ function ProductStep({ onCreated }: { onCreated: (link: CreatedLink) => void }) 
 
   return (
     <div className="space-y-4">
-      <Form form={form} onSubmit={onSubmit} className="space-y-4">
-        <UrlField
-          control={form.control}
-          name="url"
-          label="Paste a link to any product you sell"
-          placeholder="https://yourshop.com/products/linen-shirt"
-          description="A product page, an Instagram post, or a checkout link all work."
-        />
-        <LoadingButton type="submit" loading={form.formState.isSubmitting} className="w-full">
-          Continue
-        </LoadingButton>
-      </Form>
-      {error && (
-        <InlineAlert tone="destructive">
-          {error} You can still add products by uploading photos, head to the dashboard when
-          you&apos;re ready, or tell us what you use below.
-        </InlineAlert>
-      )}
-
-      <ChipSelect
-        options={PLATFORM_CHIPS}
-        value={selectedChip}
-        onChange={(value) => {
-          setSelectedChip(value);
-          if (value === 'Something else') setSomethingElse(true);
-        }}
+      <UrlField
+        control={form.control}
+        name="url"
+        label="Paste a link to any product you sell"
+        placeholder="https://yourshop.com/products/linen-shirt"
+        description="A product page, an Instagram post, or a checkout link all work."
       />
+      {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
+
+      <div className="space-y-2">
+        <Label>Or tell us what you use to sell</Label>
+        <ChipSelect options={PLATFORM_CHIPS} value={selectedChip} onChange={setSelectedChip} />
+      </div>
 
       {somethingElse && (
         <div className="space-y-2">
-          <Label htmlFor="platform-notes">What do you use to sell?</Label>
+          <Label htmlFor="platform-notes">Where do you sell?</Label>
           <Input
             id="platform-notes"
-            placeholder="e.g. a custom cart, Etsy, ..."
+            placeholder="yourshop.com"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-          <Button size="sm" onClick={sendFreeText}>
-            Send
-          </Button>
         </div>
       )}
     </div>

@@ -10,6 +10,13 @@ export interface StepWizardApi {
   next: () => void;
   back: () => void;
   goTo: (id: string) => void;
+  /**
+   * Lets the current step intercept the wizard's own "Next" button: the
+   * handler runs first and only advances the step if it resolves true, so a
+   * step can validate and/or submit before moving on instead of needing its
+   * own separate submit button alongside the wizard's Next.
+   */
+  setOnNext: (handler: (() => Promise<boolean>) | null) => void;
 }
 
 export interface StepWizardStep {
@@ -26,9 +33,6 @@ export interface StepWizardProps {
   className?: string;
 }
 
-// Reads useSearchParams to persist the step in ?step=, which Next.js
-// requires a <Suspense> boundary around on a statically-rendered route:
-// callers on a static page should wrap <StepWizard> in Suspense themselves.
 export function StepWizard({ steps, initialStepId, onStepChange, className }: StepWizardProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -43,8 +47,11 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
   const prevIndexRef = React.useRef(currentIndex);
   const direction: 1 | -1 = currentIndex >= prevIndexRef.current ? 1 : -1;
   prevIndexRef.current = currentIndex;
+  const onNextRef = React.useRef<(() => Promise<boolean>) | null>(null);
+  const [advancing, setAdvancing] = React.useState(false);
 
   function setStep(id: string) {
+    onNextRef.current = null;
     const params = new URLSearchParams(searchParams.toString());
     params.set('step', id);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
@@ -62,10 +69,23 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
         if (prevStep) setStep(prevStep.id);
       },
       goTo: setStep,
+      setOnNext: (handler) => {
+        onNextRef.current = handler;
+      },
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentIndex, steps],
   );
+
+  async function handleNext() {
+    if (onNextRef.current) {
+      setAdvancing(true);
+      const shouldAdvance = await onNextRef.current();
+      setAdvancing(false);
+      if (!shouldAdvance) return;
+    }
+    api.next();
+  }
 
   if (!currentStep) return null;
 
@@ -92,9 +112,10 @@ export function StepWizard({ steps, initialStepId, onStepChange, className }: St
           <Button
             type="button"
             variant={currentStep.optional ? 'ghost' : 'default'}
-            onClick={api.next}
+            onClick={currentStep.optional ? api.next : handleNext}
+            disabled={advancing}
           >
-            {currentStep.optional ? 'Skip' : 'Next'}
+            {currentStep.optional ? 'Skip' : advancing ? 'Working…' : 'Next'}
           </Button>
         )}
       </div>
