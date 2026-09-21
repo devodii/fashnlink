@@ -6,6 +6,7 @@ import { env } from '@/lib/env';
 import { db } from '@/db';
 import { campaignItems, campaigns, links, merchants, renders } from '@/db/schema';
 import { retrieveTwins, updateTwins } from '@/actions/twins';
+import { retrieveRenders } from '@/actions/renders';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { err, ok } from '@/lib/result';
@@ -72,7 +73,7 @@ export const POST = apiHandler({
       return ok({ handled: true });
     }
 
-    const [render] = await db.select().from(renders).where(eq(renders.id, query.id)).limit(1);
+    const [render] = await retrieveRenders({ ids: [query.id] });
     if (!render || !render.provider) {
       return err({ code: 'NOT_FOUND', message: 'render not found' });
     }

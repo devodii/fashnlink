@@ -2,9 +2,10 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
-import { links, pollVotes, renders } from '@/db/schema';
+import { pollVotes } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 import { retrieveLinks, updateLinks } from '@/actions/links';
+import { retrieveRenders } from '@/actions/renders';
 import { createShoppers } from '@/actions/shoppers';
 import { newId } from '@/lib/ids';
 
@@ -45,7 +46,7 @@ export const POST = apiHandler({
         return err({ code: 'UNAUTHORIZED', message: 'Unauthorized' });
       }
 
-      const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
+      const [link] = await retrieveLinks({ ids: [params.linkId] });
       if (!link || link.kind !== 'poll') {
         return err({ code: 'NOT_FOUND', message: 'poll not found' });
       }
@@ -66,10 +67,10 @@ export const POST = apiHandler({
     // (matching the original standalone route's `auth: ['shopper_session']`).
     const shopperId = await createShoppers();
 
-    const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
+    const [link] = await retrieveLinks({ ids: [params.linkId] });
     if (!link || link.kind !== 'poll') return err({ code: 'NOT_FOUND', message: 'poll not found' });
 
-    const [render] = await db.select().from(renders).where(eq(renders.id, body.renderId)).limit(1);
+    const [render] = await retrieveRenders({ ids: [body.renderId] });
     if (!render || render.linkId !== link.id) {
       return err({ code: 'INVALID_INPUT', message: 'this render is not an option in this poll' });
     }
