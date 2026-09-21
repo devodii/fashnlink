@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Section } from '@/components/section';
 
@@ -10,17 +11,21 @@ export interface RetargetOptinsProps {
 
 export function RetargetOptins({ merchants }: RetargetOptinsProps) {
   const [list, setList] = React.useState(merchants);
-  const [pending, setPending] = React.useState<string | null>(null);
 
-  async function optOut(merchantId: string) {
-    setPending(merchantId);
-    const res = await fetch('/api/me/retarget-optout', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ merchantId }),
-    }).catch(() => null);
-    setPending(null);
-    if (res?.ok) setList((prev) => prev.filter((m) => m.merchantId !== merchantId));
+  const optOutMutation = useMutation({
+    mutationFn: (merchantId: string) =>
+      fetch('/api/me/retarget-optout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ merchantId }),
+      }),
+    onSuccess: (res, merchantId) => {
+      if (res.ok) setList((prev) => prev.filter((m) => m.merchantId !== merchantId));
+    },
+  });
+
+  function optOut(merchantId: string) {
+    optOutMutation.mutate(merchantId);
   }
 
   if (list.length === 0) return null;
@@ -40,7 +45,7 @@ export function RetargetOptins({ merchants }: RetargetOptinsProps) {
             <Button
               variant="outline"
               size="sm"
-              disabled={pending === m.merchantId}
+              disabled={optOutMutation.isPending && optOutMutation.variables === m.merchantId}
               onClick={() => optOut(m.merchantId)}
             >
               Opt out

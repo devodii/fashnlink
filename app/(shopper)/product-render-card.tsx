@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { ImageReveal } from '@/components/image-reveal';
 import { Button } from '@/components/ui/button';
@@ -33,20 +34,25 @@ export function ProductRenderCard({
   const [renderId, setRenderId] = React.useState<string | null>(null);
   const [outputUrl, setOutputUrl] = React.useState<string | null>(null);
 
-  async function handleClick() {
+  const renderMutation = useMutation({
+    mutationFn: async (twinId: string) => {
+      const res = await fetch('/api/renders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ linkId, productId, twinId, variantId: null, via }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message ?? 'Something went wrong');
+      return json as { renderId: string };
+    },
+    onMutate: () => setStage('pending'),
+    onSuccess: (json) => setRenderId(json.renderId),
+    onError: () => setStage('error'),
+  });
+
+  function handleClick() {
     if (!twinId) return;
-    setStage('pending');
-    const res = await fetch('/api/renders', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ linkId, productId, twinId, variantId: null, via }),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      setStage('error');
-      return;
-    }
-    setRenderId(json.renderId);
+    renderMutation.mutate(twinId);
   }
 
   usePolling(

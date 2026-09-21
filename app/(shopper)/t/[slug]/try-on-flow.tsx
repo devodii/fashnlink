@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -94,30 +95,24 @@ export function TryOnFlow({
   const [hasEmail, setHasEmail] = React.useState(false);
   const [retargetOptIn, setRetargetOptIn] = React.useState(false);
 
+  const attributionMutation = useMutation({
+    mutationFn: (renderId: string) =>
+      fetch('/api/shoppers/attribution', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ renderId }),
+      }),
+  });
+  const attributeRender = attributionMutation.mutate;
   const attributedRef = React.useRef(false);
   React.useEffect(() => {
     if (!viaRenderId || attributedRef.current) return;
     attributedRef.current = true;
-    fetch('/api/shoppers/attribution', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ renderId: viaRenderId }),
-    }).catch(() => {});
-  }, [viaRenderId]);
+    attributeRender(viaRenderId);
+  }, [viaRenderId, attributeRender]);
 
-  // Guards against a double-click (or any other double-invocation) firing
-  // two /api/renders POSTs for the same "see it on you" gesture, which would
-  // reserve and burn two credits for one shopper action. The Idempotency-Key
-  // header below additionally lets the server dedupe a genuine network-level
-  // retry of the same request, per api-handler's Idempotency-Key support.
-  const renderRequestInFlight = React.useRef(false);
-
-  async function submitRenderRequest(twinId: string) {
-    if (renderRequestInFlight.current) return;
-    renderRequestInFlight.current = true;
-    setStage('render-pending');
-    setErrorMessage(null);
-    try {
+  const renderMutation = useMutation({
+    mutationFn: async (twinId: string) => {
       const res = await fetch('/api/renders', {
         method: 'POST',
         headers: {
@@ -128,18 +123,39 @@ export function TryOnFlow({
       });
       const json = await res.json();
       if (!res.ok) {
-        if (json.error?.code === 'INSUFFICIENT_CREDITS') {
-          setErrorMessage("This shop's try-on is paused right now. Check back soon.");
-        } else if (json.error?.code === 'RATE_LIMITED') {
-          setErrorMessage("You've reached today's try-on limit for this link.");
-        } else {
-          setErrorMessage(json.error?.message ?? 'Something went wrong. Please try again.');
-        }
-        setStage('error');
-        return;
+        const message =
+          json.error?.code === 'INSUFFICIENT_CREDITS'
+            ? "This shop's try-on is paused right now. Check back soon."
+            : json.error?.code === 'RATE_LIMITED'
+              ? "You've reached today's try-on limit for this link."
+              : (json.error?.message ?? 'Something went wrong. Please try again.');
+        throw new Error(message);
       }
+      return json as { renderId: string };
+    },
+  });
+
+  // Guards against a double-click (or any other double-invocation) firing
+  // two /api/renders POSTs for the same "see it on you" gesture, which would
+  // reserve and burn two credits for one shopper action. The Idempotency-Key
+  // header above additionally lets the server dedupe a genuine network-level
+  // retry of the same request, per api-handler's Idempotency-Key support.
+  const renderRequestInFlight = React.useRef(false);
+
+  async function submitRenderRequest(twinId: string) {
+    if (renderRequestInFlight.current) return;
+    renderRequestInFlight.current = true;
+    setStage('render-pending');
+    setErrorMessage(null);
+    try {
+      const json = await renderMutation.mutateAsync(twinId);
       setRenderId(json.renderId);
       setRenderOutputUrl(null);
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error ? err.message : 'Something went wrong. Please try again.',
+      );
+      setStage('error');
     } finally {
       renderRequestInFlight.current = false;
     }
@@ -154,6 +170,30 @@ export function TryOnFlow({
     setStage('consent');
   }
 
+  const createTwinMutation = useMutation({
+    mutationFn: async (file: UploadedFile) => {
+      const res = await fetch('/api/twins', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          selfieKey: file.key,
+          selfieUrl: file.url,
+          consent: true,
+          ageAttested: true,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const message =
+          json.error?.code === 'MODERATION_BLOCKED'
+            ? "This photo can't be used. Please try a different one."
+            : (json.error?.message ?? 'Something went wrong. Please try again.');
+        throw new Error(message);
+      }
+      return json as { twinId: string };
+    },
+  });
+
   async function handleSelfieFiles(files: UploadedFile[]) {
     const file = files[0];
     if (!file) {
@@ -164,28 +204,16 @@ export function TryOnFlow({
     setErrorMessage(null);
     setStage('twin-pending');
 
-    const res = await fetch('/api/twins', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        selfieKey: file.key,
-        selfieUrl: file.url,
-        consent: true,
-        ageAttested: true,
-      }),
-    });
-    const json = await res.json();
-    if (!res.ok) {
-      if (json.error?.code === 'MODERATION_BLOCKED') {
-        setErrorMessage("This photo can't be used. Please try a different one.");
-      } else {
-        setErrorMessage(json.error?.message ?? 'Something went wrong. Please try again.');
-      }
+    try {
+      const json = await createTwinMutation.mutateAsync(file);
+      setTwin({ id: json.twinId, status: 'pending', twinUrl: null });
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error ? err.message : 'Something went wrong. Please try again.',
+      );
       setStage('blocked');
       setSelfie(null);
-      return;
     }
-    setTwin({ id: json.twinId, status: 'pending', twinUrl: null });
   }
 
   usePolling(
@@ -236,15 +264,22 @@ export function TryOnFlow({
     stage === 'render-pending' && !!renderId,
   );
 
-  async function handleEmailGateSubmit() {
+  const leadMutation = useMutation({
+    mutationFn: (vars: { email: string; renderId: string; retargetOptIn: boolean }) =>
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(vars),
+      }),
+    onSettled: () => {
+      setHasEmail(true);
+      setShowEmailGate(false);
+    },
+  });
+
+  function handleEmailGateSubmit() {
     if (!renderId || !email) return;
-    await fetch('/api/leads', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, renderId, retargetOptIn }),
-    }).catch(() => {});
-    setHasEmail(true);
-    setShowEmailGate(false);
+    leadMutation.mutate({ email, renderId, retargetOptIn });
   }
 
   async function handleBuyClick() {

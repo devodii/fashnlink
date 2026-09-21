@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
+import { useMutation } from '@tanstack/react-query';
 import { ImagesIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { MediaGrid } from '@/components/media-grid';
 import { EmptyState } from '@/components/empty-state';
@@ -44,36 +45,65 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
     return Array.from(byMerchant.entries());
   }, [renders]);
 
-  async function handleDelete(renderId: string) {
+  const deleteRenderMutation = useMutation({
+    mutationFn: (renderId: string) => fetch(`/api/renders/${renderId}`, { method: 'DELETE' }),
+  });
+
+  function handleDelete(renderId: string) {
     setRenders((prev) => prev.filter((r) => r.renderId !== renderId));
-    await fetch(`/api/renders/${renderId}`, { method: 'DELETE' }).catch(() => {});
+    deleteRenderMutation.mutate(renderId);
   }
 
-  async function handleTogglePrivate(render: ClosetRender) {
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: (vars: { renderId: string; isPublic: boolean }) =>
+      fetch(`/api/renders/${vars.renderId}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ event: 'visibility', isPublic: vars.isPublic }),
+      }),
+  });
+
+  function handleTogglePrivate(render: ClosetRender) {
     const next = !render.isPublic;
     setRenders((prev) =>
       prev.map((r) => (r.renderId === render.renderId ? { ...r, isPublic: next } : r)),
     );
-    await fetch(`/api/renders/${render.renderId}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ event: 'visibility', isPublic: next }),
-    }).catch(() => {});
+    toggleVisibilityMutation.mutate({ renderId: render.renderId, isPublic: next });
   }
 
+  const shareEventMutation = useMutation({
+    mutationFn: (renderId: string) =>
+      fetch(`/api/renders/${renderId}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ event: 'share' }),
+      }),
+  });
+
+  const deleteEverythingMutation = useMutation({
+    mutationFn: () => fetch('/api/me', { method: 'DELETE' }),
+  });
+
   async function handleDeleteEverything() {
-    await fetch('/api/me', { method: 'DELETE' }).catch(() => {});
+    await deleteEverythingMutation.mutateAsync().catch(() => {});
     window.location.href = '/';
   }
 
-  async function handleSaveEmail() {
+  const saveEmailMutation = useMutation({
+    mutationFn: (email: string) =>
+      fetch('/api/shoppers/email', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email }),
+      }),
+    onSuccess: (res) => {
+      if (res.ok) setEmailSaved(true);
+    },
+  });
+
+  function handleSaveEmail() {
     if (!email) return;
-    const res = await fetch('/api/shoppers/email', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    if (res.ok) setEmailSaved(true);
+    saveEmailMutation.mutate(email);
   }
 
   const defaultTwin = twins.find((t) => t.isDefault) ?? twins[0] ?? null;
@@ -113,13 +143,7 @@ export function Closet({ renders: initialRenders, twins, hasEmail }: ClosetProps
                       <ShareSheet
                         title={render.productTitle}
                         url={`${typeof window !== 'undefined' ? window.location.origin : ''}/r/${render.renderId}`}
-                        onShare={() => {
-                          fetch(`/api/renders/${render.renderId}`, {
-                            method: 'POST',
-                            headers: { 'content-type': 'application/json' },
-                            body: JSON.stringify({ event: 'share' }),
-                          }).catch(() => {});
-                        }}
+                        onShare={() => shareEventMutation.mutate(render.renderId)}
                         trigger={
                           <Button size="sm" variant="secondary">
                             Share

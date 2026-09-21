@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { LoadingButton } from '@/components/loading-button';
@@ -13,38 +14,56 @@ import { MAX_DROP_PRODUCTS } from '@/constants';
 
 type Estimate = { audienceCount: number; itemCount: number; estimatedCredits: number };
 
+async function fetchEstimate(productIds: string[]): Promise<Estimate> {
+  const res = await fetch('/api/campaigns?estimate=true', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ productIds }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message ?? 'could not estimate this drop');
+  return json;
+}
+
+async function createDrop(productIds: string[]): Promise<{ campaignId: string }> {
+  const res = await fetch('/api/campaigns', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ productIds }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error?.message ?? 'could not start this drop');
+  return json;
+}
+
 export function DropForm({ products }: { products: { id: string; title: string }[] }) {
   const router = useRouter();
   const [selected, setSelected] = React.useState<string[]>([]);
-  const [estimate, setEstimate] = React.useState<Estimate | null>(null);
-  const [error, setErrorState] = React.useState<string | null>(null);
   const [errorKey, setErrorKey] = React.useState(0);
-  const setError = (msg: string | null) => {
-    setErrorState(msg);
-    if (msg) setErrorKey((k) => k + 1);
-  };
-  const [submitting, setSubmitting] = React.useState(false);
+
+  const estimateQuery = useQuery({
+    queryKey: ['drop-estimate', selected],
+    queryFn: () => fetchEstimate(selected),
+    enabled: selected.length > 0,
+  });
+  const estimate = selected.length > 0 ? (estimateQuery.data ?? null) : null;
+
+  const confirmMutation = useMutation({
+    mutationFn: () => createDrop(selected),
+    onSuccess: (data) => {
+      router.push(`/dashboard/drops/${data.campaignId}`);
+    },
+  });
+
+  const error = confirmMutation.isError
+    ? (confirmMutation.error as Error).message
+    : estimateQuery.isError
+      ? (estimateQuery.error as Error).message
+      : null;
 
   React.useEffect(() => {
-    if (selected.length === 0) {
-      setEstimate(null);
-      return;
-    }
-    let cancelled = false;
-    fetch('/api/campaigns?estimate=true', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ productIds: selected }),
-    }).then(async (res) => {
-      if (cancelled) return;
-      const json = await res.json();
-      if (res.ok) setEstimate(json);
-      else setError(json.error?.message ?? 'could not estimate this drop');
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [selected]);
+    if (error) setErrorKey((k) => k + 1);
+  }, [error]);
 
   function toggle(id: string) {
     setSelected((prev) =>
@@ -56,21 +75,8 @@ export function DropForm({ products }: { products: { id: string; title: string }
     );
   }
 
-  async function confirm() {
-    setSubmitting(true);
-    setError(null);
-    const res = await fetch('/api/campaigns', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ productIds: selected }),
-    });
-    const json = await res.json();
-    setSubmitting(false);
-    if (!res.ok) {
-      setError(json.error?.message ?? 'could not start this drop');
-      return;
-    }
-    router.push(`/dashboard/drops/${json.campaignId}`);
+  function confirm() {
+    confirmMutation.mutate();
   }
 
   if (products.length === 0) {
@@ -116,7 +122,7 @@ export function DropForm({ products }: { products: { id: string; title: string }
 
       <LoadingButton
         onClick={confirm}
-        loading={submitting}
+        loading={confirmMutation.isPending}
         disabled={selected.length === 0 || !estimate || estimate.itemCount === 0}
       >
         Confirm and start drop
