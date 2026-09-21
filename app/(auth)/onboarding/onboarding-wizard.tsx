@@ -97,6 +97,7 @@ function ProductStep({
   };
   const [selectedChip, setSelectedChip] = React.useState<string | null>(null);
   const [notes, setNotes] = React.useState('');
+  const [trackingScriptSrc, setTrackingScriptSrc] = React.useState<string | null>(null);
   const somethingElse = selectedChip === 'Something else';
 
   React.useEffect(() => {
@@ -126,11 +127,16 @@ function ProductStep({
           setError('Tell us where you sell so we know what to build next.');
           return false;
         }
-        await fetch('/api/platform-requests', {
+        const res = await fetch('/api/platform-requests', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ notes }),
         });
+        const json = await res.json().catch(() => null);
+        if (json?.trackingScriptSrc) {
+          setTrackingScriptSrc(json.trackingScriptSrc);
+          return false;
+        }
         return true;
       }
 
@@ -142,6 +148,24 @@ function ProductStep({
     return () => api.setOnNext(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [somethingElse, selectedChip, notes]);
+
+  if (trackingScriptSrc) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Add this one line to your site so we can find your product pages. You can skip this for
+          now and come back to it anytime from Settings.
+        </p>
+        <CopyField
+          label="Embed snippet"
+          value={`<script src="${trackingScriptSrc}" async></script>`}
+        />
+        <Button onClick={() => api.next()} className="w-full">
+          Continue
+        </Button>
+      </div>
+    );
+  }
 
   if (preview) {
     return (
