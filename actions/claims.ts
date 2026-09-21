@@ -44,6 +44,14 @@ export async function createClaims(productIds: string[]): Promise<Claim[]> {
   return results.filter((r): r is Claim => Boolean(r));
 }
 
+export async function updateClaims(
+  storeIds: string[],
+  patch: Partial<Pick<Claim, 'claimedByMerchantId' | 'status'>>,
+): Promise<Claim[]> {
+  if (storeIds.length === 0 || Object.keys(patch).length === 0) return [];
+  return db.update(claims).set(patch).where(inArray(claims.storeId, storeIds)).returning();
+}
+
 export async function retrieveClaims(filters: { storeIds: string[] }): Promise<ResolvedClaim[]> {
   if (filters.storeIds.length === 0) return [];
   const rows = await db

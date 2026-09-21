@@ -76,7 +76,7 @@ export async function retrieveLinks(filters: {
 
 export async function updateLinks(
   ids: string[],
-  patch: Partial<Pick<Link, 'status'>> & { settings?: Record<string, unknown> },
+  patch: Partial<Pick<Link, 'status' | 'merchantId'>> & { settings?: Record<string, unknown> },
 ): Promise<Link[]> {
   if (ids.length === 0) return [];
 
@@ -88,6 +88,7 @@ export async function updateLinks(
           .update(links)
           .set({
             ...(patch.status !== undefined ? { status: patch.status } : {}),
+            ...(patch.merchantId !== undefined ? { merchantId: patch.merchantId } : {}),
             settings: { ...(row.settings as Record<string, unknown>), ...patch.settings },
           })
           .where(eq(links.id, row.id))
@@ -98,6 +99,10 @@ export async function updateLinks(
     return updated.filter((r): r is Link => Boolean(r));
   }
 
-  if (patch.status === undefined) return [];
-  return db.update(links).set({ status: patch.status }).where(inArray(links.id, ids)).returning();
+  const liveFields: Partial<Pick<Link, 'status' | 'merchantId'>> = {};
+  if (patch.status !== undefined) liveFields.status = patch.status;
+  if (patch.merchantId !== undefined) liveFields.merchantId = patch.merchantId;
+  if (Object.keys(liveFields).length === 0) return [];
+
+  return db.update(links).set(liveFields).where(inArray(links.id, ids)).returning();
 }

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { and, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { stores } from '@/db/schema';
 import type { Store } from '@/db/schema';
@@ -38,11 +38,13 @@ export async function createStores(inputs: CreateStoreInput[]): Promise<Store[]>
 export async function retrieveStores(filters: {
   ids?: string[];
   domains?: string[];
+  merchantId?: string;
   dueForRefreshHours?: number;
 }): Promise<Store[]> {
   const conditions = [
     filters.ids?.length ? inArray(stores.id, filters.ids) : undefined,
     filters.domains?.length ? inArray(stores.domain, filters.domains) : undefined,
+    filters.merchantId ? eq(stores.merchantId, filters.merchantId) : undefined,
   ].filter((c): c is NonNullable<typeof c> => Boolean(c));
 
   if (filters.dueForRefreshHours !== undefined) {
@@ -59,7 +61,7 @@ export async function retrieveStores(filters: {
 
 export async function updateStores(
   ids: string[],
-  patch: Partial<Pick<Store, 'lastCrawledAt'>>,
+  patch: Partial<Pick<Store, 'lastCrawledAt' | 'merchantId'>>,
 ): Promise<Store[]> {
   if (ids.length === 0 || Object.keys(patch).length === 0) return [];
   return db.update(stores).set(patch).where(inArray(stores.id, ids)).returning();
