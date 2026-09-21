@@ -7,11 +7,15 @@ import { ClaimButton } from './claim-button';
 export default async function ClaimPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
 
-  const [store] = await retrieveStores({ ids: [storeId] });
+  // Independent of each other: both only need `storeId`, already known from
+  // params; store validity is checked below, after both have resolved.
+  const [[store], claimRows] = await Promise.all([
+    retrieveStores({ ids: [storeId] }),
+    retrieveClaims({ storeIds: [storeId] }),
+  ]);
   if (!store) notFound();
   if (store.merchantId) notFound();
 
-  const claimRows = await retrieveClaims({ storeIds: [storeId] });
   const totalRenders = claimRows.reduce((sum, row) => sum + row.renderCount, 0);
   if (totalRenders < CLAIM_VISIBLE_THRESHOLD) notFound();
 
