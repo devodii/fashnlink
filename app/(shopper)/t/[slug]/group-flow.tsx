@@ -156,7 +156,7 @@ export function GroupFlow({
         </div>
       )}
 
-      <ImageReveal from={productImageUrl ?? ''} to={outputUrl} alt={productTitle} />
+      <ImageReveal from={productImageUrl ?? ''} to={outputUrl} alt={productTitle} zoomable />
       <p className="text-sm text-foreground">{productTitle}</p>
 
       {variantOptions.length > 0 && (

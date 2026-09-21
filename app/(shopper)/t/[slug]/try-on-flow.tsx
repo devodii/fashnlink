@@ -463,6 +463,7 @@ export function TryOnFlow({
         from={productImageUrl ?? ''}
         to={stage === 'result' ? renderOutputUrl : null}
         alt={productTitle}
+        zoomable
       />
       {variantOptions.length > 0 && (
         <VariantPicker

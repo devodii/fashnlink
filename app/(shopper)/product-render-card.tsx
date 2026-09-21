@@ -95,6 +95,7 @@ export function ProductRenderCard({
         from={productImageUrl ?? ''}
         to={stage === 'ready' ? outputUrl : null}
         alt={productTitle}
+        zoomable
       />
       <p className="truncate text-sm text-foreground">{productTitle}</p>
       {stage === 'idle' && (
