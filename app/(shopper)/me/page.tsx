@@ -25,8 +25,6 @@ export default async function ClosetPage() {
     );
   }
 
-  // All four queries key off `shopperId` alone and don't depend on each
-  // other's results.
   const [rows, twinRows, [shopper], optins] = await Promise.all([
     db
       .select({

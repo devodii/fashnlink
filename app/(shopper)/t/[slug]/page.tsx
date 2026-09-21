@@ -25,8 +25,6 @@ export default async function LinkPage({
   const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.status === 'archived') notFound();
 
-  // Independent of each other: the merchant lookup needs `link.merchantId`,
-  // the shopper cookie read needs nothing beyond the request itself.
   const [[merchant], { shopperId }] = await Promise.all([
     retrieveMerchants({ ids: [link.merchantId] }),
     retrieveShoppers({ cookieOnly: true }),

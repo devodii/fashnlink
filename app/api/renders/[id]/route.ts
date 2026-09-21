@@ -74,8 +74,6 @@ export const DELETE = apiHandler({
       .limit(1);
     if (!render) return err({ code: 'NOT_FOUND', message: 'render not found' });
 
-    // The DB clear doesn't depend on the (best-effort, errors-swallowed)
-    // storage delete finishing first, so run them concurrently.
     const cleanup: Promise<unknown>[] = [
       db
         .update(renders)

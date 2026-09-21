@@ -17,8 +17,6 @@ export const POST = apiHandler({
     if (store.merchantId)
       return err({ code: 'INVALID_INPUT', message: 'this store is already claimed' });
 
-    // Independent writes to different tables (stores.merchantId vs
-    // claims.claimedByMerchantId/status), neither reads the other's result.
     await Promise.all([
       updateStores([store.id], { merchantId: merchant.merchantId }),
       updateClaims([store.id], {
@@ -27,8 +25,6 @@ export const POST = apiHandler({
       }),
     ]);
 
-    // Independent reads: storeProducts keys off `store.id`, demoLinks off the
-    // constant SYSTEM_MERCHANT_ID; only the filter below needs both results.
     const [storeProducts, demoLinks] = await Promise.all([
       retrieveProducts({ storeIds: [store.id] }),
       retrieveLinks({ merchantId: SYSTEM_MERCHANT_ID }),

@@ -140,8 +140,6 @@ export const POST = apiHandler({
       return ok({ handled: true });
     }
 
-    // Independent: the watermark-setting lookup only needs `merchantId`,
-    // already resolved above, and doesn't depend on the image download.
     const [imageResponse, [merchant]] = await Promise.all([
       ctx.fetch(parsed.value.imageUrl),
       db

@@ -65,9 +65,6 @@ export const POST = apiHandler({
     // `vote` is shopper-only, and always resolves a shopper identity off the
     // cookie regardless of which scope the request happened to auth as
     // (matching the original standalone route's `auth: ['shopper_session']`).
-    // All three of these are independent of each other: the shopper cookie
-    // resolution needs nothing, `link` keys off params.linkId, `render` off
-    // body.renderId; only the checks below need link and render together.
     const [shopperId, [link], [render]] = await Promise.all([
       createShoppers(),
       retrieveLinks({ ids: [params.linkId] }),

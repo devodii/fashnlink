@@ -39,8 +39,6 @@ export const POST = apiHandler({
     const scraped = await scrapeUrlToProduct(body.url, SYSTEM_MERCHANT_ID, ctx);
     if (!scraped.ok) return scraped;
 
-    // Independent: creating the link doesn't need to read the product back,
-    // and the product read doesn't depend on the link being created.
     const [[link], [resolvedProduct]] = await Promise.all([
       createLinks([
         { kind: 'single', merchantId: SYSTEM_MERCHANT_ID, productIds: [scraped.value.productId] },

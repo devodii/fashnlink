@@ -25,10 +25,6 @@ export const POST = apiHandler({
   handler: async ({ body, shopper, requestId }) => {
     const { shopperId } = shopper;
 
-    // link, product, and twin each key off a distinct id already present on
-    // `body`/`shopper`, so all three reads can go out together; validation
-    // below runs in the same order as before (link, then product, then the
-    // try-on image, then twin), just against already-resolved data.
     const [[link], [product], [twin]] = await Promise.all([
       db
         .select({

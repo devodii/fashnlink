@@ -34,8 +34,6 @@ export const POST = apiHandler({
     const [link] = await retrieveLinks({ ids: [render.linkId] });
     if (!link) return err({ code: 'NOT_FOUND', message: 'link not found' });
 
-    // Three independent writes to different tables; none reads another's
-    // result, so they can all go out concurrently.
     const writes: Promise<unknown>[] = [
       createLeads([
         {

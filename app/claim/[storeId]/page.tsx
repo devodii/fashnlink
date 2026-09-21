@@ -7,8 +7,6 @@ import { ClaimButton } from './claim-button';
 export default async function ClaimPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
 
-  // Independent of each other: both only need `storeId`, already known from
-  // params; store validity is checked below, after both have resolved.
   const [[store], claimRows] = await Promise.all([
     retrieveStores({ ids: [storeId] }),
     retrieveClaims({ storeIds: [storeId] }),

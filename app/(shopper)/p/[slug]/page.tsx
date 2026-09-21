@@ -22,10 +22,6 @@ export default async function PollPage({
   const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.kind !== 'poll' || link.status === 'archived') notFound();
 
-  // None of these four depend on each other's results: merchant/pollProducts
-  // key off `link`, the creator-renders query keys off `link.id` and
-  // `creatorShopperId` (already resolved from searchParams), and the viewer's
-  // shopper cookie read needs nothing beyond the request itself.
   const [[merchant], pollProducts, creatorRenders, { shopperId: viewerShopperId }] =
     await Promise.all([
       retrieveMerchants({ ids: [link.merchantId] }),

@@ -34,8 +34,6 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
 
   const productId = link.productIds[0];
 
-  // Independent of each other: the product lookup only needs `productId`,
-  // and the renders query only needs `link.id`, both already known.
   const [[resolvedProduct], linkRenders] = await Promise.all([
     retrieveProducts({ ids: [productId], withImages: true }),
     db

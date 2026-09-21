@@ -118,8 +118,6 @@ export async function estimateDrop(
     return err({ code: 'INVALID_INPUT', message: `pick 1-${MAX_DROP_PRODUCTS} products` });
   }
 
-  // Read-only and independent: eligibility keys off `productIds`, audience
-  // off `merchantId`; the eligibility check below just runs after both land.
   const [eligible, audience] = await Promise.all([
     retrieveProducts({ merchantId, ids: productIds, eligibleOnly: true }),
     retrieveShoppers({ retargetOptedInMerchantId: merchantId }),

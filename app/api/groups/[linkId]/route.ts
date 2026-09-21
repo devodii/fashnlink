@@ -44,8 +44,6 @@ export const POST = apiHandler({
   auth: ['shopper_session'],
   schema: { body: joinBodySchema, params: paramsSchema },
   handler: async ({ body, params, shopper }) => {
-    // Independent lookups: `link` keys off params.linkId, `render` off
-    // body.renderId; only the checks below need both results together.
     const [[link], [render]] = await Promise.all([
       retrieveLinks({ ids: [params.linkId] }),
       retrieveRenders({ ids: [body.renderId] }),

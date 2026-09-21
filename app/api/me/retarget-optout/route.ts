@@ -15,8 +15,6 @@ export const POST = apiHandler({
   handler: async ({ body, shopper }) => {
     const { shopperId } = shopper;
 
-    // Independent writes to different tables; the campaign lookup doesn't
-    // depend on the opt-out update completing first.
     const [, merchantCampaigns] = await Promise.all([
       updateRetargetOptins([{ shopperId, merchantId: body.merchantId }], {
         optedOutAt: new Date(),

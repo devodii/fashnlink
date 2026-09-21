@@ -21,8 +21,6 @@ export const PATCH = apiHandler({
       return err({ code: 'NOT_FOUND', message: 'Link not found' });
     }
 
-    // Independent writes to different tables (links.status vs
-    // products.garmentCategory); run whichever ones apply concurrently.
     const writes: Promise<unknown>[] = [];
     if (body.status) writes.push(updateLinks([link.id], { status: body.status }));
 
