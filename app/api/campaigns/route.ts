@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { apiHandler } from '@/lib/api-handler';
-import { createDrop, estimateDrop } from '@/modules/campaigns';
+import { createDrop, estimateDrop } from '@/actions/campaigns';
 import { ok } from '@/lib/result';
 
 const bodySchema = z.object({ productIds: z.array(z.string().min(1)).min(1).max(3) });

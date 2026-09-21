@@ -1,10 +1,10 @@
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/db';
-import { campaignItems, renders, shoppers } from '@/db/schema';
-import type { Shopper } from '@/db/schema';
+import { campaignItems, renders, retargetOptins, shoppers, twins } from '@/db/schema';
+import type { ResolvedShopper, Shopper } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';
@@ -64,19 +64,43 @@ export async function createShoppers(): Promise<string> {
   return shopperId;
 }
 
-type RetrieveShoppersFilters = { cookieOnly: true } | { cookieOnly?: false; ids?: string[] };
+type RetrieveShoppersFilters =
+  | { cookieOnly: true }
+  | { cookieOnly?: false; ids?: string[]; retargetOptedInMerchantId?: undefined }
+  | { retargetOptedInMerchantId: string; cookieOnly?: undefined; ids?: undefined };
 type RetrieveShoppersResult<F extends RetrieveShoppersFilters> = F extends { cookieOnly: true }
   ? { shopperId: string | null }
-  : Shopper[];
+  : F extends { retargetOptedInMerchantId: string }
+    ? ResolvedShopper[]
+    : Shopper[];
 
-// A generic conditional return type, not multiple overload signatures: one
-// declaration, one params type, and the return type narrows per call site
-// so `retrieveShoppers({ cookieOnly: true })` isn't forced to a union.
 export async function retrieveShoppers<F extends RetrieveShoppersFilters>(
   filters: F,
 ): Promise<RetrieveShoppersResult<F>> {
   if (filters.cookieOnly) {
     return { shopperId: await verifiedCookieShopperId() } as RetrieveShoppersResult<F>;
+  }
+
+  if (filters.retargetOptedInMerchantId) {
+    const rows = await db
+      .select({ shopper: shoppers, twinId: twins.id, twinUrl: twins.twinUrl })
+      .from(retargetOptins)
+      .innerJoin(shoppers, eq(shoppers.id, retargetOptins.shopperId))
+      .innerJoin(
+        twins,
+        and(eq(twins.shopperId, shoppers.id), eq(twins.isDefault, true), eq(twins.status, 'ready')),
+      )
+      .where(
+        and(
+          eq(retargetOptins.merchantId, filters.retargetOptedInMerchantId),
+          isNull(retargetOptins.optedOutAt),
+        ),
+      );
+    return rows.map(({ shopper, twinId, twinUrl }) => ({
+      ...shopper,
+      twinId,
+      twinUrl,
+    })) as RetrieveShoppersResult<F>;
   }
 
   const ids = filters.ids?.length

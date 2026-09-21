@@ -14,7 +14,7 @@ import type { ProviderKey } from '@/constants';
 import { PROVIDER_COST_CENTS } from '@/constants';
 import { putObject } from '@/modules/storage';
 import { refundFailedRender } from '@/modules/render/credit-ledger';
-import { checkCampaignHealth } from '@/modules/campaigns';
+import { checkCampaignHealth } from '@/actions/campaigns';
 
 const querySchema = z.object({
   kind: z.enum(['twin', 'render']),

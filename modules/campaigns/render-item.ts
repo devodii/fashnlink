@@ -11,7 +11,7 @@ import type { RenderInput } from '@/modules/render/types';
 import { childLogger } from '@/lib/log';
 import { createFetch } from '@/lib/http';
 import { env, publicUrl } from '@/lib/env';
-import { checkCampaignHealth } from './finalize';
+import { checkCampaignHealth } from '@/actions/campaigns';
 
 const payloadSchema = z.object({ campaignItemId: z.string() });
 type CampaignRenderItemPayload = z.infer<typeof payloadSchema>;
