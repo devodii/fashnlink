@@ -80,7 +80,7 @@ export function NewLinkForm() {
     },
   ];
 
-  function post(body: unknown) {
+  async function post(body: unknown) {
     createLinkMutation.mutate(body);
   }
 
