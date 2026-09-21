@@ -1,9 +1,12 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { links, merchants, productImages, productVariants, products } from '@/db/schema';
+import { productImages } from '@/db/schema';
 import { retrieveShoppers } from '@/actions/shoppers';
 import { retrieveTwins } from '@/actions/twins';
+import { retrieveLinks } from '@/actions/links';
+import { retrieveProducts } from '@/actions/products';
+import { retrieveMerchants } from '@/actions/merchants';
 import type { MerchantSettings } from '@/actions/merchants';
 import { TryOnFlow } from './try-on-flow';
 import { PollFlow } from './poll-flow';
@@ -19,14 +22,10 @@ export default async function LinkPage({
   const { slug } = await params;
   const { via, preview } = await searchParams;
 
-  const [link] = await db.select().from(links).where(eq(links.slug, slug)).limit(1);
+  const [link] = await retrieveLinks({ slugs: [slug] });
   if (!link || link.status === 'archived') notFound();
 
-  const [merchant] = await db
-    .select({ name: merchants.name, settings: merchants.settings })
-    .from(merchants)
-    .where(eq(merchants.id, link.merchantId))
-    .limit(1);
+  const [merchant] = await retrieveMerchants({ ids: [link.merchantId] });
   const settings = (merchant?.settings ?? {}) as MerchantSettings;
 
   const { shopperId } = await retrieveShoppers({ cookieOnly: true });
@@ -38,10 +37,7 @@ export default async function LinkPage({
     : null;
 
   if (link.kind === 'poll') {
-    const pollProducts = await db
-      .select()
-      .from(products)
-      .where(inArray(products.id, link.productIds));
+    const pollProducts = await retrieveProducts({ ids: link.productIds });
     const images = pollProducts.length
       ? await db
           .select()
@@ -76,21 +72,18 @@ export default async function LinkPage({
   const productId = link.productIds[0];
   if (!productId) notFound();
 
-  const [product] = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  const [product] = await retrieveProducts({
+    ids: [productId],
+    withImages: true,
+    withVariants: true,
+  });
   if (!product) notFound();
 
-  const productImageRows = await db
-    .select()
-    .from(productImages)
-    .where(eq(productImages.productId, product.id))
-    .orderBy(productImages.position);
+  const productImageRows = product.images ?? [];
   const tryonImage =
     productImageRows.find((image) => image.isTryonSource) ?? productImageRows[0] ?? null;
 
-  const variants = await db
-    .select()
-    .from(productVariants)
-    .where(eq(productVariants.productId, product.id));
+  const variants = product.variants ?? [];
 
   const sizeValues = new Map<string, boolean>();
   const colorValues = new Map<string, boolean>();

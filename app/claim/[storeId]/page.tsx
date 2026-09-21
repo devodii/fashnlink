@@ -1,15 +1,13 @@
-import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
-import { db } from '@/db';
-import { stores } from '@/db/schema';
 import { retrieveClaims, CLAIM_VISIBLE_THRESHOLD } from '@/actions/claims';
+import { retrieveStores } from '@/actions/stores';
 import { Container } from '@/components/container';
 import { ClaimButton } from './claim-button';
 
 export default async function ClaimPage({ params }: { params: Promise<{ storeId: string }> }) {
   const { storeId } = await params;
 
-  const [store] = await db.select().from(stores).where(eq(stores.id, storeId)).limit(1);
+  const [store] = await retrieveStores({ ids: [storeId] });
   if (!store) notFound();
   if (store.merchantId) notFound();
 

@@ -1,7 +1,5 @@
-import { eq } from 'drizzle-orm';
 import { requireMerchant } from '@/actions/merchants';
-import { db } from '@/db';
-import { stores } from '@/db/schema';
+import { retrieveStores } from '@/actions/stores';
 import type { MerchantSettings } from '@/actions/merchants';
 
 import { PageHeader } from '@/components/page-header';
@@ -9,7 +7,7 @@ import { SettingsForm } from './settings-form';
 
 export default async function SettingsPage() {
   const merchant = await requireMerchant();
-  const [store] = await db.select().from(stores).where(eq(stores.merchantId, merchant.id)).limit(1);
+  const [store] = await retrieveStores({ merchantId: merchant.id });
   const settings = (merchant.settings as MerchantSettings) ?? {};
 
   return (
