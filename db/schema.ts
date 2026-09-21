@@ -740,3 +740,4 @@ export type ResolvedLead = Lead & { productTitle?: string | null; count?: number
 export type ResolvedMerchant = Merchant;
 export type ResolvedTwin = Twin;
 export type ResolvedShopper = Shopper & { twinId?: string | null; twinUrl?: string | null };
+export type ResolvedGroupMember = GroupMember & { twinUrl?: string | null };

@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
-import { db } from '@/db';
-import { groupMembers, links, renders, twins } from '@/db/schema';
-import { newId } from '@/lib/ids';
 import { err, ok } from '@/lib/result';
+import { retrieveLinks } from '@/actions/links';
+import { retrieveRenders } from '@/actions/renders';
+import { createGroupMembers, retrieveGroupMembers, updateGroupMembers } from '@/actions/groups';
 
 const paramsSchema = z.object({ linkId: z.string() });
 
@@ -13,20 +12,12 @@ export const GET = apiHandler({
   auth: ['public'],
   schema: { params: paramsSchema },
   handler: async ({ params }) => {
-    const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
+    const [link] = await retrieveLinks({ ids: [params.linkId] });
     if (!link || link.kind !== 'group') {
       return err({ code: 'NOT_FOUND', message: 'group link not found' });
     }
 
-    const members = await db
-      .select({
-        shopperId: groupMembers.shopperId,
-        showInGroup: groupMembers.showInGroup,
-        twinUrl: twins.twinUrl,
-      })
-      .from(groupMembers)
-      .leftJoin(twins, eq(twins.shopperId, groupMembers.shopperId))
-      .where(eq(groupMembers.linkId, link.id));
+    const members = await retrieveGroupMembers({ linkIds: [link.id], withTwin: true });
 
     const visibleAvatars = members
       .filter((m) => m.showInGroup && m.twinUrl)
@@ -48,55 +39,37 @@ const joinBodySchema = z.object({
   showInGroup: z.boolean().optional().default(false),
 });
 
-/**
- * There's no unique index on `group_members`, so the existing-pick lookup
- * and update below is what prevents a re-submitting shopper from creating a
- * duplicate row; the DB doesn't enforce it.
- */
 export const POST = apiHandler({
   name: 'groups.join',
   auth: ['shopper_session'],
   schema: { body: joinBodySchema, params: paramsSchema },
   handler: async ({ body, params, shopper }) => {
-    const [link] = await db.select().from(links).where(eq(links.id, params.linkId)).limit(1);
+    const [link] = await retrieveLinks({ ids: [params.linkId] });
     if (!link || link.kind !== 'group') {
       return err({ code: 'NOT_FOUND', message: 'group link not found' });
     }
 
-    const [render] = await db.select().from(renders).where(eq(renders.id, body.renderId)).limit(1);
+    const [render] = await retrieveRenders({ ids: [body.renderId] });
     if (!render || render.linkId !== link.id) {
       return err({ code: 'INVALID_INPUT', message: 'this render does not belong to this group' });
     }
 
-    const existing = await db.select().from(groupMembers).where(eq(groupMembers.linkId, link.id));
-    const priorMembership = existing.find((m) => m.shopperId === shopper.shopperId);
+    const patch = {
+      renderId: body.renderId,
+      chosenVariantId: body.chosenVariantId ?? null,
+      note: body.note ?? null,
+      showInGroup: body.showInGroup,
+    };
 
-    if (priorMembership) {
-      const [updated] = await db
-        .update(groupMembers)
-        .set({
-          renderId: body.renderId,
-          chosenVariantId: body.chosenVariantId ?? null,
-          note: body.note ?? null,
-          showInGroup: body.showInGroup,
-        })
-        .where(eq(groupMembers.id, priorMembership.id))
-        .returning();
-      return ok({ memberId: updated?.id ?? priorMembership.id });
-    }
+    const [updated] = await updateGroupMembers(
+      [{ linkId: link.id, shopperId: shopper.shopperId }],
+      patch,
+    );
+    if (updated) return ok({ memberId: updated.id });
 
-    const [member] = await db
-      .insert(groupMembers)
-      .values({
-        id: newId('member'),
-        linkId: link.id,
-        shopperId: shopper.shopperId,
-        renderId: body.renderId,
-        chosenVariantId: body.chosenVariantId ?? null,
-        note: body.note ?? null,
-        showInGroup: body.showInGroup,
-      })
-      .returning();
+    const [member] = await createGroupMembers([
+      { linkId: link.id, shopperId: shopper.shopperId, ...patch },
+    ]);
     if (!member) return err({ code: 'INTERNAL', message: 'failed to join group' });
 
     return ok({ memberId: member.id });
