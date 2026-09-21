@@ -65,12 +65,15 @@ export const POST = apiHandler({
     // `vote` is shopper-only, and always resolves a shopper identity off the
     // cookie regardless of which scope the request happened to auth as
     // (matching the original standalone route's `auth: ['shopper_session']`).
-    const shopperId = await createShoppers();
-
-    const [link] = await retrieveLinks({ ids: [params.linkId] });
+    // All three of these are independent of each other: the shopper cookie
+    // resolution needs nothing, `link` keys off params.linkId, `render` off
+    // body.renderId; only the checks below need link and render together.
+    const [shopperId, [link], [render]] = await Promise.all([
+      createShoppers(),
+      retrieveLinks({ ids: [params.linkId] }),
+      retrieveRenders({ ids: [body.renderId] }),
+    ]);
     if (!link || link.kind !== 'poll') return err({ code: 'NOT_FOUND', message: 'poll not found' });
-
-    const [render] = await retrieveRenders({ ids: [body.renderId] });
     if (!render || render.linkId !== link.id) {
       return err({ code: 'INVALID_INPUT', message: 'this render is not an option in this poll' });
     }
