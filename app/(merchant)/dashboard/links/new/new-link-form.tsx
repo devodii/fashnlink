@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
+import * as RHF from 'react-hook-form';
+import { XIcon } from '@phosphor-icons/react/ssr';
 import { z } from 'zod';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
@@ -13,11 +15,16 @@ import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
 import { InlineAlert } from '@/components/inline-alert';
 import { SegmentedControl } from '@/components/segmented-control';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 type Kind = 'single' | 'poll' | 'group';
 
 const singleSchema = z.object({ url: z.string().url('Paste a full product URL') });
+const pollSchema = z.object({
+  urls: z
+    .array(z.object({ value: z.string().url('Paste a full product URL') }))
+    .min(2, 'Add at least 2 product URLs')
+    .max(3, 'Add up to 3 product URLs'),
+});
 const groupSchema = z.object({
   url: z.string().url('Paste a full product URL'),
   groupName: z.string().min(1, 'Give the group a name'),
@@ -45,9 +52,11 @@ export function NewLinkForm() {
     setErrorState(msg);
     if (msg) setErrorKey((k) => k + 1);
   };
-  const [pollUrls, setPollUrls] = React.useState<string[]>(['', '']);
-
   const singleForm = useZodForm(singleSchema, { defaultValues: { url: '' } });
+  const pollForm = useZodForm(pollSchema, {
+    defaultValues: { urls: [{ value: '' }, { value: '' }] },
+  });
+  const pollUrls = RHF.useFieldArray({ control: pollForm.control, name: 'urls' });
   const groupForm = useZodForm(groupSchema, {
     defaultValues: { url: '', groupName: '', groupNote: '' },
   });
@@ -115,42 +124,56 @@ export function NewLinkForm() {
       )}
 
       {kind === 'poll' && (
-        <div className="space-y-4">
+        <Form
+          form={pollForm}
+          onSubmit={(v) => post({ kind: 'poll', urls: v.urls.map((u) => u.value) })}
+        >
           <p className="text-sm text-muted-foreground">
             Add 2 or 3 product URLs so shoppers can try on all of them.
           </p>
           <div className="space-y-2">
-            {pollUrls.map((url, i) => (
-              <Input
-                key={i}
-                type="url"
-                placeholder={`Product ${i + 1} URL`}
-                value={url}
-                onChange={(e) =>
-                  setPollUrls((prev) => prev.map((u, idx) => (idx === i ? e.target.value : u)))
-                }
-              />
+            {pollUrls.fields.map((field, i) => (
+              <div key={field.id} className="flex items-start gap-2">
+                <UrlField
+                  control={pollForm.control}
+                  name={`urls.${i}.value`}
+                  label=""
+                  placeholder={`Product ${i + 1} URL`}
+                  className="flex-1"
+                />
+                {pollUrls.fields.length > 2 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => pollUrls.remove(i)}
+                  >
+                    <XIcon className="size-4" />
+                    <span className="sr-only">Remove URL</span>
+                  </Button>
+                )}
+              </div>
             ))}
           </div>
-          {pollUrls.length < 3 && (
+          {pollForm.formState.errors.urls?.root?.message && (
+            <p className="text-sm text-destructive">
+              {pollForm.formState.errors.urls.root.message}
+            </p>
+          )}
+          {pollUrls.fields.length < 3 && (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setPollUrls((p) => [...p, ''])}
+              onClick={() => pollUrls.append({ value: '' })}
             >
               Add another
             </Button>
           )}
-          <LoadingButton
-            loading={stage === 'working'}
-            className="w-full"
-            disabled={pollUrls.filter(Boolean).length < 2}
-            onClick={() => post({ kind: 'poll', urls: pollUrls.filter(Boolean) })}
-          >
+          <LoadingButton type="submit" loading={stage === 'working'} className="w-full">
             Create poll
           </LoadingButton>
-        </div>
+        </Form>
       )}
 
       {kind === 'group' && (
