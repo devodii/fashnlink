@@ -5,9 +5,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { z } from 'zod';
 
 import { db } from '@/db';
-import { idempotencyKeys, merchants } from '@/db/schema';
+import { idempotencyKeys } from '@/db/schema';
 import { auth } from '@/actions/auth';
 import { createShoppers } from '@/actions/shoppers';
+import { retrieveMerchants } from '@/actions/merchants';
 import { env } from '@/lib/env';
 import { childLogger } from '@/lib/log';
 import { consumeRateLimit } from '@/lib/rate-limit';
@@ -22,13 +23,6 @@ export type ResolvedAuth =
   | { type: 'webhook' }
   | { type: 'public' };
 
-/**
- * Adds a pre-narrowed `merchant`/`shopper` param to the handler when `TScope`
- * includes that auth scope, so routes no longer call
- * `requireMerchantSession(auth)` / `requireShopperSession(auth)` and check
- * `.ok` themselves, since the scope declared in `auth: [...]` already guarantees
- * it at the type level.
- */
 type AuthContext<TScope extends AuthScope> = ('merchant_session' extends TScope
   ? { merchant: { merchantId: string; email: string } }
   : unknown) &
@@ -128,11 +122,7 @@ export const createOptionsHandler = () => (req: NextRequest) =>
 async function resolveMerchantSession(req: NextRequest): Promise<ResolvedAuth | null> {
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session?.user?.email) return null;
-  const [merchant] = await db
-    .select({ id: merchants.id, email: merchants.email })
-    .from(merchants)
-    .where(eq(merchants.email, session.user.email))
-    .limit(1);
+  const [merchant] = await retrieveMerchants({ email: session.user.email });
   if (!merchant) return null;
   return { type: 'merchant_session', merchantId: merchant.id, email: merchant.email };
 }

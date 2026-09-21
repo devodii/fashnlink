@@ -31,10 +31,12 @@ export type MerchantSettings = {
 export async function retrieveMerchants(filters: {
   ids?: string[];
   plan?: Plan;
+  email?: string;
 }): Promise<Merchant[]> {
   const conditions = [
     filters.ids?.length ? inArray(merchants.id, filters.ids) : undefined,
     filters.plan ? eq(merchants.plan, filters.plan) : undefined,
+    filters.email ? eq(merchants.email, filters.email) : undefined,
   ].filter((c): c is NonNullable<typeof c> => Boolean(c));
   if (conditions.length === 0) return [];
   return db
@@ -114,11 +116,7 @@ export const requireMerchant = cache(async () => {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user?.email) redirect('/login');
 
-  const [merchant] = await db
-    .select()
-    .from(merchants)
-    .where(eq(merchants.email, authSession.user.email))
-    .limit(1);
+  const [merchant] = await retrieveMerchants({ email: authSession.user.email });
 
   if (!merchant) redirect('/login');
   return merchant;
