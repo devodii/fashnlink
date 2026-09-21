@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { LoadingButton } from '@/components/loading-button';
 import { SelectField } from '@/components/forms/select-field';
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -30,15 +31,12 @@ async function patchLink(id: string, body: Record<string, unknown>) {
 
 export function PauseArchiveButtons({ linkId, status }: { linkId: string; status: string }) {
   const router = useRouter();
-  const [loading, setLoading] = React.useState<string | null>(null);
   const [confirming, setConfirming] = React.useState<'paused' | 'archived' | null>(null);
 
-  async function setStatus(next: 'active' | 'paused' | 'archived') {
-    setLoading(next);
-    await patchLink(linkId, { status: next });
-    setLoading(null);
-    router.refresh();
-  }
+  const statusMutation = useMutation({
+    mutationFn: (next: 'active' | 'paused' | 'archived') => patchLink(linkId, { status: next }),
+    onSuccess: () => router.refresh(),
+  });
 
   return (
     <div className="flex gap-2">
@@ -46,8 +44,8 @@ export function PauseArchiveButtons({ linkId, status }: { linkId: string; status
         <LoadingButton
           size="sm"
           variant="outline"
-          loading={loading === 'active'}
-          onClick={() => setStatus('active')}
+          loading={statusMutation.isPending && statusMutation.variables === 'active'}
+          onClick={() => statusMutation.mutate('active')}
         >
           Activate
         </LoadingButton>
@@ -56,7 +54,7 @@ export function PauseArchiveButtons({ linkId, status }: { linkId: string; status
         <LoadingButton
           size="sm"
           variant="outline"
-          loading={loading === 'paused'}
+          loading={statusMutation.isPending && statusMutation.variables === 'paused'}
           onClick={() => setConfirming('paused')}
         >
           Pause
@@ -66,7 +64,7 @@ export function PauseArchiveButtons({ linkId, status }: { linkId: string; status
         <LoadingButton
           size="sm"
           variant="outline"
-          loading={loading === 'archived'}
+          loading={statusMutation.isPending && statusMutation.variables === 'archived'}
           onClick={() => setConfirming('archived')}
         >
           Archive
@@ -84,7 +82,7 @@ export function PauseArchiveButtons({ linkId, status }: { linkId: string; status
         confirmLabel={confirming === 'paused' ? 'Pause' : 'Archive'}
         tone="destructive"
         onConfirm={async () => {
-          if (confirming) await setStatus(confirming);
+          if (confirming) await statusMutation.mutateAsync(confirming);
         }}
       />
     </div>
@@ -104,10 +102,18 @@ export function GarmentCategoryField({
   const form = useZodForm(categoryForm, { defaultValues: { garmentCategory: value } });
   const watched = form.watch('garmentCategory');
 
+  const categoryMutation = useMutation({
+    mutationFn: (garmentCategory: string) => patchLink(linkId, { garmentCategory }),
+    onSuccess: () => router.refresh(),
+  });
+  const mutate = categoryMutation.mutate;
+
+  // Auto-saves whenever the user picks a new category; not a data read, so
+  // this effect stays, it just delegates the actual PATCH to the mutation.
   React.useEffect(() => {
     if (watched === value) return;
-    void patchLink(linkId, { garmentCategory: watched }).then(() => router.refresh());
-  }, [watched, value, linkId, router]);
+    mutate(watched);
+  }, [watched, value, mutate]);
 
   return (
     <SelectField
