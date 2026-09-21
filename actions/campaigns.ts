@@ -118,12 +118,16 @@ export async function estimateDrop(
     return err({ code: 'INVALID_INPUT', message: `pick 1-${MAX_DROP_PRODUCTS} products` });
   }
 
-  const eligible = await retrieveProducts({ merchantId, ids: productIds, eligibleOnly: true });
+  // Read-only and independent: eligibility keys off `productIds`, audience
+  // off `merchantId`; the eligibility check below just runs after both land.
+  const [eligible, audience] = await Promise.all([
+    retrieveProducts({ merchantId, ids: productIds, eligibleOnly: true }),
+    retrieveShoppers({ retargetOptedInMerchantId: merchantId }),
+  ]);
   if (eligible.length !== productIds.length) {
     return err({ code: 'INVALID_INPUT', message: 'one or more products are not eligible' });
   }
 
-  const audience = await retrieveShoppers({ retargetOptedInMerchantId: merchantId });
   const itemCount = audience.length * eligible.length;
 
   return ok({
