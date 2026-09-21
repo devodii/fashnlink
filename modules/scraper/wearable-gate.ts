@@ -1,11 +1,10 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod';
-import { experimental_evaluate as evaluate } from 'ai';
 import type { Ctx } from '@/lib/adapter';
 import { err, ok, type Result } from '@/lib/result';
 import { openai } from '@/lib/openai';
-import { jevModel } from '@/lib/jev';
+import { evaluateWithJev } from '@/lib/jev';
 import { redis } from '@/lib/redis';
 import { garmentCategoryEnum, wearableTypeEnum } from '@/db/schema';
 import {
@@ -112,22 +111,18 @@ async function classifyWithJev(
   if (cached) return ok(cached);
 
   try {
-    const result = await evaluate({
-      model: jevModel,
-      state,
-      questions: {
-        is_wearable: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_WEARABLE },
-        is_kids: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_KIDS },
-        garment_category: {
-          type: 'choice',
-          instructions: WEARABLE_GATE_JEV_GARMENT_CATEGORY,
-          criteria: Object.fromEntries(
-            garmentCategoryEnum.enumValues.map((category) => [
-              category,
-              WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS[category],
-            ]),
-          ),
-        },
+    const result = await evaluateWithJev(state, {
+      is_wearable: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_WEARABLE },
+      is_kids: { type: 'boolean', instructions: WEARABLE_GATE_JEV_IS_KIDS },
+      garment_category: {
+        type: 'choice',
+        instructions: WEARABLE_GATE_JEV_GARMENT_CATEGORY,
+        criteria: Object.fromEntries(
+          garmentCategoryEnum.enumValues.map((category) => [
+            category,
+            WEARABLE_GATE_JEV_GARMENT_CATEGORY_DESCRIPTIONS[category],
+          ]),
+        ),
       },
     });
 
