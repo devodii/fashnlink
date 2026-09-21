@@ -63,8 +63,8 @@ export const SOURCE_LANGUAGE_CODE = 'en';
 // ------------------------------ LIMITS ------------------------------
 
 // rate limit numbers live here, nowhere inline.
-export const RENDERS_PER_LINK_SHOPPER_PER_DAY = 3;
-export const TWIN_CREATIONS_PER_SHOPPER_PER_DAY = 10;
+export const RENDERS_PER_LINK_SHOPPER_PER_DAY = 15;
+export const TWIN_CREATIONS_PER_SHOPPER_PER_DAY = 30;
 export const SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR = 60;
 // marketing homepage's live quick-demo, abuse guard by IP.
 export const QUICK_LINK_DEMO_PER_IP_PER_DAY = 3;
