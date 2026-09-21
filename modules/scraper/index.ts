@@ -54,12 +54,24 @@ function normalizeUrl(input: string): URL {
   return url;
 }
 
-async function getCachedDetection(domain: string): Promise<string | null> {
-  return redis.get<string>(`scraper:detect:${domain}`);
+async function getCachedDetection(domain: string, ctx: Ctx): Promise<string | null> {
+  try {
+    return await redis.get<string>(`scraper:detect:${domain}`);
+  } catch (cause) {
+    ctx.log.warn({ cause, domain }, 'scraper detection cache read failed, treating as cache miss');
+    return null;
+  }
 }
 
-async function cacheDetection(domain: string, adapterKey: string) {
-  await redis.set(`scraper:detect:${domain}`, adapterKey, { ex: 60 * 60 * 24 });
+async function cacheDetection(domain: string, adapterKey: string, ctx: Ctx) {
+  try {
+    await redis.set(`scraper:detect:${domain}`, adapterKey, { ex: 60 * 60 * 24 });
+  } catch (cause) {
+    ctx.log.warn(
+      { cause, domain },
+      'scraper detection cache write failed, continuing without cache',
+    );
+  }
 }
 
 export type ScrapeOneOptions = {
@@ -87,7 +99,7 @@ export async function scrapeUrl(
   mark('normalizeUrl', t);
 
   t = Date.now();
-  const cachedAdapterKey = await getCachedDetection(url.hostname);
+  const cachedAdapterKey = await getCachedDetection(url.hostname, ctx);
   const cachedAdapter = cachedAdapterKey ? scraperRegistry.get(cachedAdapterKey) : undefined;
 
   let adapter: ScraperAdapter;
@@ -102,7 +114,7 @@ export async function scrapeUrl(
     }
     adapter = result.adapter;
     probe = result.detect;
-    await cacheDetection(url.hostname, result.adapter.key);
+    await cacheDetection(url.hostname, result.adapter.key, ctx);
   }
   mark('detectPlatform', t);
 
