@@ -56,7 +56,7 @@ export function GroupFlow({
 
   const rosterQuery = useQuery({
     queryKey: ['group-roster', linkId],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ memberCount: number; avatars: { src: string }[] }> => {
       const res = await fetch(`/api/groups/${linkId}`);
       const json = await res.json();
       return { memberCount: json.memberCount ?? 0, avatars: json.avatars ?? [] };
