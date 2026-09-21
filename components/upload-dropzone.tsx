@@ -3,8 +3,13 @@
 import * as React from 'react';
 import { cn } from 'cn';
 import { ImageIcon, ArrowUpIcon, WarningIcon, XIcon } from '@phosphor-icons/react/ssr';
+import { generateReactHelpers } from '@uploadthing/react';
+import type { UploadRouter } from '@/lib/uploadthing';
 import { Spinner } from '@/components/spinner';
-import { useUploadThing } from '@/lib/uploadthing-client';
+
+// UploadThing uploads go straight from the browser to storage, never
+// through our server, so there is no presigned-URL step to build here.
+const { useUploadThing } = generateReactHelpers<UploadRouter>();
 
 export interface UploadedFile {
   url: string;
