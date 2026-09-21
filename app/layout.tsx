@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { TranslateProvider } from '@/components/translate-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
-import { GlobalThemeToggle } from '@/components/global-theme-toggle';
+import { GlobalTopBar } from '@/components/global-top-bar';
 import './globals.css';
 
 const outfit = Outfit({
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
           <QueryProvider>
             <TranslateProvider>
               <TooltipProvider>{children}</TooltipProvider>
-              <GlobalThemeToggle />
+              <GlobalTopBar />
               <Toaster />
             </TranslateProvider>
           </QueryProvider>
