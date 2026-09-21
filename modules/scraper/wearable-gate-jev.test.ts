@@ -1,12 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Experimental_EvaluationMockModelV4 } from 'ai/test';
 import type { Ctx } from '@/lib/adapter';
 import { childLogger } from '@/lib/log';
 import type { WearabilityCandidate } from './wearable-gate';
 
 /**
  * Jev (TypeSafe AI) has no image modality; Stage 1b only ever sees text, so
- * it's fully testable by mocking the direct `evaluateWithJev` HTTP client, no
- * live API key or network call needed.
+ * it's fully testable against the AI SDK's own mock evaluation model, no live
+ * API key needed. This exercises the REAL `experimental_evaluate` validation/
+ * answer-shaping logic against a fake model, per `ai/test`'s intended use.
  */
 
 /**
@@ -21,10 +23,21 @@ import type { WearabilityCandidate } from './wearable-gate';
  */
 vi.mock('@/lib/redis', () => ({ redis: null }));
 
-let mockEvaluateWithJev: ReturnType<typeof vi.fn<(...args: unknown[]) => Promise<unknown>>>;
+type DoEvaluate = NonNullable<
+  NonNullable<ConstructorParameters<typeof Experimental_EvaluationMockModelV4>[0]>['doEvaluate']
+>;
+
+let mockDoEvaluate: ReturnType<typeof vi.fn<DoEvaluate>>;
 
 vi.mock('@/lib/jev', () => ({
-  evaluateWithJev: (...args: unknown[]) => mockEvaluateWithJev!(...args),
+  get jevModel() {
+    return new Experimental_EvaluationMockModelV4({
+      provider: 'typesafe-ai',
+      modelId: 'jev-latest',
+      supportedQuestionTypes: ['boolean', 'choice', 'score'],
+      doEvaluate: (options) => mockDoEvaluate!(options),
+    });
+  },
 }));
 
 function ctx(): Ctx {
@@ -62,6 +75,7 @@ function jevAnswers({
       is_kids: { type: 'boolean' as const, probability: isKids },
       garment_category: { type: 'choice' as const, choice: category },
     },
+    warnings: [],
   };
 }
 
@@ -71,7 +85,7 @@ afterEach(() => {
 
 describe('classifyWithJev / assessWearability Stage 1b', () => {
   it('rejects a high-confidence not-wearable product without reaching stage 2', async () => {
-    mockEvaluateWithJev = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.02, isKids: 0.01 }));
+    mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.02, isKids: 0.01 }));
     const { assessWearability } = await import('./wearable-gate');
 
     /**
@@ -84,11 +98,11 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
     if (!result.ok) return;
     expect(result.value.verdict.eligibility).toBe('not_wearable');
     expect(result.value.verdict.eligibilityReason).toBe('text:jev_not_wearable');
-    expect(mockEvaluateWithJev).toHaveBeenCalledTimes(1);
+    expect(mockDoEvaluate).toHaveBeenCalledTimes(1);
   });
 
   it('marks a high-confidence kids product without reaching stage 2', async () => {
-    mockEvaluateWithJev = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.9, isKids: 0.95 }));
+    mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.9, isKids: 0.95 }));
     const { assessWearability } = await import('./wearable-gate');
 
     const result = await assessWearability(candidate({ title: 'Cozy onesie' }), ctx());
@@ -100,7 +114,7 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
   });
 
   it('falls through to a vision-required path when jev is uncertain', async () => {
-    mockEvaluateWithJev = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.6, isKids: 0.1 }));
+    mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.6, isKids: 0.1 }));
     const { assessWearability } = await import('./wearable-gate');
 
     /**
@@ -115,7 +129,7 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
   });
 
   it('falls through to stage 2 instead of failing the pipeline when jev errors', async () => {
-    mockEvaluateWithJev = vi.fn().mockRejectedValue(new Error('jev unavailable'));
+    mockDoEvaluate = vi.fn().mockRejectedValue(new Error('jev unavailable'));
     const { assessWearability } = await import('./wearable-gate');
 
     const result = await assessWearability(candidate({ title: 'A thing' }), ctx());
@@ -132,7 +146,7 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
      * real (unmocked) stage-2 OpenAI call here would hang against the
      * placeholder API key in this sandbox.
      */
-    mockEvaluateWithJev = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.02, isKids: 0.1 }));
+    mockDoEvaluate = vi.fn().mockResolvedValue(jevAnswers({ isWearable: 0.02, isKids: 0.1 }));
     const { assessWearability } = await import('./wearable-gate');
 
     await assessWearability(
@@ -153,7 +167,7 @@ describe('classifyWithJev / assessWearability Stage 1b', () => {
       ctx(),
     );
 
-    const state = mockEvaluateWithJev.mock.calls[0][0] as {
+    const state = mockDoEvaluate.mock.calls[0][0].state as {
       title: string;
       tags: string[];
       images: { alt: string | null; filename: string | null }[];

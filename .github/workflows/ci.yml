@@ -16,7 +16,7 @@ env:
   NEXT_PUBLIC_APP_URL: http://localhost:3000
   FAL_KEY: ci-dummy-fal-key
   OPENAI_API_KEY: ci-dummy-openai-key
-  TYPESAFE_API_KEY: ci-dummy-typesafe-key
+  AI_GATEWAY_API_KEY: ci-dummy-ai-gateway-key
   UPLOADTHING_TOKEN: ci-dummy-uploadthing-token
   RESEND_API_KEY: ci-dummy-resend-key
   EMAIL_FROM: 'CI <ci@example.com>'
