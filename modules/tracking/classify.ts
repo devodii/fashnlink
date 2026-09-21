@@ -1,9 +1,6 @@
-import {
-  PRICE_LIKE_PATTERN,
-  PRODUCT_PATH_NEGATIVE,
-  PRODUCT_PATH_POSITIVE,
-  PRODUCT_PATH_SEGMENT_PREFIXES,
-} from '@/constants';
+import { experimental_evaluate as evaluate } from 'ai';
+import { jevModel } from '@/lib/jev';
+import type { Logger } from '@/lib/log';
 
 export type PathCandidate = {
   path: string;
@@ -15,29 +12,41 @@ export type PathScore = {
   signals: string[];
 };
 
-export function scoreDiscoveredPath(candidate: PathCandidate): PathScore {
-  const pathLower = candidate.path.toLowerCase();
-  const textLower = (candidate.linkText ?? '').toLowerCase();
-  const haystack = `${pathLower} ${textLower}`;
+const JEV_IS_PRODUCT_PATH =
+  'Is this URL path likely a page where a shopper could view and buy a specific product (a product detail or product listing/collection page), as opposed to a non-product page like cart, checkout, account, blog, policy, contact, or other informational content?';
 
-  const matchedPositive = PRODUCT_PATH_POSITIVE.filter((word) => haystack.includes(word));
-  const matchedNegative = PRODUCT_PATH_NEGATIVE.filter((word) => haystack.includes(word));
-  const hasPriceLike = PRICE_LIKE_PATTERN.test(textLower);
+// Scales Jev's [0, 1] probability into the same rough magnitude the old
+// keyword scorer produced (small signed integers, 0 = neutral), so
+// discovered_paths.score and its downstream consumers keep their contract.
+function scoreFromProbability(probability: number): number {
+  return Math.round((probability - 0.5) * 20);
+}
 
-  const segments = pathLower.split('/').filter(Boolean);
-  const hasProductLikeSegment = PRODUCT_PATH_SEGMENT_PREFIXES.includes(
-    segments[0] as (typeof PRODUCT_PATH_SEGMENT_PREFIXES)[number],
-  );
+export async function scoreDiscoveredPath(
+  candidate: PathCandidate,
+  log: Logger,
+): Promise<PathScore> {
+  try {
+    const result = await evaluate({
+      model: jevModel,
+      state: { path: candidate.path, linkText: candidate.linkText },
+      questions: {
+        is_product_path: { type: 'boolean', instructions: JEV_IS_PRODUCT_PATH },
+      },
+    });
 
-  let score = matchedPositive.length - 2 * matchedNegative.length;
-  if (hasPriceLike) score += 2;
-  if (hasProductLikeSegment) score += 2;
+    const answer = result.answers.is_product_path;
+    if (answer.type !== 'boolean') {
+      log.warn({ candidate }, 'tracking classify: unexpected jev answer shape, scoring neutral');
+      return { score: 0, signals: ['jev:unexpected-shape'] };
+    }
 
-  const signals = [
-    ...matchedPositive,
-    ...(hasPriceLike ? ['price-like'] : []),
-    ...(hasProductLikeSegment ? [`segment:${segments[0]}`] : []),
-  ];
-
-  return { score, signals };
+    return {
+      score: scoreFromProbability(answer.probability),
+      signals: ['jev', `probability:${answer.probability.toFixed(2)}`],
+    };
+  } catch (cause) {
+    log.warn({ cause, candidate }, 'tracking classify: jev call failed, scoring neutral');
+    return { score: 0, signals: ['jev:error'] };
+  }
 }
