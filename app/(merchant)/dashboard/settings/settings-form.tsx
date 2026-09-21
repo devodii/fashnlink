@@ -13,7 +13,7 @@ import { LoadingButton } from '@/components/loading-button';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { MediaTile } from '@/components/media-tile';
 import { SplitPane } from '@/components/split-pane';
-import { contactChannelSchema, type ContactChannel } from '@/config/contact-channel';
+import { contactChannelSchema, type ContactChannel } from '@/constants';
 
 const schema = z.object({
   name: z.string().min(1, 'Required'),

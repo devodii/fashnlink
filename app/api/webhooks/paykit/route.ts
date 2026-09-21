@@ -5,7 +5,7 @@ import { err, ok } from '@/lib/result';
 import { env } from '@/lib/env';
 import { db } from '@/db';
 import { merchants, paymentEvents } from '@/db/schema';
-import { PLANS } from '@/config/pricing';
+import { PLANS } from '@/constants';
 import { childLogger } from '@/lib/log';
 import { grantCredits } from '@/modules/render/credit-ledger';
 

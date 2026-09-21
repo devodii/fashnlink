@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { requireMerchant, retrieveMerchants } from '@/actions/merchants';
 import type { MerchantSettings } from '@/actions/merchants';
-import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/config/pricing';
+import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/constants';
 import { env } from '@/lib/env';
 import { FoundingPassBanner } from '@/components/founding-pass-banner';
 import { DashboardNav } from './dashboard-nav';

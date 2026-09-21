@@ -21,7 +21,7 @@ import { MediaTile } from '@/components/media-tile';
 import { CopyField } from '@/components/copy-field';
 import { PhoneFrame } from '@/components/phone-frame';
 import { ChipSelect } from '@/components/chip-select';
-import { contactChannelSchema } from '@/config/contact-channel';
+import { contactChannelSchema } from '@/constants';
 
 const PLATFORM_CHIPS = ['Shopify', 'WooCommerce', 'Squarespace', 'Wix', 'Something else'].map(
   (label) => ({ value: label, label }),

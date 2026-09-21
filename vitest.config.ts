@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 // Test files import modules that eagerly validate env.ts at import time
-// (src/lib/env.ts runs loadEnv() at module scope), so this loads the same
+// (lib/env.ts runs loadEnv() at module scope), so this loads the same
 // .env.local drizzle.config.ts uses rather than needing its own separate
 // env setup.
 import path from 'node:path';

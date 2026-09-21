@@ -9,7 +9,7 @@ import { InlineAlert } from '@/components/inline-alert';
 import { StatCard } from '@/components/stat-card';
 import { EmptyState } from '@/components/empty-state';
 import { PackageIcon } from '@phosphor-icons/react/ssr';
-import { MAX_DROP_PRODUCTS } from '@/config/limits';
+import { MAX_DROP_PRODUCTS } from '@/constants';
 
 type Estimate = { audienceCount: number; itemCount: number; estimatedCredits: number };
 

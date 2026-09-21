@@ -1,4 +1,4 @@
-import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/config/pricing';
+import { PLANS, FOUNDING_PASS_SEATS_TOTAL, formatPriceCents } from '@/constants';
 import { retrieveMerchants } from '@/actions/merchants';
 import { Container } from '@/components/container';
 import { Section } from '@/components/section';

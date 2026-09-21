@@ -19,12 +19,6 @@
       }
     ],
     "paths": {
-      "@/lib/*": ["./src/lib/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/modules/*": ["./src/modules/*"],
-      "@/config/*": ["./src/config/*"],
-      "@/db": ["./src/db/index.ts"],
-      "@/db/*": ["./src/db/*"],
       "@/*": ["./*"]
     }
   },

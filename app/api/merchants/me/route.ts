@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { apiHandler } from '@/lib/api-handler';
 import { ok, err } from '@/lib/result';
-import { contactChannelSchema } from '@/config/contact-channel';
+import { contactChannelSchema } from '@/constants';
 import { updateMerchants, retrieveMerchants, deleteMerchants } from '@/actions/merchants';
 
 const bodySchema = z.object({

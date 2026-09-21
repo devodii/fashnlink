@@ -19,7 +19,7 @@ import {
   user,
 } from '@/db/schema';
 import type { Merchant, Plan } from '@/db/schema';
-import type { ContactChannel } from '@/config/contact-channel';
+import type { ContactChannel } from '@/constants';
 import { auth } from '@/actions/auth';
 
 export type MerchantSettings = {

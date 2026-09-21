@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { GlobeIcon } from '@phosphor-icons/react/ssr';
-import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/config/languages';
+import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/constants';
 import { getCurrentLanguageCode, setLanguage } from '@/lib/google-translate';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { Button } from '@/components/ui/button';

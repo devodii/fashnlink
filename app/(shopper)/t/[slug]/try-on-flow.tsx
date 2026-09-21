@@ -19,7 +19,7 @@ import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { formatPriceCents } from '@/lib/util';
-import type { ContactChannel } from '@/config/contact-channel';
+import type { ContactChannel } from '@/constants';
 
 type Twin = { id: string; status: string; twinUrl: string | null };
 

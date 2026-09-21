@@ -8,7 +8,7 @@ import {
   createGroupLinkFromUrl,
   createPollLinkFromUrls,
 } from '@/modules/links/create-link-from-url';
-import { SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR } from '@/config/limits';
+import { SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR } from '@/constants';
 
 const bodySchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('single'), url: z.string().url() }),

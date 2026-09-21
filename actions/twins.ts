@@ -16,8 +16,8 @@ import {
   TWIN_BACKGROUND_CLEANUP,
   TWIN_PHOTO_CLASSIFY,
   TWIN_STUDIO_GENERATION,
-} from '@/config/prompts';
-import { TWIN_CREATIONS_PER_SHOPPER_PER_DAY } from '@/config/limits';
+  TWIN_CREATIONS_PER_SHOPPER_PER_DAY,
+} from '@/constants';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import { moderateImage } from '@/modules/render/moderation';
 import { submitNanoBananaEdit } from '@/modules/render/providers/nano-banana';

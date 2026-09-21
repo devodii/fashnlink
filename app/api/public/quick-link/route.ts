@@ -6,8 +6,8 @@ import { err, ok } from '@/lib/result';
 import { scrapeUrlToProduct } from '@/modules/links/create-link-from-url';
 import { createLinks } from '@/actions/links';
 import { retrieveProducts } from '@/actions/products';
-import { ensureSystemMerchant, SYSTEM_MERCHANT_ID } from '@/config/system-merchant';
-import { QUICK_LINK_DEMO_PER_IP_PER_DAY } from '@/config/limits';
+import { ensureSystemMerchant, SYSTEM_MERCHANT_ID } from '@/system-merchant';
+import { QUICK_LINK_DEMO_PER_IP_PER_DAY } from '@/constants';
 
 const bodySchema = z.object({ url: z.string().url() });
 

@@ -4,7 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
 import { claims, links, products, stores } from '@/db/schema';
 import { err, ok } from '@/lib/result';
-import { SYSTEM_MERCHANT_ID } from '@/config/system-merchant';
+import { SYSTEM_MERCHANT_ID } from '@/system-merchant';
 
 /**
  * Only `links` get reassigned to the claiming merchant here; `leads` rows

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/config/languages';
+import { LANGUAGES, SOURCE_LANGUAGE_CODE } from '@/constants';
 import { readGoogTransCookie, setLanguage } from '@/lib/google-translate';
 import { InlineAlert } from '@/components/inline-alert';
 import { Button } from '@/components/ui/button';

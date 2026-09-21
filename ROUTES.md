@@ -1,6 +1,6 @@
 # Route reference
 
-Every API route and every page, what it does, and who can reach it. `auth` scopes match `src/lib/api-handler.ts`'s `AuthScope`: `merchant_session` (dashboard owner), `shopper_session` (anonymous, cookie-identified visitor), `cron` (Vercel Cron only, `CRON_SECRET` bearer token), `webhook` (verified signature, no session), `public` (anyone).
+Every API route and every page, what it does, and who can reach it. `auth` scopes match `lib/api-handler.ts`'s `AuthScope`: `merchant_session` (dashboard owner), `shopper_session` (anonymous, cookie-identified visitor), `cron` (Vercel Cron only, `CRON_SECRET` bearer token), `webhook` (verified signature, no session), `public` (anyone).
 
 ## API routes
 
@@ -128,4 +128,4 @@ Every API route and every page, what it does, and who can reach it. `auth` scope
 | `/platforms`                                                        | Public                                                           | Supported platform list                                            |
 | `/legal/privacy`, `/legal/terms`                                    | Public                                                           | Static legal pages                                                 |
 
-Every merchant route is gated by `app/(merchant)/dashboard/layout.tsx` calling `requireMerchant()` (redirects to `/login`) then checking `settings.contactChannel` (redirects to `/onboarding`). Every API route declares an explicit `auth` scope in `apiHandler`, enforced centrally in `src/lib/api-handler.ts`, not per-route.
+Every merchant route is gated by `app/(merchant)/dashboard/layout.tsx` calling `requireMerchant()` (redirects to `/login`) then checking `settings.contactChannel` (redirects to `/onboarding`). Every API route declares an explicit `auth` scope in `apiHandler`, enforced centrally in `lib/api-handler.ts`, not per-route.
