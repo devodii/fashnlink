@@ -3,7 +3,12 @@ import 'server-only';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { productImages, productVariants, products, stores } from '@tryonlink/shared/schema';
-import type { Product, ProductImage, ProductVariant, ResolvedProduct } from '@tryonlink/shared/schema';
+import type {
+  Product,
+  ProductImage,
+  ProductVariant,
+  ResolvedProduct,
+} from '@tryonlink/shared/schema';
 import { newId } from '@/lib/ids';
 import type { NormalizedProduct } from '@/modules/scraper/schema';
 
