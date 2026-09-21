@@ -728,6 +728,7 @@ export type ResolvedLink = Link & {
 };
 export type ResolvedProduct = Product & {
   images?: ProductImage[] | null;
+  variants?: ProductVariant[] | null;
   hasTryonImage?: boolean | null;
 };
 export type ResolvedStore = Store;

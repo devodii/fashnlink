@@ -83,6 +83,7 @@ export async function retrieveProducts(filters: {
   merchantId?: string;
   eligibleOnly?: boolean;
   withImages?: boolean;
+  withVariants?: boolean;
 }): Promise<ResolvedProduct[]> {
   const conditions = [
     filters.ids?.length ? inArray(products.id, filters.ids) : undefined,
@@ -130,6 +131,12 @@ export async function retrieveProducts(filters: {
           .where(eq(productImages.productId, product.id))
           .orderBy(productImages.position);
       }
+      if (filters.withVariants) {
+        resolved.variants = await db
+          .select()
+          .from(productVariants)
+          .where(eq(productVariants.productId, product.id));
+      }
       return resolved;
     }),
   );
@@ -138,7 +145,13 @@ export async function retrieveProducts(filters: {
 type UpdateProductPatch = Partial<
   Pick<
     Product,
-    'title' | 'priceCents' | 'currency' | 'available' | 'externalUpdatedAt' | 'contentHash'
+    | 'title'
+    | 'priceCents'
+    | 'currency'
+    | 'available'
+    | 'externalUpdatedAt'
+    | 'contentHash'
+    | 'garmentCategory'
   >
 > & {
   images?: Partial<

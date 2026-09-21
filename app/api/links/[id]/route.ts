@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
-import { db } from '@/db';
-import { products, garmentCategoryEnum } from '@/db/schema';
+import { garmentCategoryEnum } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 import { retrieveLinks, updateLinks } from '@/actions/links';
+import { updateProducts } from '@/actions/products';
 
 const paramsSchema = z.object({ id: z.string() });
 const bodySchema = z.object({
@@ -27,10 +26,7 @@ export const PATCH = apiHandler({
     if (body.garmentCategory) {
       const productId = link.productIds[0];
       if (productId) {
-        await db
-          .update(products)
-          .set({ garmentCategory: body.garmentCategory })
-          .where(eq(products.id, productId));
+        await updateProducts([productId], { garmentCategory: body.garmentCategory });
       }
     }
 
