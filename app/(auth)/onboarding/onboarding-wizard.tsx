@@ -5,13 +5,11 @@ import { useRouter } from 'next/navigation';
 import { z } from 'zod';
 import { StepWizard, type StepWizardApi } from '@/components/step-wizard';
 import { useZodForm } from '@/hooks/use-zod-form';
-import { Form } from '@/components/forms/form';
 import { UrlField } from '@/components/forms/url-field';
 import { TextField } from '@/components/forms/text-field';
 import { PhoneField } from '@/components/forms/phone-field';
 import { SegmentedField } from '@/components/forms/segmented-field';
 import { SwatchField } from '@/components/forms/swatch-field';
-import { LoadingButton } from '@/components/loading-button';
 import { InlineAlert } from '@/components/inline-alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +24,15 @@ import { contactChannelSchema } from '@/constants';
 const PLATFORM_CHIPS = ['Shopify', 'WooCommerce', 'Squarespace', 'Wix', 'Something else'].map(
   (label) => ({ value: label, label }),
 );
+
+const REFERRAL_CHIPS = [
+  'Google Search',
+  'Instagram',
+  'TikTok',
+  'Twitter / X',
+  'Friend or colleague',
+  'Something else',
+].map((label) => ({ value: label, label }));
 
 const urlSchema = z.object({ url: z.string().url('Paste a full product URL') });
 const brandSchema = z.object({
@@ -59,7 +66,7 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
         {
           id: 'brand',
           title: 'How shoppers reach you',
-          render: (api) => <BrandStep logo={logo} onLogo={setLogo} onDone={() => api.next()} />,
+          render: (api) => <BrandStep api={api} logo={logo} onLogo={setLogo} />,
         },
         {
           id: 'link',
@@ -196,13 +203,13 @@ function ProductStep({
 }
 
 function BrandStep({
+  api,
   logo,
   onLogo,
-  onDone,
 }: {
+  api: StepWizardApi;
   logo: UploadedFile | null;
   onLogo: (file: UploadedFile | null) => void;
-  onDone: () => void;
 }) {
   const form = useZodForm<z.infer<typeof brandSchema>>(brandSchema, {
     defaultValues: {
@@ -212,23 +219,49 @@ function BrandStep({
     },
   });
   const contactType = form.watch('contactChannel.type');
+  const [referral, setReferral] = React.useState<string | null>(null);
+  const [referralOther, setReferralOther] = React.useState('');
+  const [referralError, setReferralError] = React.useState<string | null>(null);
+  const [referralErrorKey, setReferralErrorKey] = React.useState(0);
+  const referralIsOther = referral === 'Something else';
 
-  async function onSubmit(values: z.infer<typeof brandSchema>) {
-    await fetch('/api/merchants/me', {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        name: values.name,
-        accentToken: values.accentToken,
-        ...(logo && { logoUrl: logo.url }),
-        contactChannel: values.contactChannel,
-      }),
+  React.useEffect(() => {
+    api.setOnNext(async () => {
+      setReferralError(null);
+      if (!referral) {
+        setReferralError('Tell us how you heard about us.');
+        setReferralErrorKey((k) => k + 1);
+        return false;
+      }
+      if (referralIsOther && !referralOther.trim()) {
+        setReferralError('Tell us where, so we know what to say thanks for.');
+        setReferralErrorKey((k) => k + 1);
+        return false;
+      }
+
+      let success = false;
+      await form.handleSubmit(async (values) => {
+        await fetch('/api/merchants/me', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            name: values.name,
+            accentToken: values.accentToken,
+            ...(logo && { logoUrl: logo.url }),
+            contactChannel: values.contactChannel,
+            referralSource: referralIsOther ? referralOther.trim() : referral,
+          }),
+        });
+        success = true;
+      })();
+      return success;
     });
-    onDone();
-  }
+    return () => api.setOnNext(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referral, referralOther, logo]);
 
   return (
-    <Form form={form} onSubmit={onSubmit} className="space-y-4">
+    <div className="space-y-4">
       <TextField control={form.control} name="name" label="Brand name" placeholder="Studio Ada" />
 
       {logo ? (
@@ -270,10 +303,29 @@ function BrandStep({
         />
       )}
 
-      <LoadingButton type="submit" loading={form.formState.isSubmitting} className="w-full">
-        Continue
-      </LoadingButton>
-    </Form>
+      <div className="space-y-2">
+        <Label>How did you hear about us?</Label>
+        <ChipSelect options={REFERRAL_CHIPS} value={referral} onChange={setReferral} />
+      </div>
+
+      {referralIsOther && (
+        <div className="space-y-2">
+          <Label htmlFor="referral-other">Where?</Label>
+          <Input
+            id="referral-other"
+            placeholder="A podcast, a newsletter, ..."
+            value={referralOther}
+            onChange={(e) => setReferralOther(e.target.value)}
+          />
+        </div>
+      )}
+
+      {referralError && (
+        <InlineAlert tone="destructive" resetKey={referralErrorKey}>
+          {referralError}
+        </InlineAlert>
+      )}
+    </div>
   );
 }
 

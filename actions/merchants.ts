@@ -26,6 +26,7 @@ export type MerchantSettings = {
   contactChannel?: ContactChannel;
   accentToken?: string;
   logoUrl?: string;
+  referralSource?: string;
 };
 
 export async function retrieveMerchants(filters: {

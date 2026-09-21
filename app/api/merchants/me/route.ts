@@ -9,6 +9,7 @@ const bodySchema = z.object({
   logoUrl: z.string().url().optional(),
   accentToken: z.enum(['1', '2', '3', '4', '5', '6']).optional(),
   contactChannel: contactChannelSchema.optional(),
+  referralSource: z.string().min(1).max(120).optional(),
 });
 
 export const PATCH = apiHandler({
@@ -18,13 +19,14 @@ export const PATCH = apiHandler({
   handler: async ({ body, merchant }) => {
     if (body.name) await updateMerchants([merchant.merchantId], { name: body.name });
 
-    const { logoUrl, accentToken, contactChannel } = body;
-    if (logoUrl || accentToken || contactChannel) {
+    const { logoUrl, accentToken, contactChannel, referralSource } = body;
+    if (logoUrl || accentToken || contactChannel || referralSource) {
       await updateMerchants([merchant.merchantId], {
         settings: {
           ...(logoUrl && { logoUrl }),
           ...(accentToken && { accentToken }),
           ...(contactChannel && { contactChannel }),
+          ...(referralSource && { referralSource }),
         },
       });
     }
