@@ -25,6 +25,7 @@ export const ID_PREFIXES = [
   'citem',
   'cart',
   'preq',
+  'dpath',
 ] as const;
 
 export type IdPrefix = (typeof ID_PREFIXES)[number];

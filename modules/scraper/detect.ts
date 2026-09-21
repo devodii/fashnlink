@@ -77,6 +77,9 @@ const SIGNAL_DETECTORS: Record<Platform, ((html: string, headers: Headers) => st
   bigcartel: null,
   generic: null,
   manual: null,
+  // Never auto-detected: a store only becomes 'custom' by being provisioned
+  // for the tracking script (actions/stores.ts's ensureTrackingStore).
+  custom: null,
 };
 
 // Salesforce gets a flat high confidence on its single signal
