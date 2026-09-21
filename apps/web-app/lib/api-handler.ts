@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { z } from 'zod';
 
 import { auth } from '@/actions/auth';
-import { createShoppers } from '@/actions/shoppers';
+import { createShoppers, retrieveShoppers, verifyShopperToken } from '@/actions/shoppers';
 import { retrieveMerchants } from '@/actions/merchants';
 import {
   getStoredIdempotentResponse,
@@ -135,6 +135,22 @@ async function resolveAuth(scopes: readonly AuthScope[], req: NextRequest): Prom
     if (scope === 'public') return { type: 'public' };
 
     if (scope === 'shopper_session') {
+      /**
+       * Web (cookie) is tried first, read-only, so a mobile request never
+       * gets a spurious Set-Cookie written on its response. Mobile carries
+       * no cookie, so this always falls through to the Bearer token check;
+       * a fresh visitor with neither falls through to createShoppers(),
+       * which mints one and sets the cookie — unchanged web behavior.
+       */
+      const { shopperId: cookieShopperId } = await retrieveShoppers({ cookieOnly: true });
+      if (cookieShopperId) return { type: 'shopper_session', shopperId: cookieShopperId };
+
+      const authHeader = req.headers.get('authorization');
+      if (authHeader?.startsWith('Bearer ')) {
+        const shopperId = verifyShopperToken(authHeader.slice('Bearer '.length));
+        if (shopperId) return { type: 'shopper_session', shopperId };
+      }
+
       const shopperId = await createShoppers();
       return { type: 'shopper_session', shopperId };
     }

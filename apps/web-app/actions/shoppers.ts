@@ -40,6 +40,23 @@ async function verifiedCookieShopperId(): Promise<string | null> {
   return raw ? verify(raw) : null;
 }
 
+/**
+ * Mobile counterpart to createShoppers(): mints a fresh shopper identity and
+ * hands back the same signed token the web cookie carries, without touching
+ * cookies(). Callers (the /api/mobile/session route) only hit this once, on
+ * first app launch — the client then holds the token itself, so there's no
+ * "existing" cookie to reuse here the way createShoppers() reuses one.
+ */
+export async function createShopperToken(): Promise<{ shopperId: string; token: string }> {
+  const shopperId = newId('shopper');
+  await db.insert(shoppers).values({ id: shopperId, cookieId: shopperId });
+  return { shopperId, token: sign(shopperId) };
+}
+
+export function verifyShopperToken(token: string): string | null {
+  return verify(token);
+}
+
 export async function createShoppers(): Promise<string> {
   const store = await cookies();
   const raw = store.get(COOKIE_NAME)?.value;
