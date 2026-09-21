@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { Form } from '@/components/forms/form';
@@ -20,6 +21,14 @@ const schema = z.object({
   accentToken: z.enum(['1', '2', '3', '4', '5', '6']),
   contactChannel: contactChannelSchema,
 });
+
+async function patchMerchant(body: Record<string, unknown>) {
+  await fetch('/api/merchants/me', {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
 
 export function SettingsForm({
   storeDomain,
@@ -47,30 +56,30 @@ export function SettingsForm({
   const [logoUploading, setLogoUploading] = React.useState(false);
   const contactType = form.watch('contactChannel.type');
 
+  const settingsMutation = useMutation({
+    mutationFn: patchMerchant,
+    onSuccess: () => router.refresh(),
+  });
+
+  const logoMutation = useMutation({
+    mutationFn: (logoUrl: string) => patchMerchant({ logoUrl }),
+    onSuccess: () => router.refresh(),
+  });
+
   async function onSubmit(values: z.infer<typeof schema>) {
-    await fetch('/api/merchants/me', {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        name: values.name,
-        accentToken: values.accentToken,
-        ...(logo && { logoUrl: logo.url }),
-        contactChannel: values.contactChannel,
-      }),
+    await settingsMutation.mutateAsync({
+      name: values.name,
+      accentToken: values.accentToken,
+      ...(logo && { logoUrl: logo.url }),
+      contactChannel: values.contactChannel,
     });
-    router.refresh();
   }
 
-  async function handleLogoUploaded(files: UploadedFile[]) {
+  function handleLogoUploaded(files: UploadedFile[]) {
     const uploaded = files[0];
     if (!uploaded) return;
     setLogo(uploaded);
-    await fetch('/api/merchants/me', {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ logoUrl: uploaded.url }),
-    });
-    router.refresh();
+    logoMutation.mutate(uploaded.url);
   }
 
   return (
