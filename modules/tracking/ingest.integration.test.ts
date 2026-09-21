@@ -1,10 +1,10 @@
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it, vi } from 'vitest';
 import { eq } from 'drizzle-orm';
+import { Experimental_EvaluationMockModelV4 } from 'ai/test';
 import { db } from '@/db';
 import { discoveredPaths, merchants, stores } from '@/db/schema';
 import { newId } from '@/lib/ids';
 import { logger } from '@/lib/log';
-import { ingestDiscoveredPaths } from './ingest';
 import { DISCOVERED_PATHS_MAX_PER_STORE } from '@/constants';
 
 /**
@@ -13,8 +13,40 @@ import { DISCOVERED_PATHS_MAX_PER_STORE } from '@/constants';
  * (lastSeenAt bump instead of duplication), the per-store cap, and origin
  * host learning. No Redis rate-limit-exceeded case here (that's covered by
  * the mocked unit test); a fresh unique token per test never trips the
- * real rate limiter within these runs.
+ * real rate limiter within these runs. Jev itself is mocked, same as
+ * modules/tracking/classify.test.ts and modules/scraper/wearable-gate-jev.test.ts,
+ * so this stays a real-Postgres test without depending on live network/AI access.
  */
+
+type DoEvaluate = NonNullable<
+  NonNullable<ConstructorParameters<typeof Experimental_EvaluationMockModelV4>[0]>['doEvaluate']
+>;
+
+const mockDoEvaluate: ReturnType<typeof vi.fn<DoEvaluate>> = vi.fn((options) => {
+  const state = options.state as { path: string };
+  const probability = /^\/(products?|shop|collections?|p|items?)\//.test(state.path) ? 0.95 : 0.05;
+  return Promise.resolve(jevAnswer(probability));
+});
+
+vi.mock('@/lib/jev', () => ({
+  get jevModel() {
+    return new Experimental_EvaluationMockModelV4({
+      provider: 'typesafe-ai',
+      modelId: 'jev',
+      supportedQuestionTypes: ['boolean'],
+      doEvaluate: (options) => mockDoEvaluate(options),
+    });
+  },
+}));
+
+function jevAnswer(probability: number) {
+  return {
+    answers: { is_product_path: { type: 'boolean' as const, probability } },
+    warnings: [],
+  };
+}
+
+const { ingestDiscoveredPaths } = await import('./ingest');
 
 const SUFFIX = `track-ingest-test-${Date.now()}`;
 let merchantId: string;
