@@ -29,7 +29,14 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ['.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'storybook-static/**'],
+    ignores: [
+      '**/.next/**',
+      'out/**',
+      'build/**',
+      'next-env.d.ts',
+      'storybook-static/**',
+      '.claude/worktrees/**',
+    ],
   },
   ...storybook.configs['flat/recommended'],
 ];
