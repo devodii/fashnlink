@@ -2,5 +2,6 @@
 node_modules
 pnpm-lock.yaml
 db/migrations
+tests/fixtures
 public
 coverage
