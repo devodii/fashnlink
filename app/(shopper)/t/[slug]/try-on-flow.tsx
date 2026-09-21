@@ -491,7 +491,7 @@ export function TryOnFlow({
       data-brand={accentToken ?? undefined}
       className="flex flex-1 flex-col gap-4 py-6 pb-28"
     >
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <LanguagePicker compact />
       </div>
       {preview && (

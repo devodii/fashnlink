@@ -123,7 +123,7 @@ export function GroupFlow({
 
   return (
     <Container size="sm" className="flex flex-1 flex-col gap-4 py-6 pb-10">
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <LanguagePicker compact />
       </div>
       <LanguageSuggestBanner />
