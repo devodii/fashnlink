@@ -17,17 +17,20 @@ export const POST = apiHandler({
     if (store.merchantId)
       return err({ code: 'INVALID_INPUT', message: 'this store is already claimed' });
 
-    await updateStores([store.id], { merchantId: merchant.merchantId });
+    await Promise.all([
+      updateStores([store.id], { merchantId: merchant.merchantId }),
+      updateClaims([store.id], {
+        claimedByMerchantId: merchant.merchantId,
+        status: 'claimed',
+      }),
+    ]);
 
-    await updateClaims([store.id], {
-      claimedByMerchantId: merchant.merchantId,
-      status: 'claimed',
-    });
-
-    const storeProducts = await retrieveProducts({ storeIds: [store.id] });
+    const [storeProducts, demoLinks] = await Promise.all([
+      retrieveProducts({ storeIds: [store.id] }),
+      retrieveLinks({ merchantId: SYSTEM_MERCHANT_ID }),
+    ]);
     const productIds = storeProducts.map((p) => p.id);
     if (productIds.length > 0) {
-      const demoLinks = await retrieveLinks({ merchantId: SYSTEM_MERCHANT_ID });
       const toReassign = demoLinks
         .filter((l) => l.productIds.some((id) => productIds.includes(id)))
         .map((l) => l.id);

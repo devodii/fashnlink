@@ -39,15 +39,14 @@ export const POST = apiHandler({
     const scraped = await scrapeUrlToProduct(body.url, SYSTEM_MERCHANT_ID, ctx);
     if (!scraped.ok) return scraped;
 
-    const [link] = await createLinks([
-      { kind: 'single', merchantId: SYSTEM_MERCHANT_ID, productIds: [scraped.value.productId] },
+    const [[link], [resolvedProduct]] = await Promise.all([
+      createLinks([
+        { kind: 'single', merchantId: SYSTEM_MERCHANT_ID, productIds: [scraped.value.productId] },
+      ]),
+      retrieveProducts({ ids: [scraped.value.productId], withImages: true }),
     ]);
     if (!link) return err({ code: 'INTERNAL', message: 'Failed to create demo link' });
 
-    const [resolvedProduct] = await retrieveProducts({
-      ids: [scraped.value.productId],
-      withImages: true,
-    });
     const images = resolvedProduct?.images ?? [];
     const tryonImage = images.find((i) => i.isTryonSource) ?? images[0] ?? null;
 

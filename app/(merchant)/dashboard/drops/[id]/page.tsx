@@ -12,19 +12,23 @@ import { StatusBadge } from '@/components/status-badge';
 export default async function DropStatusPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const merchant = await requireMerchant();
-  const [campaign] = await retrieveCampaigns({ ids: [id], merchantId: merchant.id });
+
+  // All three only need `id`/`merchant.id`, already known; ownership is
+  // checked below, after all three have resolved.
+  const [[campaign], [withCounts], previewRows] = await Promise.all([
+    retrieveCampaigns({ ids: [id], merchantId: merchant.id }),
+    retrieveCampaigns({ ids: [id], withItemCounts: true }),
+    // Never surfaces the actual shopper render images to the merchant, product titles only.
+    db
+      .select({ productTitle: products.title })
+      .from(campaignItems)
+      .innerJoin(products, eq(products.id, campaignItems.productId))
+      .where(and(eq(campaignItems.campaignId, id), eq(campaignItems.status, 'rendered')))
+      .limit(3),
+  ]);
   if (!campaign) notFound();
 
-  const [withCounts] = await retrieveCampaigns({ ids: [id], withItemCounts: true });
   const counts = withCounts?.itemCounts ?? { pending: 0, rendered: 0, failed: 0, skipped: 0 };
-
-  // Never surfaces the actual shopper render images to the merchant, product titles only.
-  const previewRows = await db
-    .select({ productTitle: products.title })
-    .from(campaignItems)
-    .innerJoin(products, eq(products.id, campaignItems.productId))
-    .where(and(eq(campaignItems.campaignId, id), eq(campaignItems.status, 'rendered')))
-    .limit(3);
 
   return (
     <div className="space-y-8 p-4 md:p-8">
