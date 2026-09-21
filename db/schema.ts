@@ -741,3 +741,4 @@ export type ResolvedMerchant = Merchant;
 export type ResolvedTwin = Twin;
 export type ResolvedShopper = Shopper & { twinId?: string | null; twinUrl?: string | null };
 export type ResolvedGroupMember = GroupMember & { twinUrl?: string | null };
+export type ResolvedRetargetOptin = RetargetOptin & { merchantName?: string | null };

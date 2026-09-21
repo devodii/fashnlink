@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { and, count, eq, isNull } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { requireMerchant } from '@/actions/merchants';
 import { db } from '@/db';
-import { cartEvents, campaignItems, campaigns, espConnections, retargetOptins } from '@/db/schema';
+import { cartEvents, campaignItems, campaigns } from '@/db/schema';
+import { retrieveEspConnections } from '@/actions/esp-connections';
+import { retrieveRetargetOptins } from '@/actions/retarget-optins';
 import { PageHeader } from '@/components/page-header';
 import { Section } from '@/components/section';
 import { KpiRow } from '@/components/kpi-row';
@@ -12,18 +14,11 @@ import { RetargetingForm } from './retargeting-form';
 export default async function RetargetingPage() {
   const merchant = await requireMerchant();
 
-  const [connection] = await db
-    .select()
-    .from(espConnections)
-    .where(eq(espConnections.merchantId, merchant.id))
-    .limit(1);
+  const [connection] = await retrieveEspConnections({ merchantIds: [merchant.id] });
   const settings = (connection?.settings ?? {}) as { abandonedEnabled?: boolean };
 
-  const [[optinCount], [abandonedCount], [dropDeliveredCount]] = await Promise.all([
-    db
-      .select({ n: count() })
-      .from(retargetOptins)
-      .where(and(eq(retargetOptins.merchantId, merchant.id), isNull(retargetOptins.optedOutAt))),
+  const [optins, [abandonedCount], [dropDeliveredCount]] = await Promise.all([
+    retrieveRetargetOptins({ merchantIds: [merchant.id], activeOnly: true }),
     db
       .select({ n: count() })
       .from(cartEvents)
@@ -50,7 +45,7 @@ export default async function RetargetingPage() {
       <Section title="Metrics">
         <KpiRow
           stats={[
-            { label: 'Opted-in shoppers', value: optinCount?.n ?? 0 },
+            { label: 'Opted-in shoppers', value: optins.length },
             { label: 'Abandoned events pushed', value: abandonedCount?.n ?? 0 },
             { label: 'Drop items delivered', value: dropDeliveredCount?.n ?? 0 },
           ]}

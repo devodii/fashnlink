@@ -8,12 +8,10 @@ import { db } from '@/db';
 import {
   account,
   creditLedger,
-  espConnections,
   leads,
   links,
   merchants,
   platformRequests,
-  retargetOptins,
   session,
   stores,
   user,
@@ -21,6 +19,8 @@ import {
 import type { Merchant, Plan } from '@/db/schema';
 import type { ContactChannel } from '@/constants';
 import { auth } from '@/actions/auth';
+import { deleteEspConnections } from '@/actions/esp-connections';
+import { deleteRetargetOptins } from '@/actions/retarget-optins';
 
 export type MerchantSettings = {
   contactChannel?: ContactChannel;
@@ -90,8 +90,8 @@ export async function deleteMerchants(ids: string[]): Promise<Merchant[]> {
   await db.update(stores).set({ merchantId: null }).where(inArray(stores.merchantId, ids));
   await db.delete(leads).where(inArray(leads.merchantId, ids));
   await db.delete(creditLedger).where(inArray(creditLedger.merchantId, ids));
-  await db.delete(espConnections).where(inArray(espConnections.merchantId, ids));
-  await db.delete(retargetOptins).where(inArray(retargetOptins.merchantId, ids));
+  await deleteEspConnections({ merchantIds: ids });
+  await deleteRetargetOptins({ merchantIds: ids });
   await db
     .update(platformRequests)
     .set({ firstMerchantId: null })

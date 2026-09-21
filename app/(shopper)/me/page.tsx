@@ -1,8 +1,9 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '@/db';
-import { links, merchants, products, renders, retargetOptins } from '@/db/schema';
+import { links, merchants, products, renders } from '@/db/schema';
 import { retrieveShoppers } from '@/actions/shoppers';
 import { retrieveTwins } from '@/actions/twins';
+import { retrieveRetargetOptins } from '@/actions/retarget-optins';
 import { Container } from '@/components/container';
 import { EmptyState } from '@/components/empty-state';
 import { ImagesIcon } from '@phosphor-icons/react/ssr';
@@ -49,11 +50,11 @@ export default async function ClosetPage() {
 
   const [shopper] = await retrieveShoppers({ ids: [shopperId] });
 
-  const optins = await db
-    .select({ merchantId: retargetOptins.merchantId, merchantName: merchants.name })
-    .from(retargetOptins)
-    .innerJoin(merchants, eq(retargetOptins.merchantId, merchants.id))
-    .where(and(eq(retargetOptins.shopperId, shopperId), isNull(retargetOptins.optedOutAt)));
+  const optins = await retrieveRetargetOptins({
+    shopperIds: [shopperId],
+    activeOnly: true,
+    withMerchantName: true,
+  });
 
   const withImage = rows.filter((r) => r.outputUrl);
 
@@ -72,7 +73,14 @@ export default async function ClosetPage() {
         twins={shopperTwins}
         hasEmail={!!shopper?.email}
       />
-      {optins.length > 0 && <RetargetOptins merchants={optins} />}
+      {optins.length > 0 && (
+        <RetargetOptins
+          merchants={optins.map((o) => ({
+            merchantId: o.merchantId,
+            merchantName: o.merchantName ?? '',
+          }))}
+        />
+      )}
     </Container>
   );
 }

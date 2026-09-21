@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { and, eq, inArray } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
 import { db } from '@/db';
-import { campaigns, campaignItems, retargetOptins } from '@/db/schema';
+import { campaigns, campaignItems } from '@/db/schema';
 import { ok } from '@/lib/result';
+import { updateRetargetOptins } from '@/actions/retarget-optins';
 
 const bodySchema = z.object({ merchantId: z.string().min(1) });
 
@@ -14,15 +15,9 @@ export const POST = apiHandler({
   handler: async ({ body, shopper }) => {
     const { shopperId } = shopper;
 
-    await db
-      .update(retargetOptins)
-      .set({ optedOutAt: new Date() })
-      .where(
-        and(
-          eq(retargetOptins.shopperId, shopperId),
-          eq(retargetOptins.merchantId, body.merchantId),
-        ),
-      );
+    await updateRetargetOptins([{ shopperId, merchantId: body.merchantId }], {
+      optedOutAt: new Date(),
+    });
 
     const merchantCampaigns = await db
       .select({ id: campaigns.id })

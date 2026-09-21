@@ -2,9 +2,7 @@ import { AdapterRegistry } from '@/lib/adapter';
 import type { Ctx } from '@/lib/adapter';
 import { decrypt } from '@/lib/crypto';
 import { err, type Result } from '@/lib/result';
-import { db } from '@/db';
-import { espConnections } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { retrieveEspConnections } from '@/actions/esp-connections';
 import { klaviyoAdapter } from './adapters/klaviyo';
 import { mailchimpAdapter } from './adapters/mailchimp';
 import type { EspPush, EspPushResult } from './types';
@@ -27,11 +25,7 @@ export async function pushToMerchantEsp(
   push: EspPushWithoutCredentials<EspPush>,
   ctx: Ctx,
 ): Promise<Result<EspPushResult>> {
-  const [connection] = await db
-    .select()
-    .from(espConnections)
-    .where(eq(espConnections.merchantId, merchantId))
-    .limit(1);
+  const [connection] = await retrieveEspConnections({ merchantIds: [merchantId] });
 
   if (!connection || connection.status !== 'active') {
     return err({ code: 'NOT_FOUND', message: 'no active esp connection for this merchant' });

@@ -1,13 +1,15 @@
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
 import { apiHandler } from '@/lib/api-handler';
-import { db } from '@/db';
-import { espConnections, espProviderEnum } from '@/db/schema';
+import { espProviderEnum } from '@/db/schema';
 import { espRegistry } from '@/modules/esp';
-import { newId } from '@/lib/ids';
 import { decrypt, encrypt } from '@/lib/crypto';
 import { err, ok } from '@/lib/result';
 import { childLogger } from '@/lib/log';
+import {
+  createEspConnections,
+  retrieveEspConnections,
+  updateEspConnections,
+} from '@/actions/esp-connections';
 
 const bodySchema = z.object({
   provider: z.enum(espProviderEnum.enumValues),
@@ -26,11 +28,7 @@ export const POST = apiHandler({
   schema: { body: bodySchema.optional(), query: querySchema },
   handler: async ({ body, query, merchant, requestId }) => {
     if (query.test) {
-      const [connection] = await db
-        .select()
-        .from(espConnections)
-        .where(eq(espConnections.merchantId, merchant.merchantId))
-        .limit(1);
+      const [connection] = await retrieveEspConnections({ merchantIds: [merchant.merchantId] });
       if (!connection) return err({ code: 'NOT_FOUND', message: 'no esp connection to test' });
 
       const adapter = espRegistry.get(connection.provider);
@@ -48,54 +46,42 @@ export const POST = apiHandler({
       );
 
       if (!result.ok) {
-        await db
-          .update(espConnections)
-          .set({ status: 'invalid' })
-          .where(eq(espConnections.id, connection.id));
+        await updateEspConnections([connection.id], { status: 'invalid' });
         return result;
       }
 
-      await db
-        .update(espConnections)
-        .set({ status: 'active', lastSyncedAt: new Date() })
-        .where(eq(espConnections.id, connection.id));
+      await updateEspConnections([connection.id], { status: 'active', lastSyncedAt: new Date() });
       return ok({ tested: true });
     }
 
     if (!body) return err({ code: 'INVALID_INPUT', message: 'missing body' });
 
-    const [existing] = await db
-      .select({ id: espConnections.id })
-      .from(espConnections)
-      .where(eq(espConnections.merchantId, merchant.merchantId))
-      .limit(1);
+    const [existing] = await retrieveEspConnections({ merchantIds: [merchant.merchantId] });
 
     const apiKeyEncrypted = encrypt(body.apiKey);
     const settings = { abandonedEnabled: body.abandonedEnabled };
 
     if (existing) {
-      await db
-        .update(espConnections)
-        .set({
-          provider: body.provider,
-          apiKeyEncrypted,
-          listId: body.listId,
-          status: 'active',
-          settings,
-        })
-        .where(eq(espConnections.id, existing.id));
+      await updateEspConnections([existing.id], {
+        provider: body.provider,
+        apiKeyEncrypted,
+        listId: body.listId,
+        status: 'active',
+        settings,
+      });
       return ok({ id: existing.id });
     }
 
-    const id = newId('esp');
-    await db.insert(espConnections).values({
-      id,
-      merchantId: merchant.merchantId,
-      provider: body.provider,
-      apiKeyEncrypted,
-      listId: body.listId,
-      settings,
-    });
-    return ok({ id });
+    const [created] = await createEspConnections([
+      {
+        merchantId: merchant.merchantId,
+        provider: body.provider,
+        apiKeyEncrypted,
+        listId: body.listId,
+        settings,
+      },
+    ]);
+    if (!created) return err({ code: 'INTERNAL', message: 'failed to create esp connection' });
+    return ok({ id: created.id });
   },
 });
