@@ -25,36 +25,39 @@ export default async function ClosetPage() {
     );
   }
 
-  const rows = await db
-    .select({
-      renderId: renders.id,
-      outputUrl: renders.outputUrl,
-      isPublic: renders.isPublic,
-      buyUrl: products.buyUrl,
-      productTitle: products.title,
-      merchantName: merchants.name,
-      createdAt: renders.createdAt,
-    })
-    .from(renders)
-    .innerJoin(products, eq(renders.productId, products.id))
-    .innerJoin(links, eq(renders.linkId, links.id))
-    .innerJoin(merchants, eq(links.merchantId, merchants.id))
-    .where(eq(renders.shopperId, shopperId))
-    .orderBy(desc(renders.createdAt));
+  // All four queries key off `shopperId` alone and don't depend on each
+  // other's results.
+  const [rows, twinRows, [shopper], optins] = await Promise.all([
+    db
+      .select({
+        renderId: renders.id,
+        outputUrl: renders.outputUrl,
+        isPublic: renders.isPublic,
+        buyUrl: products.buyUrl,
+        productTitle: products.title,
+        merchantName: merchants.name,
+        createdAt: renders.createdAt,
+      })
+      .from(renders)
+      .innerJoin(products, eq(renders.productId, products.id))
+      .innerJoin(links, eq(renders.linkId, links.id))
+      .innerJoin(merchants, eq(links.merchantId, merchants.id))
+      .where(eq(renders.shopperId, shopperId))
+      .orderBy(desc(renders.createdAt)),
+    retrieveTwins({ shopperIds: [shopperId] }),
+    retrieveShoppers({ ids: [shopperId] }),
+    retrieveRetargetOptins({
+      shopperIds: [shopperId],
+      activeOnly: true,
+      withMerchantName: true,
+    }),
+  ]);
 
-  const shopperTwins = (await retrieveTwins({ shopperIds: [shopperId] })).map((twin) => ({
+  const shopperTwins = twinRows.map((twin) => ({
     id: twin.id,
     twinUrl: twin.twinUrl,
     isDefault: twin.isDefault,
   }));
-
-  const [shopper] = await retrieveShoppers({ ids: [shopperId] });
-
-  const optins = await retrieveRetargetOptins({
-    shopperIds: [shopperId],
-    activeOnly: true,
-    withMerchantName: true,
-  });
 
   const withImage = rows.filter((r) => r.outputUrl);
 
