@@ -27,7 +27,12 @@ export function NewLinkForm() {
   const router = useRouter();
   const [kind, setKind] = React.useState<Kind>('single');
   const [stage, setStage] = React.useState<'idle' | 'working' | 'error'>('idle');
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setErrorState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setError = (msg: string | null) => {
+    setErrorState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
   const [pollUrls, setPollUrls] = React.useState<string[]>(['', '']);
 
   const singleForm = useZodForm(singleSchema, { defaultValues: { url: '' } });
@@ -169,7 +174,11 @@ export function NewLinkForm() {
       )}
 
       {stage !== 'idle' && <ProgressSteps steps={steps} />}
-      {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
+      {error && (
+        <InlineAlert tone="destructive" resetKey={errorKey}>
+          {error}
+        </InlineAlert>
+      )}
     </div>
   );
 }

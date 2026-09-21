@@ -76,7 +76,12 @@ export function TryOnFlow({
   const [consent, setConsent] = React.useState(false);
   const [ageAttested, setAgeAttested] = React.useState(false);
   const [selfie, setSelfie] = React.useState<UploadedFile | null>(null);
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [errorMessage, setErrorMessageState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setErrorMessage = (msg: string | null) => {
+    setErrorMessageState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
   const [variantSelection, setVariantSelection] = React.useState<Record<string, string>>({});
 
   const [renderId, setRenderId] = React.useState<string | null>(null);
@@ -326,7 +331,9 @@ export function TryOnFlow({
       )}
 
       {(stage === 'blocked' || stage === 'error') && errorMessage && (
-        <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
+        <InlineAlert tone="destructive" resetKey={errorKey}>
+          {errorMessage}
+        </InlineAlert>
       )}
       {stage === 'blocked' && (
         <Button variant="outline" onClick={() => setStage('consent')}>

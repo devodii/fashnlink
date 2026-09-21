@@ -10,7 +10,12 @@ export function QuickDemoForm() {
   const router = useRouter();
   const [url, setUrl] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setErrorState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setError = (msg: string | null) => {
+    setErrorState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -47,7 +52,11 @@ export function QuickDemoForm() {
           See it on you
         </LoadingButton>
       </form>
-      {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
+      {error && (
+        <InlineAlert tone="destructive" resetKey={errorKey}>
+          {error}
+        </InlineAlert>
+      )}
     </div>
   );
 }

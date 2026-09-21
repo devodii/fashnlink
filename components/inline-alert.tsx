@@ -27,6 +27,7 @@ export interface InlineAlertProps {
   children: React.ReactNode;
   dismissible?: boolean;
   className?: string;
+  resetKey?: string | number;
 }
 
 export function InlineAlert({
@@ -35,8 +36,10 @@ export function InlineAlert({
   children,
   dismissible = true,
   className,
+  resetKey,
 }: InlineAlertProps) {
   const [dismissed, setDismissed] = React.useState(false);
+  React.useEffect(() => setDismissed(false), [resetKey]);
   if (dismissed) return null;
 
   const Icon = TONE_ICON[tone];
@@ -50,7 +53,7 @@ export function InlineAlert({
           type="button"
           onClick={() => setDismissed(true)}
           aria-label="Dismiss"
-          className="absolute top-3 right-3 text-current opacity-60 transition-opacity hover:opacity-100"
+          className="absolute top-3 right-3 cursor-pointer text-current opacity-60 transition-opacity hover:opacity-100"
         >
           <XIcon className="size-4" />
         </button>

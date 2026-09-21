@@ -40,6 +40,7 @@ export function RetargetingForm({
     },
   });
   const [testResult, setTestResult] = React.useState<'idle' | 'ok' | 'failed'>('idle');
+  const [testKey, setTestKey] = React.useState(0);
   const [testing, setTesting] = React.useState(false);
 
   async function onSubmit(values: z.infer<typeof schema>) {
@@ -55,6 +56,7 @@ export function RetargetingForm({
     setTesting(true);
     const res = await fetch('/api/merchants/me/esp-connection?test=true', { method: 'POST' });
     setTestResult(res.ok ? 'ok' : 'failed');
+    setTestKey((k) => k + 1);
     setTesting(false);
   }
 
@@ -103,9 +105,15 @@ export function RetargetingForm({
           )}
         </div>
       </Form>
-      {testResult === 'ok' && <InlineAlert tone="success">Test event sent.</InlineAlert>}
+      {testResult === 'ok' && (
+        <InlineAlert tone="success" resetKey={testKey}>
+          Test event sent.
+        </InlineAlert>
+      )}
       {testResult === 'failed' && (
-        <InlineAlert tone="destructive">Test failed, check the API key and try again.</InlineAlert>
+        <InlineAlert tone="destructive" resetKey={testKey}>
+          Test failed, check the API key and try again.
+        </InlineAlert>
       )}
     </div>
   );

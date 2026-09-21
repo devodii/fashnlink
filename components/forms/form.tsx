@@ -49,7 +49,11 @@ export function Form<TValues extends RHF.FieldValues>({
         disabled={form.formState.isSubmitting}
         className="m-0 min-w-0 space-y-4 border-0 p-0"
       >
-        {rootError && <InlineAlert tone="destructive">{rootError}</InlineAlert>}
+        {rootError && (
+          <InlineAlert tone="destructive" resetKey={form.formState.submitCount}>
+            {rootError}
+          </InlineAlert>
+        )}
         {children}
       </fieldset>
     </form>

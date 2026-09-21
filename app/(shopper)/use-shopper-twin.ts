@@ -16,7 +16,12 @@ export type ShopperTwin = { id: string; status: string; twinUrl: string | null }
 export function useShopperTwin(defaultTwin: ShopperTwin | null) {
   const [twin, setTwin] = React.useState<ShopperTwin | null>(defaultTwin);
   const [status, setStatus] = React.useState<'idle' | 'pending' | 'blocked'>('idle');
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [errorMessage, setErrorMessageState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setErrorMessage = (msg: string | null) => {
+    setErrorMessageState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
 
   async function submitSelfie(files: UploadedFile[]) {
     const file = files[0];
@@ -68,5 +73,5 @@ export function useShopperTwin(defaultTwin: ShopperTwin | null) {
     status === 'pending' && twin?.status === 'pending',
   );
 
-  return { twin, status, errorMessage, submitSelfie, reset: () => setStatus('idle') };
+  return { twin, status, errorMessage, errorKey, submitSelfie, reset: () => setStatus('idle') };
 }

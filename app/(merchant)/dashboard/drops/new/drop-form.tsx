@@ -17,7 +17,12 @@ export function DropForm({ products }: { products: { id: string; title: string }
   const router = useRouter();
   const [selected, setSelected] = React.useState<string[]>([]);
   const [estimate, setEstimate] = React.useState<Estimate | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setErrorState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setError = (msg: string | null) => {
+    setErrorState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
   const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
@@ -103,7 +108,11 @@ export function DropForm({ products }: { products: { id: string; title: string }
         </div>
       )}
 
-      {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
+      {error && (
+        <InlineAlert tone="destructive" resetKey={errorKey}>
+          {error}
+        </InlineAlert>
+      )}
 
       <LoadingButton
         onClick={confirm}

@@ -40,10 +40,6 @@ async function verifiedCookieShopperId(): Promise<string | null> {
   return raw ? verify(raw) : null;
 }
 
-// Next.js only allows cookie mutation from a Server Action or Route
-// Handler, not during a Server Component's render; the create path (which
-// may insert a row and set a cookie) is only ever called from those
-// contexts, never from retrieveShoppers, which stays read-only.
 export async function createShoppers(): Promise<string> {
   const store = await cookies();
   const raw = store.get(COOKIE_NAME)?.value;

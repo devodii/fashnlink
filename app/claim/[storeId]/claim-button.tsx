@@ -7,7 +7,12 @@ import { InlineAlert } from '@/components/inline-alert';
 
 export function ClaimButton({ storeId }: { storeId: string }) {
   const router = useRouter();
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setErrorState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setError = (msg: string | null) => {
+    setErrorState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
   const [loading, setLoading] = React.useState(false);
 
   async function handleClaim() {
@@ -32,7 +37,11 @@ export function ClaimButton({ storeId }: { storeId: string }) {
       <Button onClick={handleClaim} disabled={loading}>
         Claim your store
       </Button>
-      {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
+      {error && (
+        <InlineAlert tone="destructive" resetKey={errorKey}>
+          {error}
+        </InlineAlert>
+      )}
     </div>
   );
 }

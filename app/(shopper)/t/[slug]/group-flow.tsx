@@ -39,7 +39,7 @@ export function GroupFlow({
   variantOptions,
   defaultTwin,
 }: GroupFlowProps) {
-  const { twin, status, errorMessage, submitSelfie } = useShopperTwin(defaultTwin);
+  const { twin, status, errorMessage, errorKey, submitSelfie } = useShopperTwin(defaultTwin);
   const [consent, setConsent] = React.useState(false);
   const [ageAttested, setAgeAttested] = React.useState(false);
   const [renderId, setRenderId] = React.useState<string | null>(null);
@@ -186,7 +186,9 @@ export function GroupFlow({
             <p className="text-sm text-muted-foreground">Building your model…</p>
           )}
           {status === 'blocked' && errorMessage && (
-            <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
+            <InlineAlert tone="destructive" resetKey={errorKey}>
+              {errorMessage}
+            </InlineAlert>
           )}
         </div>
       )}

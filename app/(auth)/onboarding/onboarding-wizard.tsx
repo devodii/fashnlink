@@ -82,7 +82,12 @@ function ProductStep({
 }) {
   const form = useZodForm(urlSchema, { defaultValues: { url: '' } });
   const [preview, setPreview] = React.useState<CreatedLink | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  const [error, setErrorState] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+  const setError = (msg: string | null) => {
+    setErrorState(msg);
+    if (msg) setErrorKey((k) => k + 1);
+  };
   const [selectedChip, setSelectedChip] = React.useState<string | null>(null);
   const [notes, setNotes] = React.useState('');
   const somethingElse = selectedChip === 'Something else';
@@ -164,7 +169,11 @@ function ProductStep({
         placeholder="https://yourshop.com/products/linen-shirt"
         description="A product page, an Instagram post, or a checkout link all work."
       />
-      {error && <InlineAlert tone="destructive">{error}</InlineAlert>}
+      {error && (
+        <InlineAlert tone="destructive" resetKey={errorKey}>
+          {error}
+        </InlineAlert>
+      )}
 
       <div className="space-y-2">
         <Label>Or tell us what you use to sell</Label>

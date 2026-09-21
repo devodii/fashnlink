@@ -32,7 +32,7 @@ export function PollVoteView({
   closed,
   defaultTwin,
 }: PollVoteViewProps) {
-  const { twin, status, errorMessage, submitSelfie } = useShopperTwin(defaultTwin);
+  const { twin, status, errorMessage, errorKey, submitSelfie } = useShopperTwin(defaultTwin);
   const [consent, setConsent] = React.useState(false);
   const [ageAttested, setAgeAttested] = React.useState(false);
   const [votes, setVotes] = React.useState<Record<string, number>>({});
@@ -132,7 +132,9 @@ export function PollVoteView({
             <p className="text-sm text-muted-foreground">Building your model…</p>
           )}
           {status === 'blocked' && errorMessage && (
-            <InlineAlert tone="destructive">{errorMessage}</InlineAlert>
+            <InlineAlert tone="destructive" resetKey={errorKey}>
+              {errorMessage}
+            </InlineAlert>
           )}
         </div>
       )}

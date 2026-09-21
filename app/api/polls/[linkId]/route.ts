@@ -35,13 +35,6 @@ const bodySchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('close') }),
 ]);
 
-/**
- * `vote` (shopper) and `close` (merchant, poll owner) have mutually
- * exclusive auth requirements, so `auth` here only widens which scopes are
- * *attempted* (merchant session first, falling back to the always-succeeding
- * shopper session); each branch below still enforces its own exact original
- * requirement rather than trusting the resolved scope.
- */
 export const POST = apiHandler({
   name: 'polls.action',
   auth: ['merchant_session', 'shopper_session'],

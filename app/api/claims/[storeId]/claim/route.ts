@@ -6,12 +6,6 @@ import { claims, links, products, stores } from '@/db/schema';
 import { err, ok } from '@/lib/result';
 import { SYSTEM_MERCHANT_ID } from '@/system-merchant';
 
-/**
- * Only `links` get reassigned to the claiming merchant here; `leads` rows
- * created against those same demo links keep their original merchantId,
- * since retroactively re-attributing leads would credit the claiming
- * merchant with contacts collected before they owned the store.
- */
 export const POST = apiHandler({
   name: 'claims.claim',
   auth: ['merchant_session'],

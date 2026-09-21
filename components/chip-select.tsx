@@ -59,8 +59,8 @@ export function ChipSelect({ options, value, onChange, className, multiple }: Ch
               className={cn(
                 'relative rounded-full border px-3 py-1 text-xs font-medium transition-colors',
                 selected
-                  ? 'border-ring bg-secondary text-foreground'
-                  : 'border-border text-muted-foreground hover:bg-accent',
+                  ? 'border-ring/80 bg-secondary text-foreground'
+                  : 'border-border/50 text-muted-foreground hover:bg-accent',
               )}
             >
               {option.label}
