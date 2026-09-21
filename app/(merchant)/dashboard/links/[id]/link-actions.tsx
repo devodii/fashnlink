@@ -7,6 +7,7 @@ import { SelectField } from '@/components/forms/select-field';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { z } from 'zod';
 
+// todo: generate this using jev based on the scraped product image 
 const GARMENT_CATEGORIES = [
   'top',
   'bottom',

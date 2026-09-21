@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { desc, eq } from 'drizzle-orm';
 import { requireMerchant } from '@/actions/merchants';
 import { db } from '@/db';
-import { products, renders, leads } from '@/db/schema';
+import { renders, leads } from '@/db/schema';
 import { retrieveLinks } from '@/actions/links';
 import { retrieveProducts } from '@/actions/products';
 import { env } from '@/lib/env';
@@ -33,13 +33,10 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
   if (!link || link.merchantId !== merchant.id) notFound();
 
   const productId = link.productIds[0];
-  const [product] = productId
-    ? await db.select().from(products).where(eq(products.id, productId)).limit(1)
-    : [null];
 
-  const [resolvedProduct] = productId
-    ? await retrieveProducts({ ids: [productId], withImages: true })
-    : [];
+  const [resolvedProduct] = await retrieveProducts({ ids: [productId], withImages: true });
+  if (!resolvedProduct) notFound();
+
   const images = resolvedProduct?.images ?? [];
 
   const linkRenders = await db
@@ -61,7 +58,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="space-y-8 p-4 md:p-8">
       <PageHeader
-        title={product?.title ?? link.slug}
+        title={resolvedProduct.title ?? link.slug}
         description="Manage this try-on link."
         actions={<PauseArchiveButtons linkId={link.id} status={link.status} />}
       />
@@ -76,14 +73,14 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
         </Section>
 
         <Section title="Product">
-          {product && (
+          {resolvedProduct && (
             <>
-              <p className="text-sm text-muted-foreground">{product.title}</p>
-              <GarmentCategoryField linkId={link.id} value={product.garmentCategory} />
+              <p className="text-sm text-muted-foreground">{resolvedProduct.title}</p>
+              <GarmentCategoryField linkId={link.id} value={resolvedProduct.garmentCategory} />
               <MediaGrid
                 items={images.map((img) => ({
                   src: img.url,
-                  alt: img.alt ?? product.title,
+                  alt: img.alt ?? resolvedProduct.title,
                   aspect: '3/4' as const,
                 }))}
                 columns={{ base: 3 }}
