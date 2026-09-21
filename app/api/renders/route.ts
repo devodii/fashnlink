@@ -25,17 +25,34 @@ export const POST = apiHandler({
   handler: async ({ body, shopper, requestId }) => {
     const { shopperId } = shopper;
 
-    const [link] = await db
-      .select({
-        id: links.id,
-        merchantId: links.merchantId,
-        status: links.status,
-        kind: links.kind,
-        productIds: links.productIds,
-      })
-      .from(links)
-      .where(eq(links.id, body.linkId))
-      .limit(1);
+    // link, product, and twin each key off a distinct id already present on
+    // `body`/`shopper`, so all three reads can go out together; validation
+    // below runs in the same order as before (link, then product, then the
+    // try-on image, then twin), just against already-resolved data.
+    const [[link], [product], [twin]] = await Promise.all([
+      db
+        .select({
+          id: links.id,
+          merchantId: links.merchantId,
+          status: links.status,
+          kind: links.kind,
+          productIds: links.productIds,
+        })
+        .from(links)
+        .where(eq(links.id, body.linkId))
+        .limit(1),
+      db
+        .select({
+          id: products.id,
+          garmentCategory: products.garmentCategory,
+          eligibility: products.eligibility,
+        })
+        .from(products)
+        .where(eq(products.id, body.productId))
+        .limit(1),
+      retrieveTwins({ ids: [body.twinId], shopperIds: [shopperId] }),
+    ]);
+
     if (!link) return err({ code: 'NOT_FOUND', message: 'link not found' });
     if (link.status !== 'active') {
       return err({ code: 'INVALID_INPUT', message: 'this link is no longer active' });
@@ -50,15 +67,6 @@ export const POST = apiHandler({
       return err({ code: 'INVALID_INPUT', message: 'product is not part of this link' });
     }
 
-    const [product] = await db
-      .select({
-        id: products.id,
-        garmentCategory: products.garmentCategory,
-        eligibility: products.eligibility,
-      })
-      .from(products)
-      .where(eq(products.id, body.productId))
-      .limit(1);
     if (!product) return err({ code: 'NOT_FOUND', message: 'product not found' });
     if (product.eligibility !== 'eligible') {
       return err({ code: 'INVALID_INPUT', message: 'this product is not eligible for try-on' });
@@ -73,7 +81,6 @@ export const POST = apiHandler({
       return err({ code: 'INVALID_INPUT', message: 'product has no usable try-on image' });
     }
 
-    const [twin] = await retrieveTwins({ ids: [body.twinId], shopperIds: [shopperId] });
     if (!twin) return err({ code: 'NOT_FOUND', message: 'twin not found' });
     if (twin.status !== 'ready' || !twin.twinUrl) {
       return err({ code: 'INVALID_INPUT', message: 'twin is not ready yet' });
