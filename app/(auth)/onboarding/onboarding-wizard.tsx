@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
+import * as RHF from 'react-hook-form';
 import { z } from 'zod';
 import { StepWizard, type StepWizardApi } from '@/components/step-wizard';
 import { useZodForm } from '@/hooks/use-zod-form';
@@ -44,10 +45,31 @@ const brandSchema = z.object({
 
 type CreatedLink = { linkId: string; slug: string; productId: string; productTitle: string };
 
+/**
+ * StepWizard only ever mounts the current step (SlideSwitch/AnimatePresence
+ * unmounts the previous one), so every piece of step state lives here at the
+ * wizard level and gets passed down, not created inside the step
+ * components, or it would reset on every Back/Next.
+ */
 export function OnboardingWizard({ appUrl }: { appUrl: string }) {
   const router = useRouter();
   const [created, setCreated] = React.useState<CreatedLink | null>(null);
   const [logo, setLogo] = React.useState<UploadedFile | null>(null);
+
+  const productForm = useZodForm(urlSchema, { defaultValues: { url: '' } });
+  const [productPreview, setProductPreview] = React.useState<CreatedLink | null>(null);
+  const [productChip, setProductChip] = React.useState<string | null>(null);
+  const [productNotes, setProductNotes] = React.useState('');
+
+  const brandForm = useZodForm<z.infer<typeof brandSchema>>(brandSchema, {
+    defaultValues: {
+      name: '',
+      accentToken: '1',
+      contactChannel: { type: 'whatsapp', value: '' },
+    },
+  });
+  const [referral, setReferral] = React.useState<string | null>(null);
+  const [referralOther, setReferralOther] = React.useState('');
 
   return (
     <StepWizard
@@ -58,16 +80,32 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
           render: (api) => (
             <ProductStep
               api={api}
-              onCreated={(link) => {
-                setCreated(link);
-              }}
+              form={productForm}
+              preview={productPreview}
+              onPreview={setProductPreview}
+              selectedChip={productChip}
+              onSelectedChip={setProductChip}
+              notes={productNotes}
+              onNotes={setProductNotes}
+              onCreated={setCreated}
             />
           ),
         },
         {
           id: 'brand',
           title: 'How shoppers reach you',
-          render: (api) => <BrandStep api={api} logo={logo} onLogo={setLogo} />,
+          render: (api) => (
+            <BrandStep
+              api={api}
+              form={brandForm}
+              logo={logo}
+              onLogo={setLogo}
+              referral={referral}
+              onReferral={setReferral}
+              referralOther={referralOther}
+              onReferralOther={setReferralOther}
+            />
+          ),
         },
         {
           id: 'link',
@@ -83,21 +121,31 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
 
 function ProductStep({
   api,
+  form,
+  preview,
+  onPreview,
+  selectedChip,
+  onSelectedChip,
+  notes,
+  onNotes,
   onCreated,
 }: {
   api: StepWizardApi;
+  form: RHF.UseFormReturn<z.infer<typeof urlSchema>>;
+  preview: CreatedLink | null;
+  onPreview: (link: CreatedLink | null) => void;
+  selectedChip: string | null;
+  onSelectedChip: (chip: string | null) => void;
+  notes: string;
+  onNotes: (notes: string) => void;
   onCreated: (link: CreatedLink) => void;
 }) {
-  const form = useZodForm(urlSchema, { defaultValues: { url: '' } });
-  const [preview, setPreview] = React.useState<CreatedLink | null>(null);
   const [error, setErrorState] = React.useState<string | null>(null);
   const [errorKey, setErrorKey] = React.useState(0);
   const setError = (msg: string | null) => {
     setErrorState(msg);
     if (msg) setErrorKey((k) => k + 1);
   };
-  const [selectedChip, setSelectedChip] = React.useState<string | null>(null);
-  const [notes, setNotes] = React.useState('');
   const somethingElse = selectedChip === 'Something else';
 
   const createLinkMutation = useMutation({
@@ -132,7 +180,7 @@ function ProductStep({
         if (!valid) return false;
         try {
           const json = await createLinkMutation.mutateAsync(url);
-          setPreview(json);
+          onPreview(json);
         } catch (err) {
           setError(err instanceof Error ? err.message : "We couldn't read that page.");
         }
@@ -165,7 +213,7 @@ function ProductStep({
           <p className="font-medium text-foreground">{preview.productTitle}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setPreview(null)}>
+          <Button variant="outline" onClick={() => onPreview(null)}>
             That&apos;s not right
           </Button>
           <Button
@@ -198,7 +246,7 @@ function ProductStep({
 
       <div className="space-y-2">
         <Label>Or tell us what you use to sell</Label>
-        <ChipSelect options={PLATFORM_CHIPS} value={selectedChip} onChange={setSelectedChip} />
+        <ChipSelect options={PLATFORM_CHIPS} value={selectedChip} onChange={onSelectedChip} />
       </div>
 
       {somethingElse && (
@@ -208,7 +256,7 @@ function ProductStep({
             id="platform-notes"
             placeholder="yourshop.com"
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => onNotes(e.target.value)}
           />
         </div>
       )}
@@ -218,23 +266,24 @@ function ProductStep({
 
 function BrandStep({
   api,
+  form,
   logo,
   onLogo,
+  referral,
+  onReferral,
+  referralOther,
+  onReferralOther,
 }: {
   api: StepWizardApi;
+  form: RHF.UseFormReturn<z.infer<typeof brandSchema>>;
   logo: UploadedFile | null;
   onLogo: (file: UploadedFile | null) => void;
+  referral: string | null;
+  onReferral: (referral: string | null) => void;
+  referralOther: string;
+  onReferralOther: (value: string) => void;
 }) {
-  const form = useZodForm<z.infer<typeof brandSchema>>(brandSchema, {
-    defaultValues: {
-      name: '',
-      accentToken: '1',
-      contactChannel: { type: 'whatsapp', value: '' },
-    },
-  });
   const contactType = form.watch('contactChannel.type');
-  const [referral, setReferral] = React.useState<string | null>(null);
-  const [referralOther, setReferralOther] = React.useState('');
   const [referralError, setReferralError] = React.useState<string | null>(null);
   const [referralErrorKey, setReferralErrorKey] = React.useState(0);
   const referralIsOther = referral === 'Something else';
@@ -324,7 +373,7 @@ function BrandStep({
 
       <div className="space-y-2">
         <Label>How did you hear about us?</Label>
-        <ChipSelect options={REFERRAL_CHIPS} value={referral} onChange={setReferral} />
+        <ChipSelect options={REFERRAL_CHIPS} value={referral} onChange={onReferral} />
       </div>
 
       {referralIsOther && (
@@ -334,7 +383,7 @@ function BrandStep({
             id="referral-other"
             placeholder="A podcast, a newsletter, ..."
             value={referralOther}
-            onChange={(e) => setReferralOther(e.target.value)}
+            onChange={(e) => onReferralOther(e.target.value)}
           />
         </div>
       )}
