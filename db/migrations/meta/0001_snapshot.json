@@ -1,5 +1,5 @@
 {
-  "id": "113889b7-a2d0-40c9-aa9b-13621f7e58c6",
+  "id": "52afb915-4782-479b-8307-3c50921d1aa1",
   "prevId": "9f98f3a0-e738-4274-8ceb-032c41f08c72",
   "version": "7",
   "dialect": "postgresql",
@@ -3293,7 +3293,6 @@
         "lemonsqueezy",
         "gumroad",
         "bigcartel",
-        "ebay",
         "jumia",
         "generic",
         "manual"

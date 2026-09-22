@@ -19,7 +19,6 @@ import { salesforceAdapter } from './adapters/salesforce';
 import { lemonsqueezyAdapter } from './adapters/lemonsqueezy';
 import { gumroadAdapter } from './adapters/gumroad';
 import { bigcartelAdapter } from './adapters/bigcartel';
-import { ebayAdapter } from './adapters/ebay';
 import { jumiaAdapter } from './adapters/jumia';
 import { genericAdapter } from './adapters/generic';
 import { manualAdapter } from './adapters/manual';
@@ -42,7 +41,6 @@ export const scraperRegistry = new ScraperRegistry([
   lemonsqueezyAdapter,
   gumroadAdapter,
   bigcartelAdapter,
-  ebayAdapter,
   jumiaAdapter,
   genericAdapter,
   manualAdapter,
