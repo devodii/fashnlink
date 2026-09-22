@@ -37,6 +37,8 @@ export const platformEnum = pgEnum('platform', [
   'lemonsqueezy',
   'gumroad',
   'bigcartel',
+  'ebay',
+  'jumia',
   'generic',
   'manual',
 ]);

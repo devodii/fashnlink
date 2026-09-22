@@ -75,6 +75,8 @@ const SIGNAL_DETECTORS: Record<Platform, ((html: string, headers: Headers) => st
   lemonsqueezy: null, // hostPatterns-only, no browsable homepage at all
   gumroad: null,
   bigcartel: null,
+  ebay: null,
+  jumia: null,
   generic: null,
   manual: null,
 };
