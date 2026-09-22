@@ -1,18 +1,17 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { InlineAlert } from '@/components/inline-alert';
 import { ImageReveal } from '@/components/image-reveal';
 import { VariantPicker, type VariantOption } from '@/components/variant-picker';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
 import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
-import { ShareSheet } from '@/components/share-sheet';
 import { Container } from '@/components/container';
 import { SplitPane } from '@/components/split-pane';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,7 +19,6 @@ import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useIsDesktop } from '@/hooks/use-media-query';
 import { formatPriceCents } from '@/lib/util';
-import type { ContactChannel } from '@/constants';
 
 type Twin = { id: string; status: string; twinUrl: string | null };
 
@@ -30,9 +28,7 @@ export interface TryOnFlowProps {
   productTitle: string;
   priceCents: number | null;
   currency: string | null;
-  buyUrl: string | null;
   merchantName: string;
-  contactChannel: ContactChannel | null;
   accentToken: string | null;
   productImageUrl: string | null;
   variantOptions: VariantOption[];
@@ -41,20 +37,11 @@ export interface TryOnFlowProps {
   preview: boolean;
 }
 
-type Stage =
-  'idle' | 'consent' | 'twin-pending' | 'render-pending' | 'result' | 'blocked' | 'error';
-
-function contactHref(
-  channel: ContactChannel | null,
-  productTitle: string,
-  pageUrl: string,
-): string | null {
-  if (!channel) return null;
-  const text = encodeURIComponent(`Hi! I'm interested in ${productTitle}: ${pageUrl}`);
-  if (channel.type === 'whatsapp') return `https://wa.me/${channel.value}?text=${text}`;
-  if (channel.type === 'instagram') return `https://ig.me/m/${channel.value}`;
-  return `mailto:${channel.value}?subject=${encodeURIComponent(productTitle)}`;
-}
+// No 'result' stage: on success this flow navigates to /r/[renderId]
+// instead (see the render-status poller below), which is the one place a
+// completed render actually renders — keyed by render, not by
+// shopper+link, so a refresh there always shows this exact generation.
+type Stage = 'idle' | 'consent' | 'twin-pending' | 'render-pending' | 'blocked' | 'error';
 
 export function TryOnFlow({
   linkId,
@@ -62,9 +49,7 @@ export function TryOnFlow({
   productTitle,
   priceCents,
   currency,
-  buyUrl,
   merchantName,
-  contactChannel,
   accentToken,
   productImageUrl,
   variantOptions,
@@ -72,6 +57,7 @@ export function TryOnFlow({
   viaRenderId,
   preview,
 }: TryOnFlowProps) {
+  const router = useRouter();
   const [stage, setStage] = React.useState<Stage>('idle');
   const [twin, setTwin] = React.useState<Twin | null>(defaultTwin);
   const [consent, setConsent] = React.useState(false);
@@ -86,14 +72,6 @@ export function TryOnFlow({
   const [variantSelection, setVariantSelection] = React.useState<Record<string, string>>({});
 
   const [renderId, setRenderId] = React.useState<string | null>(null);
-  const [renderOutputUrl, setRenderOutputUrl] = React.useState<string | null>(null);
-  const [, setRenderCount] = React.useState(0);
-
-  const [showEmailGate, setShowEmailGate] = React.useState(false);
-  const [emailSkippedOnce, setEmailSkippedOnce] = React.useState(false);
-  const [email, setEmail] = React.useState('');
-  const [hasEmail, setHasEmail] = React.useState(false);
-  const [retargetOptIn, setRetargetOptIn] = React.useState(false);
 
   const attributionMutation = useMutation({
     mutationFn: (renderId: string) =>
@@ -150,7 +128,6 @@ export function TryOnFlow({
     try {
       const json = await renderMutation.mutateAsync(twinId);
       setRenderId(json.renderId);
-      setRenderOutputUrl(null);
     } catch (err) {
       setErrorMessage(
         err instanceof Error ? err.message : 'Something went wrong. Please try again.',
@@ -245,13 +222,10 @@ export function TryOnFlow({
       if (!res.ok) return false;
       const json = await res.json();
       if (json.status === 'succeeded' && json.outputUrl) {
-        setRenderOutputUrl(json.outputUrl);
-        setStage('result');
-        setRenderCount((n) => {
-          const next = n + 1;
-          if (next >= 3 && !hasEmail && !emailSkippedOnce) setShowEmailGate(true);
-          return next;
-        });
+        // Move to a URL keyed by this render, not by shopper+link, so a
+        // refresh always shows exactly this result and never risks showing
+        // a different shopper's (or an older) generation by default.
+        router.replace(`/r/${renderId}`);
         return false;
       }
       if (json.status === 'failed' || json.status === 'blocked') {
@@ -263,35 +237,6 @@ export function TryOnFlow({
     2000,
     stage === 'render-pending' && !!renderId,
   );
-
-  const leadMutation = useMutation({
-    mutationFn: (vars: { email: string; renderId: string; retargetOptIn: boolean }) =>
-      fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(vars),
-      }),
-    onSettled: () => {
-      setHasEmail(true);
-      setShowEmailGate(false);
-    },
-  });
-
-  function handleEmailGateSubmit() {
-    if (!renderId || !email) return;
-    leadMutation.mutate({ email, renderId, retargetOptIn });
-  }
-
-  async function handleBuyClick() {
-    if (renderId) {
-      fetch(`/api/renders/${renderId}`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ event: 'buy_click' }),
-      }).catch(() => {});
-    }
-    if (buyUrl) window.open(buyUrl, '_blank', 'noopener,noreferrer');
-  }
 
   const steps: ProgressStep[] = [
     {
@@ -309,21 +254,19 @@ export function TryOnFlow({
     },
     {
       label: 'Dressing you',
-      state: stage === 'render-pending' ? 'active' : stage === 'result' ? 'done' : 'pending',
+      state: stage === 'render-pending' ? 'active' : 'pending',
     },
   ];
 
-  const pageUrl = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
-  const messageHref = contactHref(contactChannel, productTitle, pageUrl);
   const price = formatPriceCents(priceCents, currency);
   const isDesktop = useIsDesktop();
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
-  const dialogOpen = !isDesktop && stage !== 'idle' && stage !== 'result';
+  const dialogOpen = !isDesktop && stage !== 'idle';
 
   function handleDialogOpenChange(open: boolean) {
-    if (open || stage === 'result') return;
+    if (open) return;
     setStage('idle');
     setSelfie(null);
     setErrorMessage(null);
@@ -385,89 +328,9 @@ export function TryOnFlow({
     </div>
   );
 
-  const resultActions = stage === 'result' && renderOutputUrl && (
-    <div className="flex flex-wrap items-center gap-2">
-      <ShareSheet
-        title={`See it on you at ${merchantName}`}
-        url={renderId ? `${window.location.origin}/r/${renderId}` : pageUrl}
-        onShare={() => {
-          if (renderId)
-            fetch(`/api/renders/${renderId}`, {
-              method: 'POST',
-              headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({ event: 'share' }),
-            }).catch(() => {});
-        }}
-      />
-      {messageHref && (
-        <Button variant="outline" asChild>
-          <a href={messageHref} target="_blank" rel="noopener noreferrer">
-            Message the shop
-          </a>
-        </Button>
-      )}
-      {buyUrl && (
-        <Button variant="outline" onClick={handleBuyClick}>
-          Buy
-        </Button>
-      )}
-      <Button
-        variant="ghost"
-        onClick={() => {
-          setStage('idle');
-          setRenderId(null);
-          setRenderOutputUrl(null);
-        }}
-      >
-        Try another look
-      </Button>
-    </div>
-  );
-
-  const emailGate = showEmailGate && (
-    <div className="space-y-3 rounded-md border border-border bg-card p-4">
-      <p className="text-sm font-medium text-foreground">Save your looks</p>
-      <Input
-        type="email"
-        placeholder="you@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <div className="flex items-start gap-2">
-        <Checkbox
-          id="retarget-opt-in"
-          checked={retargetOptIn}
-          onCheckedChange={(v) => setRetargetOptIn(v === true)}
-        />
-        <Label htmlFor="retarget-opt-in" className="text-sm leading-snug font-normal">
-          Send me looks from {merchantName} using my photo. Unsubscribe anytime.
-        </Label>
-      </div>
-      <div className="flex gap-2">
-        <Button onClick={handleEmailGateSubmit} disabled={!email}>
-          Save
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={() => {
-            setEmailSkippedOnce(true);
-            setShowEmailGate(false);
-          }}
-        >
-          Skip
-        </Button>
-      </div>
-    </div>
-  );
-
   const productImage = (
     <div className="flex flex-col gap-4">
-      <ImageReveal
-        from={productImageUrl ?? ''}
-        to={stage === 'result' ? renderOutputUrl : null}
-        alt={productTitle}
-        zoomable
-      />
+      <ImageReveal from={productImageUrl ?? ''} to={null} alt={productTitle} zoomable />
       {variantOptions.length > 0 && (
         <VariantPicker
           options={variantOptions}
@@ -537,8 +400,6 @@ export function TryOnFlow({
               )}
 
               {flowStageContent}
-              {resultActions}
-              {emailGate}
             </div>
           }
         />
@@ -574,9 +435,6 @@ export function TryOnFlow({
       >
         {flowStageContent}
       </ResponsiveDialog>
-
-      {resultActions}
-      {emailGate}
 
       {stage === 'idle' && (
         <div className="fixed inset-x-0 bottom-0 border-t border-border bg-background p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">

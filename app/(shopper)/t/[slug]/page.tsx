@@ -150,9 +150,7 @@ export default async function LinkPage({
       productTitle={product.title}
       priceCents={product.priceCents}
       currency={product.currency}
-      buyUrl={product.buyUrl}
       merchantName={merchant?.name ?? 'This shop'}
-      contactChannel={settings.contactChannel ?? null}
       accentToken={settings.accentToken ?? null}
       productImageUrl={tryonImage?.url ?? null}
       variantOptions={variantOptions}

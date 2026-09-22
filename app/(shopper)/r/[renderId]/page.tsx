@@ -4,20 +4,29 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { links, merchants, products, renders } from '@/db/schema';
+import type { MerchantSettings } from '@/actions/merchants';
+import { retrieveShoppers } from '@/actions/shoppers';
+import { retrieveLeads } from '@/actions/leads';
 import { publicUrl } from '@/lib/env';
 import { formatPriceCents } from '@/lib/util';
 import { Container } from '@/components/container';
 import { Button } from '@/components/ui/button';
+import type { ContactChannel } from '@/constants';
+import { OwnRenderResult } from './owner-result';
 
 async function loadRender(renderId: string) {
   const [row] = await db
     .select({
+      shopperId: renders.shopperId,
       outputUrl: renders.outputUrl,
       isPublic: renders.isPublic,
+      merchantId: links.merchantId,
+      merchantName: merchants.name,
+      merchantSettings: merchants.settings,
       productTitle: products.title,
       priceCents: products.priceCents,
       currency: products.currency,
-      merchantName: merchants.name,
+      buyUrl: products.buyUrl,
       slug: links.slug,
     })
     .from(renders)
@@ -27,6 +36,18 @@ async function loadRender(renderId: string) {
     .where(eq(renders.id, renderId))
     .limit(1);
   return row;
+}
+
+function contactHref(
+  channel: ContactChannel | null,
+  productTitle: string,
+  pageUrl: string,
+): string | null {
+  if (!channel) return null;
+  const text = encodeURIComponent(`Hi! I'm interested in ${productTitle}: ${pageUrl}`);
+  if (channel.type === 'whatsapp') return `https://wa.me/${channel.value}?text=${text}`;
+  if (channel.type === 'instagram') return `https://ig.me/m/${channel.value}`;
+  return `mailto:${channel.value}?subject=${encodeURIComponent(productTitle)}`;
 }
 
 export async function generateMetadata({
@@ -53,10 +74,34 @@ export default async function SharedRenderPage({
   params: Promise<{ renderId: string }>;
 }) {
   const { renderId } = await params;
-  const row = await loadRender(renderId);
+  const [row, { shopperId }] = await Promise.all([
+    loadRender(renderId),
+    retrieveShoppers({ cookieOnly: true }),
+  ]);
   if (!row || !row.outputUrl || !row.isPublic) notFound();
 
   const price = formatPriceCents(row.priceCents, row.currency);
+  const isOwner = !!shopperId && shopperId === row.shopperId;
+
+  if (isOwner) {
+    const settings = (row.merchantSettings ?? {}) as MerchantSettings;
+    const pageUrl = `${publicUrl}/r/${renderId}`;
+    const [existingLead] = await retrieveLeads({ merchantId: row.merchantId, shopperId });
+
+    return (
+      <OwnRenderResult
+        renderId={renderId}
+        slug={row.slug}
+        merchantName={row.merchantName}
+        productTitle={row.productTitle}
+        price={price}
+        outputUrl={row.outputUrl}
+        buyUrl={row.buyUrl}
+        messageHref={contactHref(settings.contactChannel ?? null, row.productTitle, pageUrl)}
+        showEmailGate={!existingLead}
+      />
+    );
+  }
 
   return (
     <Container size="sm" className="flex flex-1 flex-col gap-4 py-6">
