@@ -13,6 +13,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="t/[slug]" options={{ title: '' }} />
           <Stack.Screen name="r/[renderId]" options={{ title: '' }} />
+          <Stack.Screen name="p/[slug]" options={{ title: '' }} />
         </Stack>
         <StatusBar style="auto" />
       </AppQueryProvider>

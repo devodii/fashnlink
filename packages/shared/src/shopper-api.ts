@@ -98,3 +98,27 @@ export const sharedRenderResponseSchema = z.object({
   slug: z.string(),
 });
 export type SharedRenderResponse = z.infer<typeof sharedRenderResponseSchema>;
+
+export const pollOptionSchema = z.object({
+  productId: z.string(),
+  productTitle: z.string(),
+  renderId: z.string(),
+  imageUrl: z.string(),
+});
+export type PollOption = z.infer<typeof pollOptionSchema>;
+
+export const pollDetailResponseSchema = z.object({
+  linkId: z.string(),
+  merchantName: z.string(),
+  options: z.array(pollOptionSchema),
+  closed: z.boolean(),
+  defaultTwin: shopperTwinSchema.nullable(),
+});
+export type PollDetailResponse = z.infer<typeof pollDetailResponseSchema>;
+
+export const pollStateResponseSchema = z.object({
+  closed: z.boolean(),
+  votesByRenderId: z.record(z.string(), z.number()),
+  totalVotes: z.number(),
+});
+export type PollStateResponse = z.infer<typeof pollStateResponseSchema>;

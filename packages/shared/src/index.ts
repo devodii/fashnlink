@@ -23,6 +23,9 @@ export {
   closetItemSchema,
   closetResponseSchema,
   sharedRenderResponseSchema,
+  pollOptionSchema,
+  pollDetailResponseSchema,
+  pollStateResponseSchema,
 } from './shopper-api';
 export type {
   ContactChannel,
@@ -34,4 +37,7 @@ export type {
   ClosetItem,
   ClosetResponse,
   SharedRenderResponse,
+  PollOption,
+  PollDetailResponse,
+  PollStateResponse,
 } from './shopper-api';
