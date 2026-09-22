@@ -1,19 +1,31 @@
 import { createCheckoutPageAdapter } from '../shared/checkout-page-adapter';
 
-// UNVERIFIED against live markup. Every ebay.* domain (18 country TLDs
-// checked) returned an Akamai edge 403 in this environment for every
-// request, including the bare homepage, via a plain fetch, a fetch with a
-// full realistic Chrome header set, and a real headless-Chromium browser
-// executing JS — this sandbox's outbound IP is a Proton VPN exit node,
-// which Akamai's bot-management IP reputation list evidently blocks
-// outright. eBay's own robots.txt also states: "Automated scraping,
-// buy-for-me agents, LLM-driven bots, or any end-to-end flow that attempts
-// to place orders without human review is strictly prohibited... Approved
-// enterprise integrations must use our official API." No archived capture
-// of any eBay /itm/ listing turned up on the Wayback Machine either (unlike
-// Jumia's product pages, eBay's aren't crawled/archived there). Per the
-// task brief, this is reported honestly rather than worked around with a
-// hand-written fixture: there is no fixture or test file for this adapter.
+// UNVERIFIED against live markup, deliberately left that way — this is a
+// policy decision, not a limitation of time or tooling.
+//
+// Every ebay.* domain (18 country TLDs checked) returns an Akamai edge 403,
+// including the bare homepage. Initially this looked IP-reputation-based
+// (the sandbox's egress was a VPN exit node at the time), but that's been
+// ruled out: after switching to a normal residential/ISP IP, eBay still
+// returns 403, still from `server: AkamaiGHost`, still setting real Akamai
+// Bot Manager session cookies (`bm_s`/`bm_so`) on the response — i.e. this
+// is Akamai fingerprinting the request itself (TLS/HTTP client shape), not
+// blocking the source IP. A plain fetch or curl will not get past this
+// regardless of where it runs from, short of mimicking a real browser's
+// TLS/JS fingerprint closely enough to fool Bot Manager.
+//
+// That bypass was deliberately not attempted: eBay's own robots.txt states
+// "Automated scraping, buy-for-me agents, LLM-driven bots, or any
+// end-to-end flow that attempts to place orders without human review is
+// strictly prohibited... Approved enterprise integrations must use our
+// official API." Fingerprint-spoofing around Bot Manager to get past that
+// is exactly the kind of automated access it's asking not to happen, so
+// this is left blocked on purpose rather than worked around.
+//
+// No archived capture of any eBay /itm/ listing turned up on the Wayback
+// Machine either (unlike Jumia's product pages, eBay's aren't
+// crawled/archived there), so there was never a legitimate real fixture
+// available. There is no fixture or test file for this adapter.
 // createCheckoutPageAdapter is used here as the standard default for a
 // host-pattern-routed external marketplace (see bigcartel.ts/gumroad.ts),
 // not because eBay's JSON-LD/OG shape has been confirmed to fit it.
