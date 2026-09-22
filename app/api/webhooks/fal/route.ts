@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import sharp from 'sharp';
 import { apiHandler } from '@/lib/api-handler';
 import { env } from '@/lib/env';
 import { db } from '@/db';
-import { campaignItems, campaigns, links, merchants, renders } from '@/db/schema';
+import { campaignItems, campaigns, links, renders } from '@/db/schema';
 import { retrieveTwins, updateTwins } from '@/actions/twins';
 import { retrieveRenders } from '@/actions/renders';
 import { childLogger } from '@/lib/log';
@@ -153,32 +152,8 @@ export const POST = apiHandler({
       return ok({ handled: true });
     }
 
-    const [imageResponse, [merchant]] = await Promise.all([
-      ctx.fetch(parsed.value.imageUrl),
-      db
-        .select({ watermarkEnabled: merchants.watermarkEnabled })
-        .from(merchants)
-        .where(eq(merchants.id, merchantId as string))
-        .limit(1),
-    ]);
-    let bytes = Buffer.from(await imageResponse.arrayBuffer());
-    const watermarked = merchant?.watermarkEnabled ?? true;
-
-    if (watermarked) {
-      /**
-       * This is a server-side sharp raster composite, not a Tailwind class,
-       * so it can't reference CSS variables; sharp needs literal color
-       * values baked into the SVG string.
-       */
-      const metadata = await sharp(bytes).metadata();
-      const width = metadata.width ?? 1024;
-      const height = metadata.height ?? 1024;
-      const scrimHeight = Math.round(height * 0.06);
-      const svg = `<svg width="${width}" height="${height}"><rect x="0" y="${height - scrimHeight}" width="${width}" height="${scrimHeight}" fill="black" fill-opacity="0.4"/><text x="${width - 12}" y="${height - scrimHeight / 2 + 5}" text-anchor="end" font-size="${Math.round(scrimHeight * 0.5)}" fill="white" fill-opacity="0.9" font-family="sans-serif">try it on you</text></svg>`;
-      bytes = await sharp(bytes)
-        .composite([{ input: Buffer.from(svg), top: 0, left: 0 }])
-        .toBuffer();
-    }
+    const imageResponse = await ctx.fetch(parsed.value.imageUrl);
+    const bytes = Buffer.from(await imageResponse.arrayBuffer());
 
     const key = `renders/${render.shopperId}/${render.id}.png`;
     const uploaded = await putObject(key, bytes, 'image/png');
@@ -189,7 +164,9 @@ export const POST = apiHandler({
         status: 'succeeded',
         outputR2Key: uploaded.key,
         outputUrl: uploaded.url,
-        watermarked,
+        // Watermark generation is off for now; see merchants.watermarkEnabled
+        // for the plan-gated setting this used to read.
+        watermarked: false,
         costCents: PROVIDER_COST_CENTS[render.provider as ProviderKey],
         latencyMs: render.createdAt ? Date.now() - render.createdAt.getTime() : null,
       })
