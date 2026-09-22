@@ -9,7 +9,11 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppQueryProvider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="t/[slug]" options={{ title: '' }} />
+          <Stack.Screen name="r/[renderId]" options={{ title: '' }} />
+        </Stack>
         <StatusBar style="auto" />
       </AppQueryProvider>
     </GestureHandlerRootView>

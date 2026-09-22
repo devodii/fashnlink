@@ -15,21 +15,23 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@tryonlink/shared": "workspace:*",
     "@expo/metro-runtime": "~57.0.16",
-    "@react-native/normalize-colors": "0.86.3",
     "@gorhom/bottom-sheet": "^5.2.6",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native/normalize-colors": "0.86.3",
     "@rn-primitives/avatar": "^1.5.2",
     "@rn-primitives/checkbox": "^1.5.2",
     "@rn-primitives/progress": "^1.5.2",
     "@rn-primitives/separator": "^1.5.2",
     "@rn-primitives/slot": "^1.5.2",
     "@tanstack/react-query": "^5.90.8",
+    "@tryonlink/shared": "workspace:*",
+    "@uploadthing/expo": "7.2.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "expo": "~57.0.24",
     "expo-constants": "~57.0.19",
+    "expo-document-picker": "~57.0.2",
     "expo-font": "~57.0.4",
     "expo-image": "~57.0.5",
     "expo-image-picker": "~57.0.17",
@@ -54,7 +56,8 @@
     "react-native-svg": "15.15.4",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.10.1",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "uploadthing": "^7.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
