@@ -19,6 +19,7 @@ import { salesforceAdapter } from './adapters/salesforce';
 import { lemonsqueezyAdapter } from './adapters/lemonsqueezy';
 import { gumroadAdapter } from './adapters/gumroad';
 import { bigcartelAdapter } from './adapters/bigcartel';
+import { jumiaAdapter } from './adapters/jumia';
 import { genericAdapter } from './adapters/generic';
 import { manualAdapter } from './adapters/manual';
 import { assessWearability } from './wearable-gate';
@@ -40,6 +41,7 @@ export const scraperRegistry = new ScraperRegistry([
   lemonsqueezyAdapter,
   gumroadAdapter,
   bigcartelAdapter,
+  jumiaAdapter,
   genericAdapter,
   manualAdapter,
 ]);
