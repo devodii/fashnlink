@@ -7,13 +7,18 @@ import { extractJsonLdBlocks } from '../shared/jsonld';
 import { extractMetaTags, extractTitleTag } from '../shared/opengraph';
 import { parsePriceStringToCents, toAbsoluteUrl } from '@/lib/util';
 
-// Confirmed against 2 real Jumia Nigeria product pages (see jumia.test.ts):
-// the JSON-LD Product lives at `ItemPage.mainEntity`, not at the block's top
-// level or inside an `@graph` array, so shared/jsonld.ts's findProduct()
-// never sees it; its images are `ImageObject.contentUrl` (an array), not the
-// `.url` shape jsonLdImages() reads. There's also no og:price/product:price
-// meta tag at all, so shared/product-page.ts's OG fallback can't recover
-// price either. Both gaps are why this is a bespoke adapter instead of
+// Confirmed against 4 real Jumia Nigeria product-page captures of the same
+// 2 listings (see jumia.test.ts): a Jan 2026 Wayback Machine capture of each
+// nests the JSON-LD Product at `ItemPage.mainEntity`; a fresh live fetch of
+// the same 2 URLs in Sep 2026 instead puts Product as a flat member of a
+// top-level `@graph` array, with a separate `ItemPage` node that merely
+// references it by `@id` — i.e. Jumia's product-page template changed
+// in between, and both shapes are handled here defensively since both are
+// genuinely real. Neither shape's images fit shared/jsonld.ts's
+// jsonLdImages(): both use `ImageObject.contentUrl` (an array), not the
+// `.url` shape it reads. There's also no og:price/product:price meta tag in
+// either capture, so shared/product-page.ts's OG fallback can't recover
+// price either. These gaps are why this is a bespoke adapter instead of
 // createCheckoutPageAdapter.
 
 const jumiaOfferSchema = z.object({
@@ -23,6 +28,7 @@ const jumiaOfferSchema = z.object({
 });
 
 const jumiaJsonLdProductSchema = z.object({
+  '@type': z.union([z.literal('Product'), z.array(z.string())]).optional(),
   name: z.string(),
   description: z.string().optional(),
   offers: jumiaOfferSchema.optional(),
@@ -31,12 +37,24 @@ const jumiaJsonLdProductSchema = z.object({
 
 type JumiaJsonLdProduct = z.infer<typeof jumiaJsonLdProductSchema>;
 
+function isProductNode(node: unknown): boolean {
+  if (!node || typeof node !== 'object') return false;
+  const type = (node as Record<string, unknown>)['@type'];
+  return type === 'Product' || (Array.isArray(type) && type.includes('Product'));
+}
+
 function findJumiaProduct(blocks: unknown[]): JumiaJsonLdProduct | null {
   for (const block of blocks) {
     if (!block || typeof block !== 'object') continue;
-    const parsed = jumiaJsonLdProductSchema.safeParse(
-      (block as Record<string, unknown>).mainEntity,
-    );
+    const root = block as Record<string, unknown>;
+
+    if (Array.isArray(root['@graph'])) {
+      const productNode = (root['@graph'] as unknown[]).find(isProductNode);
+      const parsed = jumiaJsonLdProductSchema.safeParse(productNode);
+      if (parsed.success) return parsed.data;
+    }
+
+    const parsed = jumiaJsonLdProductSchema.safeParse(root.mainEntity);
     if (parsed.success) return parsed.data;
   }
   return null;
