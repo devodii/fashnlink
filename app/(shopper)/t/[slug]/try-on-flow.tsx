@@ -15,6 +15,7 @@ import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { ShareSheet } from '@/components/share-sheet';
 import { Container } from '@/components/container';
 import { SplitPane } from '@/components/split-pane';
+import { Skeleton } from '@/components/ui/skeleton';
 import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useIsDesktop } from '@/hooks/use-media-query';
@@ -316,6 +317,8 @@ export function TryOnFlow({
   const messageHref = contactHref(contactChannel, productTitle, pageUrl);
   const price = formatPriceCents(priceCents, currency);
   const isDesktop = useIsDesktop();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   const dialogOpen = !isDesktop && stage !== 'idle' && stage !== 'result';
 
@@ -476,6 +479,32 @@ export function TryOnFlow({
       )}
     </div>
   );
+
+  if (!mounted) {
+    // isDesktop is only known after hydration (useIsDesktop's SSR snapshot
+    // is always false), so the desktop/mobile branches below would flash
+    // mobile-then-desktop on every load otherwise. This skeleton uses the
+    // same md: breakpoint as SplitPane so it's correct immediately, no JS
+    // needed, then swaps directly to the right real layout once mounted.
+    return (
+      <Container size="lg" className="grid flex-1 grid-cols-1 gap-6 py-6 md:grid-cols-2 md:py-10">
+        <Skeleton className="aspect-3/4 w-full rounded-md" />
+        <div className="flex flex-col gap-5">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-3/4" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <Skeleton className="hidden h-11 w-full rounded-md md:block" />
+        </div>
+        <div className="fixed inset-x-0 bottom-0 border-t border-border bg-background p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:hidden">
+          <Container size="sm" className="px-0">
+            <Skeleton className="h-11 w-full rounded-md" />
+          </Container>
+        </div>
+      </Container>
+    );
+  }
 
   if (isDesktop) {
     return (
