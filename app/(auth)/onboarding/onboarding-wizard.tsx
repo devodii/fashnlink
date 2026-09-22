@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import * as RHF from 'react-hook-form';
+import { XIcon } from '@phosphor-icons/react/ssr';
 import { z } from 'zod';
 import { StepWizard, type StepWizardApi } from '@/components/step-wizard';
 import { useZodForm } from '@/hooks/use-zod-form';
@@ -36,7 +37,7 @@ const REFERRAL_CHIPS = [
   'Something else',
 ].map((label) => ({ value: label, label }));
 
-const urlSchema = z.object({ url: z.string().url('Paste a full product URL') });
+const urlSchema = z.object({ urls: z.array(z.object({ value: z.string() })) });
 const brandSchema = z.object({
   name: z.string().min(1, 'Required'),
   accentToken: z.enum(['1', '2', '3', '4', '5', '6']),
@@ -56,8 +57,8 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
   const [created, setCreated] = React.useState<CreatedLink | null>(null);
   const [logo, setLogo] = React.useState<UploadedFile | null>(null);
 
-  const productForm = useZodForm(urlSchema, { defaultValues: { url: '' } });
-  const [productPreview, setProductPreview] = React.useState<CreatedLink | null>(null);
+  const productForm = useZodForm(urlSchema, { defaultValues: { urls: [{ value: '' }] } });
+  const [productResults, setProductResults] = React.useState<CreatedLink[] | null>(null);
   const [productChip, setProductChip] = React.useState<string | null>(null);
   const [productNotes, setProductNotes] = React.useState('');
 
@@ -81,8 +82,8 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
             <ProductStep
               api={api}
               form={productForm}
-              preview={productPreview}
-              onPreview={setProductPreview}
+              results={productResults}
+              onResults={setProductResults}
               selectedChip={productChip}
               onSelectedChip={setProductChip}
               notes={productNotes}
@@ -122,8 +123,8 @@ export function OnboardingWizard({ appUrl }: { appUrl: string }) {
 function ProductStep({
   api,
   form,
-  preview,
-  onPreview,
+  results,
+  onResults,
   selectedChip,
   onSelectedChip,
   notes,
@@ -132,8 +133,8 @@ function ProductStep({
 }: {
   api: StepWizardApi;
   form: RHF.UseFormReturn<z.infer<typeof urlSchema>>;
-  preview: CreatedLink | null;
-  onPreview: (link: CreatedLink | null) => void;
+  results: CreatedLink[] | null;
+  onResults: (links: CreatedLink[] | null) => void;
   selectedChip: string | null;
   onSelectedChip: (chip: string | null) => void;
   notes: string;
@@ -146,18 +147,33 @@ function ProductStep({
     setErrorState(msg);
     if (msg) setErrorKey((k) => k + 1);
   };
+  const [failedCount, setFailedCount] = React.useState(0);
   const somethingElse = selectedChip === 'Something else';
+  const urlFields = RHF.useFieldArray({ control: form.control, name: 'urls' });
 
-  const createLinkMutation = useMutation({
-    mutationFn: async (url: string) => {
-      const res = await fetch('/api/links', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ kind: 'single', url }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error?.message ?? "We couldn't read that page.");
-      return json as CreatedLink;
+  // One product context matters for a single-shop try-on link; several
+  // matter for giving the system real catalog breadth up front, so every
+  // pasted URL is scraped at once instead of one at a time.
+  const createLinksMutation = useMutation({
+    mutationFn: async (urls: string[]) => {
+      const settled = await Promise.allSettled(
+        urls.map(async (url) => {
+          const res = await fetch('/api/links', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ kind: 'single', url }),
+          });
+          const json = await res.json();
+          if (!res.ok) throw new Error(json.error?.message ?? "We couldn't read that page.");
+          return json as CreatedLink;
+        }),
+      );
+      return {
+        created: settled
+          .filter((r): r is PromiseFulfilledResult<CreatedLink> => r.status === 'fulfilled')
+          .map((r) => r.value),
+        failed: settled.filter((r) => r.status === 'rejected').length,
+      };
     },
   });
 
@@ -173,16 +189,27 @@ function ProductStep({
   React.useEffect(() => {
     api.setOnNext(async () => {
       setError(null);
-      const url = form.getValues('url').trim();
+      const urls = form
+        .getValues('urls')
+        .map((u) => u.value.trim())
+        .filter(Boolean);
 
-      if (url) {
-        const valid = await form.trigger('url');
-        if (!valid) return false;
+      if (urls.length > 0) {
+        const invalidUrl = urls.find((u) => !z.string().url().safeParse(u).success);
+        if (invalidUrl) {
+          setError('One of those links looks incomplete. Check it and try again.');
+          return false;
+        }
         try {
-          const json = await createLinkMutation.mutateAsync(url);
-          onPreview(json);
+          const { created, failed } = await createLinksMutation.mutateAsync(urls);
+          if (created.length === 0) {
+            setError("We couldn't read any of those pages. Check the links and try again.");
+            return false;
+          }
+          setFailedCount(failed);
+          onResults(created);
         } catch (err) {
-          setError(err instanceof Error ? err.message : "We couldn't read that page.");
+          setError(err instanceof Error ? err.message : "We couldn't read those pages.");
         }
         return false;
       }
@@ -205,24 +232,38 @@ function ProductStep({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [somethingElse, selectedChip, notes]);
 
-  if (preview) {
+  if (results) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">Looks like we found this product:</p>
-        <div className="rounded-md border border-border p-4">
-          <p className="font-medium text-foreground">{preview.productTitle}</p>
+        <p className="text-sm text-muted-foreground">
+          {results.length === 1
+            ? 'Looks like we found this product:'
+            : `Found ${results.length} product${results.length > 1 ? 's' : ''}:`}
+        </p>
+        <div className="space-y-2">
+          {results.map((result) => (
+            <div key={result.linkId} className="rounded-md border border-border p-4">
+              <p className="font-medium text-foreground">{result.productTitle}</p>
+            </div>
+          ))}
         </div>
+        {failedCount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            {failedCount} link{failedCount > 1 ? 's' : ''} couldn&apos;t be read, only the ones
+            above were added.
+          </p>
+        )}
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => onPreview(null)}>
+          <Button variant="outline" onClick={() => onResults(null)}>
             That&apos;s not right
           </Button>
           <Button
             onClick={() => {
-              onCreated(preview);
+              onCreated(results[0]);
               api.next();
             }}
           >
-            That&apos;s right
+            Looks good
           </Button>
         </div>
       </div>
@@ -231,13 +272,41 @@ function ProductStep({
 
   return (
     <div className="space-y-4">
-      <UrlField
-        control={form.control}
-        name="url"
-        label="Paste a link to any product you sell"
-        placeholder="https://yourshop.com/products/linen-shirt"
-        description="A product page, an Instagram post, or a checkout link all work."
-      />
+      <div className="space-y-1.5">
+        <Label>Paste links to what you sell</Label>
+        <p className="text-sm text-muted-foreground">
+          A product page, an Instagram post, or a checkout link all work. Add as many as you like.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        {urlFields.fields.map((field, i) => (
+          <div key={field.id} className="flex items-center gap-2">
+            <UrlField
+              control={form.control}
+              name={`urls.${i}.value`}
+              label=""
+              placeholder={`Product ${i + 1} URL`}
+              className="flex-1"
+            />
+            {urlFields.fields.length > 1 && (
+              <Button type="button" variant="ghost" size="icon" onClick={() => urlFields.remove(i)}>
+                <XIcon className="size-4" />
+                <span className="sr-only">Remove URL</span>
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => urlFields.append({ value: '' })}
+      >
+        Add product
+      </Button>
+
       {error && (
         <InlineAlert tone="destructive" resetKey={errorKey}>
           {error}
