@@ -11,7 +11,7 @@ import { Form } from '@/components/forms/form';
 import { UrlField } from '@/components/forms/url-field';
 import { TextField } from '@/components/forms/text-field';
 import { LoadingButton } from '@/components/loading-button';
-import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
+import { Timeline, type TimelineStep } from '@/components/timeline';
 import { InlineAlert } from '@/components/inline-alert';
 import { SegmentedControl } from '@/components/segmented-control';
 import { Button } from '@/components/ui/button';
@@ -74,7 +74,7 @@ export function NewLinkForm() {
     },
   });
 
-  const steps: ProgressStep[] = [
+  const steps: TimelineStep[] = [
     {
       label: 'Detecting platform',
       state: stage === 'working' ? 'active' : stage === 'idle' ? 'pending' : 'done',
@@ -208,7 +208,7 @@ export function NewLinkForm() {
         </Form>
       )}
 
-      {stage !== 'idle' && <ProgressSteps steps={steps} />}
+      {stage !== 'idle' && <Timeline steps={steps} />}
       {error && (
         <InlineAlert tone="destructive" resetKey={errorKey}>
           {error}

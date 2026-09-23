@@ -10,7 +10,7 @@ import { InlineAlert } from '@/components/inline-alert';
 import { ImageReveal } from '@/components/image-reveal';
 import { VariantPicker, type VariantOption } from '@/components/variant-picker';
 import { UploadDropzone, type UploadedFile } from '@/components/upload-dropzone';
-import { ProgressSteps, type ProgressStep } from '@/components/progress-steps';
+import { Timeline, type TimelineStep } from '@/components/timeline';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Container } from '@/components/container';
 import { SplitPane } from '@/components/split-pane';
@@ -238,7 +238,7 @@ export function TryOnFlow({
     stage === 'render-pending' && !!renderId,
   );
 
-  const steps: ProgressStep[] = [
+  const steps: TimelineStep[] = [
     {
       label: 'Checking photo',
       state: stage === 'twin-pending' && !twin ? 'active' : selfie ? 'done' : 'pending',
@@ -307,7 +307,7 @@ export function TryOnFlow({
       )}
 
       {(stage === 'twin-pending' || stage === 'render-pending') && (
-        <ProgressSteps steps={steps} orientation="vertical" />
+        <Timeline steps={steps} orientation="vertical" />
       )}
 
       {(stage === 'blocked' || stage === 'error') && errorMessage && (
