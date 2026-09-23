@@ -15,6 +15,13 @@
       "when": 1790082575946,
       "tag": "0001_gigantic_gorgon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790181887358,
+      "tag": "0002_hot_crusher_hogan",
+      "breakpoints": true
     }
   ]
 }

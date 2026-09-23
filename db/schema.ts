@@ -40,6 +40,7 @@ export const platformEnum = pgEnum('platform', [
   'jumia',
   'generic',
   'manual',
+  'custom',
 ]);
 
 export const planEnum = pgEnum('plan', ['free', 'founder', 'starter', 'growth']);
@@ -162,6 +163,12 @@ export const auditActorTypeEnum = pgEnum('audit_actor_type', [
   'admin',
 ]);
 
+export const discoveredPathStatusEnum = pgEnum('discovered_path_status', [
+  'new',
+  'linked',
+  'ignored',
+]);
+
 // ---------- Tables ----------
 
 export const merchants = pgTable('merchants', {
@@ -193,9 +200,17 @@ export const stores = pgTable(
     fingerprint: jsonb('fingerprint').notNull().default({}),
     lastCrawledAt: timestamp('last_crawled_at', { withTimezone: true }),
     crawlCursor: jsonb('crawl_cursor'),
+    // Opaque, independently rotatable capability token for the custom-site
+    // tracking script's public ingestion endpoint. Deliberately not the
+    // store's own id: a leaked/abused token must be revocable by rotating
+    // this column alone, without touching the store's real identity.
+    trackingToken: text('tracking_token'),
     ...timestamps,
   },
-  (table) => [uniqueIndex('stores_domain_idx').on(table.domain)],
+  (table) => [
+    uniqueIndex('stores_domain_idx').on(table.domain),
+    uniqueIndex('stores_tracking_token_idx').on(table.trackingToken),
+  ],
 );
 
 export const products = pgTable(
@@ -598,6 +613,30 @@ export const platformRequests = pgTable('platform_requests', {
   ...timestamps,
 });
 
+export const discoveredPaths = pgTable(
+  'discovered_paths',
+  {
+    id: text('id').primaryKey(),
+    storeId: text('store_id')
+      .notNull()
+      .references(() => stores.id),
+    path: text('path').notNull(),
+    linkText: text('link_text'),
+    score: integer('score').notNull().default(0),
+    // Flexible extra-signal payload (e.g. matched keywords, JSON-LD hints);
+    // deliberately generic since different custom sites expose different
+    // sniffable signals, unlike the rest of this feature's fixed shapes.
+    meta: jsonb('meta'),
+    status: discoveredPathStatusEnum('status').notNull().default('new'),
+    firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).notNull().defaultNow(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('discovered_paths_store_path_idx').on(table.storeId, table.path),
+    index('discovered_paths_store_status_idx').on(table.storeId, table.status),
+  ],
+);
+
 // Primary key is the (key, actorId) pair itself, not a generated ulid,
 // since that pair is the identity being deduplicated.
 export const idempotencyKeys = pgTable(
@@ -687,6 +726,7 @@ export type Campaign = InferSelectModel<typeof campaigns>;
 export type CampaignItem = InferSelectModel<typeof campaignItems>;
 export type CartEvent = InferSelectModel<typeof cartEvents>;
 export type PlatformRequest = InferSelectModel<typeof platformRequests>;
+export type DiscoveredPath = InferSelectModel<typeof discoveredPaths>;
 export type IdempotencyKey = InferSelectModel<typeof idempotencyKeys>;
 export type User = InferSelectModel<typeof user>;
 export type Session = InferSelectModel<typeof session>;
@@ -717,6 +757,7 @@ export type CampaignItemStatus = (typeof campaignItemStatusEnum.enumValues)[numb
 export type CartEventKind = (typeof cartEventKindEnum.enumValues)[number];
 export type PlatformRequestStatus = (typeof platformRequestStatusEnum.enumValues)[number];
 export type AuditActorType = (typeof auditActorTypeEnum.enumValues)[number];
+export type DiscoveredPathStatus = (typeof discoveredPathStatusEnum.enumValues)[number];
 
 // ---------- Resolved (joined/derived) types ----------
 // Every optional field is populated only when the retrieving action's

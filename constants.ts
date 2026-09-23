@@ -68,6 +68,10 @@ export const TWIN_CREATIONS_PER_SHOPPER_PER_DAY = 30;
 export const SCRAPE_REQUESTS_PER_MERCHANT_PER_HOUR = 60;
 // marketing homepage's live quick-demo, abuse guard by IP.
 export const QUICK_LINK_DEMO_PER_IP_PER_DAY = 3;
+// custom-site tracking script's public ingestion endpoint, abuse guard by token.
+export const TRACK_INGEST_REQUESTS_PER_TOKEN_PER_HOUR = 120;
+export const TRACK_INGEST_MAX_PATHS_PER_REQUEST = 100;
+export const DISCOVERED_PATHS_MAX_PER_STORE = 500;
 
 // new drop campaigns.
 export const MAX_DROP_PRODUCTS = 3;

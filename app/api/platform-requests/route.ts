@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { apiHandler } from '@/lib/api-handler';
 import { ok } from '@/lib/result';
 import { createPlatformRequests } from '@/actions/platform-requests';
+import { ensureTrackingStore } from '@/actions/stores';
+import { publicUrl } from '@/lib/env';
 
 const bodySchema = z.object({ notes: z.string().min(1).max(500) });
 
@@ -10,9 +12,15 @@ export const POST = apiHandler({
   auth: ['merchant_session'],
   schema: { body: bodySchema },
   handler: async ({ body, merchant }) => {
-    await createPlatformRequests([
-      { kind: 'freetext', merchantId: merchant.merchantId, notes: body.notes },
+    const [, store] = await Promise.all([
+      createPlatformRequests([
+        { kind: 'freetext', merchantId: merchant.merchantId, notes: body.notes },
+      ]),
+      ensureTrackingStore(merchant.merchantId),
     ]);
-    return ok({ recorded: true });
+    return ok({
+      recorded: true,
+      trackingScriptSrc: `${publicUrl}/api/track.js?s=${store.trackingToken}`,
+    });
   },
 });
