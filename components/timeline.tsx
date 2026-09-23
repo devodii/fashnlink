@@ -155,7 +155,7 @@ function AnimatedTimeline({
               initial={reduceMotion ? undefined : { scale: 0.6 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true, margin: '-20% 0px -20% 0px' }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
             >
               {i + 1}
             </motion.span>
@@ -170,14 +170,15 @@ function AnimatedTimeline({
         ))}
       </div>
 
-      <div className="hidden lg:sticky lg:top-24 lg:block lg:h-fit">
-        <Presence mode="wait">
+      <div className="hidden min-w-0 lg:sticky lg:top-24 lg:grid lg:h-fit">
+        <Presence mode="sync">
           <motion.div
             key={activeStep}
             initial={reduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={reduceMotion ? undefined : { opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            className="min-w-0 [grid-area:1/1]"
           >
             {steps[activeStep]?.media}
           </motion.div>
