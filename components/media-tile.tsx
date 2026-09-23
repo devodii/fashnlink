@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export interface MediaTileProps {
   src: string;
   alt: string;
-  aspect?: '3/4' | '1/1' | '9/16';
+  aspect?: '3/4' | '1/1' | '9/16' | '4/5';
   overlay?: React.ReactNode;
   onClick?: () => void;
   loading?: boolean;
@@ -16,6 +16,7 @@ const ASPECT_CLASS = {
   '3/4': 'aspect-[3/4]',
   '1/1': 'aspect-square',
   '9/16': 'aspect-[9/16]',
+  '4/5': 'aspect-[4/5]',
 } as const;
 
 export function MediaTile({
