@@ -24,7 +24,12 @@ env:
   POLAR_WEBHOOK_SECRET: ci-dummy-polar-webhook-secret
   POLAR_FOUNDING_PASS_PRODUCT_ID: prod_ci_dummy
   ENCRYPTION_KEY: Y2ktZHVtbXktMzItYnl0ZS1lbmNyeXB0aW9uLWtleSE=
-  UPSTASH_REDIS_REST_URL: https://ci-dummy.upstash.io
+  # A real local Redis, fronted by the same serverless-redis-http proxy
+  # docker-compose.yml uses in dev — not a fake unreachable host. A dummy
+  # https://ci-dummy.upstash.io URL made every consumeRateLimit() call
+  # retry against a non-existent host (5 attempts, exponential backoff)
+  # before failing open, which is what was blowing past test timeouts.
+  UPSTASH_REDIS_REST_URL: http://localhost:8079
   UPSTASH_REDIS_REST_TOKEN: ci-dummy-upstash-token
   CRON_SECRET: ci-dummy-cron-secret
   FAL_WEBHOOK_SECRET: ci-dummy-fal-webhook-secret
@@ -49,6 +54,28 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis-http:
+        # @upstash/redis only speaks Upstash's HTTP REST API, so this fronts
+        # the plain `redis` service above with that same REST contract, same
+        # as docker-compose.yml does for local dev.
+        image: hiett/serverless-redis-http:latest
+        env:
+          SRH_MODE: env
+          SRH_TOKEN: ci-dummy-upstash-token
+          SRH_CONNECTION_STRING: redis://redis:6379
+        ports:
+          - 8079:80
 
     steps:
       - uses: actions/checkout@v4
