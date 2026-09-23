@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Container } from '@/components/container';
 import { LanguagePicker } from '@/components/language-picker';
-import { ThemeToggle } from '@/components/theme-toggle';
 
 const COLUMNS = [
   {
@@ -67,10 +66,7 @@ export function SiteFooter() {
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} TRYON LINK. All rights reserved.
           </p>
-          <div className="flex items-center gap-2">
-            <LanguagePicker compact />
-            <ThemeToggle />
-          </div>
+          <LanguagePicker compact />
         </div>
       </Container>
     </footer>

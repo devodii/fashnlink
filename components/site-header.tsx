@@ -7,6 +7,7 @@ import { cn } from 'cn';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { LanguagePicker } from '@/components/language-picker';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Container } from '@/components/container';
 
 const NAV_ITEMS = [
@@ -53,7 +54,8 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-1 md:flex">
+          <ThemeToggle />
           <Button asChild variant="ghost" size="sm">
             <Link href="/login">Log in</Link>
           </Button>
@@ -62,7 +64,8 @@ export function SiteHeader() {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
           <Button asChild size="sm" className="h-9 rounded-md">
             <Link href="/login">Start free</Link>
           </Button>

@@ -49,7 +49,7 @@ export function LanguagePicker({ compact, className }: LanguagePickerProps) {
   const trigger = (
     <Button
       type="button"
-      variant="outline"
+      variant={compact ? 'ghost' : 'outline'}
       size={compact ? 'icon' : 'sm'}
       className={className}
       aria-label={compact ? 'Change language' : undefined}
