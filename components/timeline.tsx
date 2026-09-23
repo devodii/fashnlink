@@ -3,10 +3,9 @@
 import * as React from 'react';
 import { cn } from 'cn';
 import { CheckIcon, XIcon } from '@phosphor-icons/react/ssr';
-import { motion, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
+import { motion, useReducedMotion, useMotionValue, animate } from 'framer-motion';
 import { Spinner } from '@/components/spinner';
 import { Presence } from '@/components/motion/presence';
-import { BlurFade } from '@/components/motion/blur-fade';
 
 export type TimelineStepState = 'pending' | 'active' | 'done' | 'error';
 
@@ -94,6 +93,8 @@ export function Timeline({
   );
 }
 
+const DWELL_MS = 4000;
+
 function AnimatedTimeline({
   steps,
   onStepChange,
@@ -104,26 +105,50 @@ function AnimatedTimeline({
   className?: string;
 }) {
   const reduceMotion = useReducedMotion();
-  const containerRef = React.useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const pathLength = useMotionValue(0);
+  const controlsRef = React.useRef<ReturnType<typeof animate> | null>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start 0.75', 'end 0.4'],
-  });
-
-  useMotionValueEvent(scrollYProgress, 'change', (progress) => {
-    const index = Math.min(steps.length - 1, Math.max(0, Math.floor(progress * steps.length)));
-    setActiveStep((current) => {
-      if (current === index) return current;
-      onStepChange?.(index);
-      return index;
+  // The step only ever advances when the line finishes drawing to the next
+  // dot, so the two can never drift out of sync — one animation is the
+  // single source of truth for both. Pausing pauses this same animation
+  // (framer preserves elapsed time), which is why the advance pauses too.
+  React.useEffect(() => {
+    if (reduceMotion) {
+      pathLength.set(1);
+      return;
+    }
+    if (activeStep === 0) pathLength.jump(0);
+    const controls = animate(pathLength, (activeStep + 1) / steps.length, {
+      duration: DWELL_MS / 1000,
+      ease: 'linear',
+      onComplete: () => {
+        const next = (activeStep + 1) % steps.length;
+        onStepChange?.(next);
+        setActiveStep(next);
+      },
     });
-  });
+    controlsRef.current = controls;
+    return () => controls.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeStep, reduceMotion]);
+
+  React.useEffect(() => {
+    if (paused) controlsRef.current?.pause();
+    else controlsRef.current?.play();
+  }, [paused]);
+
+  const pauseHandlers = {
+    onMouseEnter: () => setPaused(true),
+    onMouseLeave: () => setPaused(false),
+    onFocus: () => setPaused(true),
+    onBlur: () => setPaused(false),
+  };
 
   return (
-    <div ref={containerRef} className={cn('grid min-w-0 gap-10 lg:grid-cols-2', className)}>
-      <div className="relative flex min-w-0 flex-col gap-16 pl-10">
+    <div className={cn('grid min-w-0 gap-10 lg:grid-cols-2', className)} {...pauseHandlers}>
+      <div className="relative flex min-w-0 flex-col gap-10 pl-10">
         <svg
           aria-hidden
           className="absolute top-0 left-3 h-full w-0.5"
@@ -141,36 +166,43 @@ function AnimatedTimeline({
             className="stroke-foreground"
             strokeWidth={2}
             vectorEffect="non-scaling-stroke"
-            style={reduceMotion ? undefined : { pathLength: scrollYProgress }}
-            initial={false}
-            animate={reduceMotion ? { pathLength: 1 } : undefined}
+            style={{ pathLength }}
           />
         </svg>
 
-        {steps.map((step, i) => (
-          <div
-            key={step.label}
-            className="relative lg:flex lg:min-h-[70vh] lg:flex-col lg:justify-center"
-          >
-            <motion.span
-              aria-hidden
-              className="absolute top-1 -left-10 flex size-6 items-center justify-center rounded-full border border-border bg-background text-xs font-medium text-foreground"
-              initial={reduceMotion ? undefined : { scale: 0.6 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true, margin: '-30% 0px -30% 0px' }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              {i + 1}
-            </motion.span>
-            <BlurFade once className="flex flex-col gap-2">
-              <h3 className="text-xl font-medium text-foreground">{step.title ?? step.label}</h3>
-              {step.description && (
-                <p className="max-w-md text-muted-foreground">{step.description}</p>
-              )}
-              {step.media && <div className="pt-2 lg:hidden">{step.media}</div>}
-            </BlurFade>
-          </div>
-        ))}
+        {steps.map((step, i) => {
+          const reached = i <= activeStep;
+          return (
+            <div key={step.label} className="relative">
+              <motion.span
+                aria-hidden
+                className={cn(
+                  'absolute top-1 -left-10 flex size-6 items-center justify-center rounded-full border text-xs font-medium',
+                  reached
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border bg-background text-muted-foreground',
+                )}
+                initial={false}
+                animate={{ scale: reached ? 1 : 0.85 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+              >
+                {i + 1}
+              </motion.span>
+              <motion.div
+                initial={false}
+                animate={{ opacity: reached ? 1 : 0.4 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col gap-2"
+              >
+                <h3 className="text-xl font-medium text-foreground">{step.title ?? step.label}</h3>
+                {step.description && (
+                  <p className="max-w-md text-muted-foreground">{step.description}</p>
+                )}
+                {step.media && <div className="pt-2 lg:hidden">{step.media}</div>}
+              </motion.div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="hidden min-w-0 lg:sticky lg:top-24 lg:grid lg:h-fit">
