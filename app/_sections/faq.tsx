@@ -10,7 +10,7 @@ const ITEMS = [
   {
     question: 'Does it work on my store?',
     answer:
-      'If shoppers can browse products on a page, we can usually read it. Shopify, WooCommerce, Squarespace and Wix work out of the box; most other product pages work too.',
+      "Shopify, WooCommerce, Squarespace and Wix work out of the box, and we're adding support for any store fast. If you have your own developers, we can give you a small code snippet to paste into your site that unlocks the full feature set immediately, without waiting on us to build native support.",
   },
   {
     question: 'What happens to customer photos?',
