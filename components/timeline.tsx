@@ -131,8 +131,8 @@ function AnimatedTimeline({
           const reached = i <= activeStep || reduceMotion;
           const isLast = i === steps.length - 1;
           return (
-            <div key={step.label} className="flex gap-4">
-              <div className="flex flex-col items-center">
+            <div key={step.label} className="flex min-w-0 gap-4">
+              <div className="flex shrink-0 flex-col items-center">
                 <motion.span
                   aria-hidden
                   className={cn(
@@ -168,7 +168,7 @@ function AnimatedTimeline({
                 initial={reduceMotion ? undefined : { opacity: 0.4 }}
                 animate={{ opacity: reached ? 1 : 0.4 }}
                 transition={{ duration: 0.4 }}
-                className={cn('flex flex-col gap-2', !isLast && 'pb-10')}
+                className={cn('flex min-w-0 flex-1 flex-col gap-2', !isLast && 'pb-10')}
               >
                 <h3 className="text-xl font-medium text-foreground">{step.title ?? step.label}</h3>
                 {step.description && (
