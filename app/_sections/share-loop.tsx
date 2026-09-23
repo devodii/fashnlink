@@ -31,6 +31,7 @@ export function ShareLoop() {
               </div>
             ))}
             maxVisible={3}
+            className="h-36"
           />
         </BentoCard>
 
@@ -39,8 +40,8 @@ export function ShareLoop() {
           <p className="text-sm text-muted-foreground">
             Send one link to a group chat. Everyone in it tries the item on, on their own photo.
           </p>
-          <div className="flex items-center gap-3">
-            <AvatarStack items={GROUP_MEMBERS} max={6} />
+          <div className="flex h-8 items-center gap-3">
+            <AvatarStack items={GROUP_MEMBERS} max={6} className="w-38 shrink-0" />
             <span className="text-xs text-muted-foreground">6 people, 1 link</span>
           </div>
         </BentoCard>
