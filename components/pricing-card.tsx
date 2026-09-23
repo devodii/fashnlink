@@ -9,7 +9,7 @@ export interface PricingCardProps {
   price: string;
   period?: string;
   features: string[];
-  cta: { label: string; onClick?: () => void; href?: string };
+  cta: { label: string; onClick?: () => void; href?: string; disabled?: boolean };
   highlight?: boolean;
   note?: string;
   className?: string;
@@ -51,12 +51,16 @@ export function PricingCard({
           </li>
         ))}
       </ul>
-      {cta.href ? (
+      {cta.href && !cta.disabled ? (
         <Button asChild variant={highlight ? 'default' : 'outline'}>
           <a href={cta.href}>{cta.label}</a>
         </Button>
       ) : (
-        <Button variant={highlight ? 'default' : 'outline'} onClick={cta.onClick}>
+        <Button
+          variant={highlight ? 'default' : 'outline'}
+          onClick={cta.onClick}
+          disabled={cta.disabled}
+        >
           {cta.label}
         </Button>
       )}
