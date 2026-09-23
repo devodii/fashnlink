@@ -67,6 +67,7 @@ export default async function LinkPage({
           .map((p) => ({ id: p.id, title: p.title, imageUrl: imageByProduct.get(p.id) ?? null }))}
         defaultTwin={defaultTwin}
         shopperId={shopperId}
+        preview={preview === '1'}
       />
     );
   }
@@ -139,6 +140,7 @@ export default async function LinkPage({
         productImageUrl={tryonImage?.url ?? null}
         variantOptions={variantOptions}
         defaultTwin={defaultTwin}
+        preview={preview === '1'}
       />
     );
   }

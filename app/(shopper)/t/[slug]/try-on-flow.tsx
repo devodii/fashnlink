@@ -276,27 +276,31 @@ export function TryOnFlow({
     <div className="flex flex-col gap-4">
       {stage === 'consent' && (
         <div className="space-y-4">
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="consent"
-              checked={consent}
-              onCheckedChange={(checked) => setConsent(checked === true)}
-            />
-            <Label htmlFor="consent" className="text-sm leading-snug font-normal">
-              I consent to my photo being used to generate a try-on render of myself.
-            </Label>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="age"
-              checked={ageAttested}
-              onCheckedChange={(checked) => setAgeAttested(checked === true)}
-            />
-            <Label htmlFor="age" className="text-sm leading-snug font-normal">
-              I am 18 or older and this is a photo of me.
-            </Label>
-          </div>
-          {consent && ageAttested ? (
+          {!preview && (
+            <>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="consent"
+                  checked={consent}
+                  onCheckedChange={(checked) => setConsent(checked === true)}
+                />
+                <Label htmlFor="consent" className="text-sm leading-snug font-normal">
+                  I consent to my photo being used to generate a try-on render of myself.
+                </Label>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="age"
+                  checked={ageAttested}
+                  onCheckedChange={(checked) => setAgeAttested(checked === true)}
+                />
+                <Label htmlFor="age" className="text-sm leading-snug font-normal">
+                  I am 18 or older and this is a photo of me.
+                </Label>
+              </div>
+            </>
+          )}
+          {preview || (consent && ageAttested) ? (
             <UploadDropzone capture="user" onFiles={handleSelfieFiles} className="w-56" />
           ) : (
             <p className="text-xs text-muted-foreground">

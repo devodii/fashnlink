@@ -26,6 +26,7 @@ export interface GroupFlowProps {
   productImageUrl: string | null;
   variantOptions: VariantOption[];
   defaultTwin: ShopperTwin | null;
+  preview: boolean;
 }
 
 export function GroupFlow({
@@ -38,6 +39,7 @@ export function GroupFlow({
   productImageUrl,
   variantOptions,
   defaultTwin,
+  preview,
 }: GroupFlowProps) {
   const { twin, status, errorMessage, errorKey, submitSelfie } = useShopperTwin(defaultTwin);
   const queryClient = useQueryClient();
@@ -171,27 +173,31 @@ export function GroupFlow({
 
       {!twinReady && (
         <div className="space-y-4 rounded-md border border-border bg-card p-4">
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="consent"
-              checked={consent}
-              onCheckedChange={(c) => setConsent(c === true)}
-            />
-            <Label htmlFor="consent" className="text-sm leading-snug font-normal">
-              I consent to my photo being used to generate a try-on render of myself.
-            </Label>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="age"
-              checked={ageAttested}
-              onCheckedChange={(c) => setAgeAttested(c === true)}
-            />
-            <Label htmlFor="age" className="text-sm leading-snug font-normal">
-              I am 18 or older and this is a photo of me.
-            </Label>
-          </div>
-          {consent && ageAttested ? (
+          {!preview && (
+            <>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="consent"
+                  checked={consent}
+                  onCheckedChange={(c) => setConsent(c === true)}
+                />
+                <Label htmlFor="consent" className="text-sm leading-snug font-normal">
+                  I consent to my photo being used to generate a try-on render of myself.
+                </Label>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="age"
+                  checked={ageAttested}
+                  onCheckedChange={(c) => setAgeAttested(c === true)}
+                />
+                <Label htmlFor="age" className="text-sm leading-snug font-normal">
+                  I am 18 or older and this is a photo of me.
+                </Label>
+              </div>
+            </>
+          )}
+          {preview || (consent && ageAttested) ? (
             <UploadDropzone capture="user" onFiles={submitSelfie} className="w-56" />
           ) : (
             <p className="text-xs text-muted-foreground">
