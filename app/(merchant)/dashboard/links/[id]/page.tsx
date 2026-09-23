@@ -68,7 +68,7 @@ export default async function LinkDetailPage({ params }: { params: Promise<{ id:
         <Section title="Link">
           <CopyField label="Public URL" value={fullUrl} />
           <div className="flex items-center gap-4">
-            <QrCode value={fullUrl} />
+            <QrCode value={fullUrl} copyable />
             <PhoneFrame src={`/t/${link.slug}?preview=1`} />
           </div>
         </Section>
