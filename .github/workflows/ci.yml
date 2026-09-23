@@ -24,11 +24,6 @@ env:
   POLAR_WEBHOOK_SECRET: ci-dummy-polar-webhook-secret
   POLAR_FOUNDING_PASS_PRODUCT_ID: prod_ci_dummy
   ENCRYPTION_KEY: Y2ktZHVtbXktMzItYnl0ZS1lbmNyeXB0aW9uLWtleSE=
-  # A real local Redis, fronted by the same serverless-redis-http proxy
-  # docker-compose.yml uses in dev — not a fake unreachable host. A dummy
-  # https://ci-dummy.upstash.io URL made every consumeRateLimit() call
-  # retry against a non-existent host (5 attempts, exponential backoff)
-  # before failing open, which is what was blowing past test timeouts.
   UPSTASH_REDIS_REST_URL: http://localhost:8079
   UPSTASH_REDIS_REST_TOKEN: ci-dummy-upstash-token
   CRON_SECRET: ci-dummy-cron-secret
