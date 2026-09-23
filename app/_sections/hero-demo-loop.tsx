@@ -73,7 +73,12 @@ export function HeroDemoLoop() {
         <Presence mode="wait">
           {phase === 'product' && (
             <div key="product" className="flex flex-1 flex-col gap-3">
-              <MediaTile src={DEMO_PRODUCT.imageUrl} alt={DEMO_PRODUCT.title} aspect="3/4" />
+              <MediaTile
+                src={DEMO_PRODUCT.imageUrl}
+                alt={DEMO_PRODUCT.title}
+                aspect="3/4"
+                imageLoading="eager"
+              />
               <Button size="sm" className="w-full">
                 See it on you
               </Button>

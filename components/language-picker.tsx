@@ -47,7 +47,13 @@ export function LanguagePicker({ compact, className }: LanguagePickerProps) {
   if (hidden) return null;
 
   const trigger = (
-    <Button type="button" variant="outline" size={compact ? 'icon' : 'sm'} className={className}>
+    <Button
+      type="button"
+      variant="outline"
+      size={compact ? 'icon' : 'sm'}
+      className={className}
+      aria-label={compact ? 'Change language' : undefined}
+    >
       <GlobeIcon className="size-4" />
       {!compact && <span translate="no">{current.nativeLabel}</span>}
     </Button>

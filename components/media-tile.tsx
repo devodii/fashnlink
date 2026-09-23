@@ -9,6 +9,8 @@ export interface MediaTileProps {
   overlay?: React.ReactNode;
   onClick?: () => void;
   loading?: boolean;
+  /** Native `<img loading>` hint; defaults to 'lazy' since most tiles are below the fold or decorative. */
+  imageLoading?: 'lazy' | 'eager';
   className?: string;
 }
 
@@ -26,6 +28,7 @@ export function MediaTile({
   overlay,
   onClick,
   loading,
+  imageLoading = 'lazy',
   className,
 }: MediaTileProps) {
   if (loading) {
@@ -45,7 +48,13 @@ export function MediaTile({
       )}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="size-full object-cover" />
+      <img
+        src={src}
+        alt={alt}
+        loading={imageLoading}
+        decoding="async"
+        className="size-full object-cover"
+      />
       {overlay && <div className="absolute inset-0">{overlay}</div>}
     </Comp>
   );
