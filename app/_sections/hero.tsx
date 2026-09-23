@@ -31,7 +31,7 @@ export function Hero() {
           </BlurFade>
 
           <BlurFade delay={0.1}>
-            <HeroDemo />
+            <HeroDemo id="hero-demo-url" />
           </BlurFade>
         </div>
 
