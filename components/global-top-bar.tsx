@@ -12,9 +12,14 @@ import { LanguagePicker } from '@/components/language-picker';
  * top-right corner, and duplicating meant the flow's own in-container
  * instance would stack directly on top of this fixed one.
  */
+const OWN_CORNER_ROUTES = ['/', '/pricing'];
+
 export function GlobalTopBar() {
   const pathname = usePathname();
   if (pathname.startsWith('/dashboard')) return null;
+  // The marketing pages put the theme toggle in the footer instead of this
+  // fixed corner, so they own their own chrome here.
+  if (OWN_CORNER_ROUTES.includes(pathname)) return null;
 
   const showLanguagePicker = pathname.startsWith('/t/');
 
