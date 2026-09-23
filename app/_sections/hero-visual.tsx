@@ -1,6 +1,6 @@
 import { Marquee } from '@/components/motion/marquee';
 import { MediaTile } from '@/components/media-tile';
-import { HeroDemoLoop } from './hero-demo-loop';
+import { HeroDemoLoop } from '@/components/hero-demo-loop';
 import { MARQUEE_RENDERS } from '@/lib/demo-assets';
 
 // Only 3 distinct real, artifact-free renders exist in the local dev DB right
