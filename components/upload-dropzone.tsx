@@ -9,6 +9,28 @@ import { Spinner } from '@/components/spinner';
 
 const { useUploadThing } = generateReactHelpers<UploadRouter>();
 
+// HEIC/HEIF (the default format iPhone cameras save in) has no native
+// browser decode support, so a plain <img src="blob:..."> preview would
+// just show a broken image. Everything else browsers already render fine
+// from a blob URL, SVG included, so this only converts what actually needs
+// it rather than re-encoding every upload. The original file (not this
+// converted copy) is still what gets uploaded, so storage keeps full HEIC
+// fidelity; only the local preview uses the PNG.
+function isHeic(file: File): boolean {
+  return /^image\/hei[cf]/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+}
+
+async function previewableFile(file: File): Promise<Blob> {
+  if (!isHeic(file)) return file;
+  try {
+    const heic2any = (await import('heic2any')).default;
+    const converted = await heic2any({ blob: file, toType: 'image/png' });
+    return (Array.isArray(converted) ? converted[0] : converted) ?? file;
+  } catch {
+    return file;
+  }
+}
+
 export interface UploadedFile {
   url: string;
   key: string;
@@ -90,7 +112,7 @@ export function UploadDropzone({
 
   React.useEffect(() => () => stopSimulatedProgress(), []);
 
-  function handleFiles(fileList: FileList | null) {
+  async function handleFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
     const files = Array.from(fileList);
     const tooBig = files.find((f) => f.size > maxSizeMb * 1024 * 1024);
@@ -99,7 +121,7 @@ export function UploadDropzone({
       return;
     }
     setLocalError(null);
-    setLocalPreview(URL.createObjectURL(files[0]));
+    setLocalPreview(URL.createObjectURL(await previewableFile(files[0])));
     startSimulatedProgress();
     void startUpload(files);
   }
