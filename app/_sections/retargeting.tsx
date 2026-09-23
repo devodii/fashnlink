@@ -36,7 +36,7 @@ export function Retargeting() {
       description="Your Klaviyo or Mailchimp flows can now show each customer wearing the exact item they left behind, or your whole new drop. Not a product photo. Them."
       align="left"
     >
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+      <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
         <div className="flex flex-col gap-8">
           {BLOCKS.map((block) => (
             <div key={block.title} className="flex gap-4">
@@ -59,26 +59,24 @@ export function Retargeting() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
-          <Card className="mx-auto w-full max-w-90 gap-0 overflow-hidden p-0">
-            <div className="border-b border-border bg-muted px-4 py-2 text-xs text-muted-foreground">
-              This looked good on you.
-            </div>
-            <MediaTile
-              src={DEMO_RENDER_URL}
-              alt="You wearing the item"
-              aspect="4/5"
-              className="rounded-none"
-              cropWatermark
-            />
-            <div className="flex flex-col gap-3 p-4">
-              <Button className="w-full">Complete your order</Button>
-              <p className="text-xs text-muted-foreground">
-                You&apos;re receiving this because you tried this on.
-              </p>
-            </div>
-          </Card>
-        </div>
+        <Card className="mx-auto w-full max-w-90 gap-0 overflow-hidden p-0">
+          <div className="border-b border-border bg-muted px-4 py-2 text-xs text-muted-foreground">
+            This looked good on you.
+          </div>
+          <MediaTile
+            src={DEMO_RENDER_URL}
+            alt="You wearing the item"
+            aspect="4/5"
+            className="rounded-none"
+            cropWatermark
+          />
+          <div className="flex flex-col gap-3 p-4">
+            <Button className="w-full">Complete your order</Button>
+            <p className="text-xs text-muted-foreground">
+              You&apos;re receiving this because you tried this on.
+            </p>
+          </div>
+        </Card>
       </div>
     </LandingSection>
   );
