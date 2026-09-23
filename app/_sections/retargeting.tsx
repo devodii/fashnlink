@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MediaTile } from '@/components/media-tile';
 import { InlineAlert } from '@/components/inline-alert';
-import { RetargetingBeam } from './retargeting-beam';
 import { DEMO_RENDER_URL } from '@/lib/demo-assets';
 
 const BLOCKS = [
@@ -62,8 +61,6 @@ export function Retargeting() {
         </div>
 
         <div className="flex flex-col gap-6">
-          <RetargetingBeam />
-
           <Card className="mx-auto w-full max-w-90 gap-0 overflow-hidden p-0">
             <div className="border-b border-border bg-muted px-4 py-2 text-xs text-muted-foreground">
               This looked good on you.
@@ -73,6 +70,7 @@ export function Retargeting() {
               alt="You wearing the item"
               aspect="4/5"
               className="rounded-none"
+              cropWatermark
             />
             <div className="flex flex-col gap-3 p-4">
               <Button className="w-full">Complete your order</Button>
@@ -82,9 +80,7 @@ export function Retargeting() {
             </div>
           </Card>
 
-          <InlineAlert tone="neutral" className="lg:hidden">
-            Included on Founder and paid plans.
-          </InlineAlert>
+          <InlineAlert tone="neutral">Included on Founder and paid plans.</InlineAlert>
         </div>
       </div>
     </LandingSection>

@@ -3,8 +3,9 @@ import { MediaTile } from '@/components/media-tile';
 import { HeroDemoLoop } from './hero-demo-loop';
 import { MARQUEE_RENDERS } from '@/lib/demo-assets';
 
-// Only 4 distinct real renders exist in the local dev DB right now; they're
-// cycled to fill the tile count rather than padded with placeholder images.
+// Only 3 distinct real, artifact-free renders exist in the local dev DB right
+// now; they're cycled to fill the tile count rather than padded with
+// placeholder images.
 const TILES = Array.from({ length: 10 }, (_, i) => MARQUEE_RENDERS[i % MARQUEE_RENDERS.length]);
 const COLUMN_A = TILES.filter((_, i) => i % 2 === 0);
 const COLUMN_B = TILES.filter((_, i) => i % 2 === 1);
@@ -21,6 +22,7 @@ export function HeroVisual() {
               alt={tile.alt}
               aspect="3/4"
               className="w-36 opacity-60 grayscale-0"
+              cropWatermark
             />
           ))}
         </Marquee>
@@ -32,6 +34,7 @@ export function HeroVisual() {
               alt={tile.alt}
               aspect="3/4"
               className="w-36 opacity-60 grayscale-0"
+              cropWatermark
             />
           ))}
         </Marquee>
@@ -46,6 +49,7 @@ export function HeroVisual() {
               alt={tile.alt}
               aspect="3/4"
               className="w-28 opacity-60 grayscale-0"
+              cropWatermark
             />
           ))}
         </Marquee>

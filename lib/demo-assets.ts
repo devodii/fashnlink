@@ -1,46 +1,48 @@
 /**
  * Real, already-generated try-on assets pulled from the local dev DB (real
  * UploadThing URLs, real scraped product photos, no stock photography or
- * placeholder graphics). One twin (twin_01M31T1C4NC15KPSAK02PD8DY0) is
+ * placeholder graphics). One twin (twin_01M34PDT92FDYZYBFAX5RGHZ7C) is
  * reused across the hero, step 3, the retargeting email mock and the
  * closet card so the landing page reads as one consistent person.
+ *
+ * Every render in the local DB predates watermarking being turned off, so
+ * all of them carry a "try it on you" strip baked into the bottom of the
+ * image; MediaTile's `cropWatermark` prop crops that strip out.
  */
 
 export const DEMO_TWIN = {
-  selfieUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhEycoAvKLOr5qANBzJpG1Fg967EQ3H02haUbS',
-  twinUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhGjZ3bsyNxBijCWTKbPaZHoSf6AXpQJesdLgR',
+  selfieUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhzRPfVP0PDKQk4cYE1AfSm5xWICuJ67a8Lesi',
+  twinUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhhzwwcV37ZyHDR0bj1mNVt3JWrQKIsSg9fCEF',
 } as const;
 
 export const DEMO_PRODUCT = {
-  title: 'TechSweat 3.5" Short',
-  url: 'https://outdoorvoices.com/products/w-techsweat-3-5-short-night',
-  imageUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhE3MDibKLOr5qANBzJpG1Fg967EQ3H02haUbS',
+  title: 'Casual Plaid Shirt',
+  url: 'https://www.jumia.com.ng/dou-color-mens-casual-plaid-shirt-black-271164302.html',
+  imageUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhpStW1fT7jJkCv5gOULq63nX4VmIEKNdo1tZ8',
 } as const;
 
 export const DEMO_RENDER_URL =
-  'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhnzuRfqj80l1aTciR3DFO4sLSEVKUCtQzrXhb';
+  'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhk8ypPbdmYetQCXcVTBuk1MOnvRqZh5yrIsL2';
 
 export const DEMO_TWIN_SECOND_PRODUCT = {
-  title: "Men's Strider Explore - Natural Black (Dark Grey Sole)",
-  imageUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNh3mfJkhMgbcE4tAndOjzalhe70p93DovMFmwU',
-  renderUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNh8yyO7tXXVozU2pOSldq4LWcaxwNIb5PkCgKs',
+  title: 'Running Shorts',
+  imageUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhE3MDibKLOr5qANBzJpG1Fg967EQ3H02haUbS',
+  renderUrl: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhnzuRfqj80l1aTciR3DFO4sLSEVKUCtQzrXhb',
 } as const;
 
+// The 4th real render in the DB (render_01M31T4R8ZPPHBTJPX7MDS3PR4) has a
+// visible generation artifact at the shoulder, so it's excluded here; only
+// clean renders are used anywhere on the page.
 export const MARQUEE_RENDERS = [
   {
     id: 'render_01M34PETF9H0MNTTZMGS4WD1BQ',
-    src: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNhk8ypPbdmYetQCXcVTBuk1MOnvRqZh5yrIsL2',
+    src: DEMO_RENDER_URL,
     alt: 'Shopper wearing a plaid shirt',
   },
   {
     id: 'render_01M31T68TSQZJDTVNXY8Z641RC',
-    src: DEMO_TWIN_SECOND_PRODUCT.renderUrl,
+    src: 'https://ww6l8xi99d.ufs.sh/f/HTj3AsGk3dNh8yyO7tXXVozU2pOSldq4LWcaxwNIb5PkCgKs',
     alt: 'Shopper wearing sneakers',
-  },
-  {
-    id: 'render_01M31T4R8ZPPHBTJPX7MDS3PR4',
-    src: DEMO_RENDER_URL,
-    alt: 'Shopper wearing running shorts',
   },
   {
     id: 'render_01M31SYEV00EN8MV2QY9EE6MAS',

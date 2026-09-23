@@ -11,6 +11,8 @@ export interface MediaTileProps {
   loading?: boolean;
   /** Native `<img loading>` hint; defaults to 'lazy' since most tiles are below the fold or decorative. */
   imageLoading?: 'lazy' | 'eager';
+  /** Crops the bottom watermark strip off older demo renders generated before watermarking was turned off. */
+  cropWatermark?: boolean;
   className?: string;
 }
 
@@ -29,6 +31,7 @@ export function MediaTile({
   onClick,
   loading,
   imageLoading = 'lazy',
+  cropWatermark,
   className,
 }: MediaTileProps) {
   if (loading) {
@@ -54,6 +57,7 @@ export function MediaTile({
         loading={imageLoading}
         decoding="async"
         className="size-full object-cover"
+        style={cropWatermark ? { height: '110%', objectPosition: 'top' } : undefined}
       />
       {overlay && <div className="absolute inset-0">{overlay}</div>}
     </Comp>

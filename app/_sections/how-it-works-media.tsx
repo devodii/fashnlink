@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import { type ColumnDef } from '@tanstack/react-table';
 import { LinkIcon } from '@phosphor-icons/react/ssr';
 import { Card } from '@/components/ui/card';
@@ -13,8 +12,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import {
   DEMO_PRODUCT,
   DEMO_RENDER_URL,
-  DEMO_TWIN,
   DEMO_TWIN_SECOND_PRODUCT,
+  MARQUEE_RENDERS,
 } from '@/lib/demo-assets';
 
 export function LinkPasteMedia() {
@@ -90,15 +89,12 @@ export function ChatPreviewMedia() {
 export function TryOnRevealMedia() {
   return (
     <PhoneFrame>
-      <div className="relative size-full">
-        <Image
-          src={DEMO_RENDER_URL}
-          alt="Shopper wearing the item"
-          fill
-          sizes="280px"
-          className="object-cover"
-        />
-      </div>
+      <MediaTile
+        src={DEMO_RENDER_URL}
+        alt="Shopper wearing the item"
+        className="size-full rounded-none"
+        cropWatermark
+      />
     </PhoneFrame>
   );
 }
@@ -131,7 +127,7 @@ const LEAD_ROWS: LeadRow[] = [
   },
   {
     product: DEMO_TWIN_SECOND_PRODUCT.imageUrl,
-    render: DEMO_TWIN.twinUrl,
+    render: MARQUEE_RENDERS[2].src,
     email: 'zainab@example.com',
     when: '2d ago',
   },
@@ -149,7 +145,13 @@ const columns: ColumnDef<LeadRow>[] = [
     accessorKey: 'render',
     header: 'Render',
     cell: ({ row }) => (
-      <MediaTile src={row.original.render} alt="Render" aspect="1/1" className="size-10" />
+      <MediaTile
+        src={row.original.render}
+        alt="Render"
+        aspect="1/1"
+        className="size-10"
+        cropWatermark
+      />
     ),
   },
   { accessorKey: 'email', header: 'Email' },
@@ -170,7 +172,13 @@ export function LeadsTableMedia() {
         mobileCard={(row) => (
           <div className="flex items-center gap-3 rounded-md border border-border p-3">
             <MediaTile src={row.product} alt="Product" aspect="1/1" className="size-10" />
-            <MediaTile src={row.render} alt="Render" aspect="1/1" className="size-10" />
+            <MediaTile
+              src={row.render}
+              alt="Render"
+              aspect="1/1"
+              className="size-10"
+              cropWatermark
+            />
             <div className="flex flex-1 flex-col overflow-hidden">
               <span className="truncate text-sm font-medium text-foreground">{row.email}</span>
               <span className="text-xs text-muted-foreground">Tried on {row.when}</span>
