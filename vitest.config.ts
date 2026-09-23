@@ -35,7 +35,7 @@ export default defineConfig({
           name: 'unit',
           environment: 'node',
           include: ['**/*.test.ts'],
-          exclude: ['node_modules/**', '.next/**'],
+          exclude: ['node_modules/**', '.next/**', '.claude/worktrees/**'],
         },
       },
       {
