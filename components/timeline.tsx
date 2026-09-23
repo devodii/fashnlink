@@ -122,8 +122,8 @@ function AnimatedTimeline({
   });
 
   return (
-    <div ref={containerRef} className={cn('grid gap-10 lg:grid-cols-2', className)}>
-      <div className="relative flex flex-col gap-16 pl-10">
+    <div ref={containerRef} className={cn('grid min-w-0 gap-10 lg:grid-cols-2', className)}>
+      <div className="relative flex min-w-0 flex-col gap-16 pl-10">
         <svg
           aria-hidden
           className="absolute top-0 left-3 h-full w-0.5"

@@ -32,9 +32,9 @@ export function LinkPasteMedia() {
 
   return (
     <Card className="gap-3 p-6">
-      <div className="flex items-center gap-2 rounded-md border border-border px-3 py-2">
-        <LinkIcon className="size-4 text-muted-foreground" />
-        <span className="truncate text-sm text-muted-foreground">{DEMO_PRODUCT.url}</span>
+      <div className="flex min-w-0 items-center gap-2 rounded-md border border-border px-3 py-2">
+        <LinkIcon className="size-4 shrink-0 text-muted-foreground" />
+        <span className="min-w-0 truncate text-sm text-muted-foreground">{DEMO_PRODUCT.url}</span>
       </div>
       <Presence>
         {showProduct && (

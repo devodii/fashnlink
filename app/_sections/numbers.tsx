@@ -1,3 +1,5 @@
+'use client';
+
 import { LandingSection } from '@/components/landing-section';
 import { StatCard } from '@/components/stat-card';
 
