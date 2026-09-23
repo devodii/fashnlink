@@ -11,7 +11,7 @@ export function FinalCta() {
             Send your first link today.
           </h2>
           <div className="w-full max-w-lg">
-            <HeroDemo />
+            <HeroDemo compact />
           </div>
           <p className="text-sm text-muted-foreground">No card. No install. Delete anytime.</p>
         </BlurFade>

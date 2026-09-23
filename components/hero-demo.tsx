@@ -33,7 +33,13 @@ async function createQuickLink(url: string): Promise<QuickLinkResult> {
 
 const TRUST_ITEMS = ['No app install', 'Photos deleted on request', 'Free to start'];
 
-export function HeroDemo({ className }: { className?: string }) {
+export interface HeroDemoProps {
+  className?: string;
+  /** Just the input and button, no chips/helper line/trust line — for reuse where that context was already shown once (the final CTA). */
+  compact?: boolean;
+}
+
+export function HeroDemo({ className, compact }: HeroDemoProps) {
   const router = useRouter();
   const [url, setUrl] = React.useState('');
   const [errorKey, setErrorKey] = React.useState(0);
@@ -73,27 +79,31 @@ export function HeroDemo({ className }: { className?: string }) {
         </LoadingButton>
       </form>
 
-      <ToggleGroup
-        type="single"
-        variant="outline"
-        size="sm"
-        value=""
-        onValueChange={(value) => {
-          const chip = DEMO_CHIPS.find((c) => c.value === value);
-          if (chip) handleChip(chip.url);
-        }}
-        className="flex-wrap justify-start gap-2"
-      >
-        {DEMO_CHIPS.map((chip) => (
-          <ToggleGroupItem key={chip.value} value={chip.value} className="rounded-full border">
-            {chip.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      {!compact && (
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          value=""
+          onValueChange={(value) => {
+            const chip = DEMO_CHIPS.find((c) => c.value === value);
+            if (chip) handleChip(chip.url);
+          }}
+          className="flex-wrap justify-start gap-2"
+        >
+          {DEMO_CHIPS.map((chip) => (
+            <ToggleGroupItem key={chip.value} value={chip.value} className="rounded-full border">
+              {chip.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      )}
 
-      <p className="text-sm text-muted-foreground">
-        Works with Shopify, WooCommerce, Squarespace, Wix and most product pages. No install.
-      </p>
+      {!compact && (
+        <p className="text-sm text-muted-foreground">
+          Works with Shopify, WooCommerce, Squarespace, Wix and most product pages. No install.
+        </p>
+      )}
 
       {message && (
         <InlineAlert tone="neutral" resetKey={errorKey}>
@@ -101,14 +111,16 @@ export function HeroDemo({ className }: { className?: string }) {
         </InlineAlert>
       )}
 
-      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        {TRUST_ITEMS.map((item, i) => (
-          <React.Fragment key={item}>
-            {i > 0 && <Dot />}
-            <span>{item}</span>
-          </React.Fragment>
-        ))}
-      </div>
+      {!compact && (
+        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          {TRUST_ITEMS.map((item, i) => (
+            <React.Fragment key={item}>
+              {i > 0 && <Dot />}
+              <span>{item}</span>
+            </React.Fragment>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
