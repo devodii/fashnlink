@@ -197,6 +197,16 @@
   }
 }
 
+/* The header nav's #how-it-works/#retargeting links use plain anchor
+   navigation, so this is the one place that needs to opt in; browsers
+   already collapse `scroll-behavior: smooth` to an instant jump under
+   `prefers-reduced-motion: reduce` on their own. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* Section 10.7: Google's page-translate widget injects a top banner iframe
    and a floating tooltip, and pushes `body` down to make room for the
    banner. We drive translation from our own `LanguagePicker`, so all of

@@ -13,8 +13,6 @@ import { Container } from '@/components/container';
 const NAV_ITEMS = [
   { label: 'How it works', href: '/#how-it-works' },
   { label: 'Retargeting', href: '/#retargeting' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'Platforms', href: '/#platforms' },
 ];
 
 export function SiteHeader() {
