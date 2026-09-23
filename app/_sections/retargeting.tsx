@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MediaTile } from '@/components/media-tile';
-import { InlineAlert } from '@/components/inline-alert';
 import { DEMO_RENDER_URL } from '@/lib/demo-assets';
 
 const BLOCKS = [
@@ -37,7 +36,7 @@ export function Retargeting() {
       description="Your Klaviyo or Mailchimp flows can now show each customer wearing the exact item they left behind, or your whole new drop. Not a product photo. Them."
       align="left"
     >
-      <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
+      <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
         <div className="flex flex-col gap-8">
           {BLOCKS.map((block) => (
             <div key={block.title} className="flex gap-4">
@@ -79,8 +78,6 @@ export function Retargeting() {
               </p>
             </div>
           </Card>
-
-          <InlineAlert tone="neutral">Included on Founder and paid plans.</InlineAlert>
         </div>
       </div>
     </LandingSection>
