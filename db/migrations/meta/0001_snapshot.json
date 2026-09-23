@@ -1,5 +1,5 @@
 {
-  "id": "de5dc6de-f40e-497e-8454-517fc5f55b7d",
+  "id": "52afb915-4782-479b-8307-3c50921d1aa1",
   "prevId": "9f98f3a0-e738-4274-8ceb-032c41f08c72",
   "version": "7",
   "dialect": "postgresql",
@@ -731,135 +731,6 @@
           "tableTo": "merchants",
           "columnsFrom": [
             "merchant_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.discovered_paths": {
-      "name": "discovered_paths",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "store_id": {
-          "name": "store_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "path": {
-          "name": "path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "link_text": {
-          "name": "link_text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "score": {
-          "name": "score",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "meta": {
-          "name": "meta",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "discovered_path_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'new'"
-        },
-        "first_seen_at": {
-          "name": "first_seen_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "last_seen_at": {
-          "name": "last_seen_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "discovered_paths_store_path_idx": {
-          "name": "discovered_paths_store_path_idx",
-          "columns": [
-            {
-              "expression": "store_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "path",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "discovered_paths_store_status_idx": {
-          "name": "discovered_paths_store_status_idx",
-          "columns": [
-            {
-              "expression": "store_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "discovered_paths_store_id_stores_id_fk": {
-          "name": "discovered_paths_store_id_stores_id_fk",
-          "tableFrom": "discovered_paths",
-          "tableTo": "stores",
-          "columnsFrom": [
-            "store_id"
           ],
           "columnsTo": [
             "id"
@@ -2954,12 +2825,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "tracking_token": {
-          "name": "tracking_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2981,21 +2846,6 @@
           "columns": [
             {
               "expression": "domain",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "stores_tracking_token_idx": {
-          "name": "stores_tracking_token_idx",
-          "columns": [
-            {
-              "expression": "tracking_token",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -3313,15 +3163,6 @@
         "claimed"
       ]
     },
-    "public.discovered_path_status": {
-      "name": "discovered_path_status",
-      "schema": "public",
-      "values": [
-        "new",
-        "linked",
-        "ignored"
-      ]
-    },
     "public.eligibility": {
       "name": "eligibility",
       "schema": "public",
@@ -3452,9 +3293,9 @@
         "lemonsqueezy",
         "gumroad",
         "bigcartel",
+        "jumia",
         "generic",
-        "manual",
-        "custom"
+        "manual"
       ]
     },
     "public.platform_request_status": {

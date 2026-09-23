@@ -1,7 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { CopyIcon, DownloadIcon, ChatCircleIcon, ShareIcon } from '@phosphor-icons/react/ssr';
+import {
+  CopyIcon,
+  DownloadIcon,
+  WhatsappLogoIcon,
+  InstagramLogoIcon,
+  XLogoIcon,
+  ShareIcon,
+} from '@phosphor-icons/react/ssr';
+import { cn } from 'cn';
 import { useCopy } from '@/hooks/use-copy';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
@@ -23,6 +31,14 @@ const CHANNEL_LABEL: Record<ShareChannel, string> = {
   whatsapp: 'WhatsApp',
   instagram: 'Instagram',
   x: 'X',
+};
+
+const CHANNEL_ICON: Record<ShareChannel, React.ComponentType<{ className?: string }>> = {
+  copy: CopyIcon,
+  download: DownloadIcon,
+  whatsapp: WhatsappLogoIcon,
+  instagram: InstagramLogoIcon,
+  x: XLogoIcon,
 };
 
 export function ShareSheet({
@@ -85,23 +101,33 @@ export function ShareSheet({
         )}
       </span>
       <ResponsiveDialog open={open} onOpenChange={setOpen} title="Share">
-        <div className="grid grid-cols-2 gap-2">
-          {channels.map((channel) => (
-            <Button
-              key={channel}
-              variant="outline"
-              onClick={() => handleChannel(channel)}
-              className="justify-start"
-            >
-              {channel === 'copy' && <CopyIcon className="size-4" />}
-              {channel === 'download' && <DownloadIcon className="size-4" />}
-              {(channel === 'whatsapp' || channel === 'instagram') && (
-                <ChatCircleIcon className="size-4" />
-              )}
-              {channel === 'x' && <ShareIcon className="size-4" />}
-              {CHANNEL_LABEL[channel]}
-            </Button>
-          ))}
+        <div className="grid grid-cols-3 gap-3">
+          {channels.map((channel) => {
+            const Icon = CHANNEL_ICON[channel];
+            return (
+              <button
+                key={channel}
+                type="button"
+                onClick={() => handleChannel(channel)}
+                className={cn(
+                  'group flex flex-col items-center gap-2 rounded-lg border border-transparent p-3',
+                  'transition-colors hover:border-border hover:bg-accent',
+                )}
+              >
+                <span
+                  className={cn(
+                    'flex size-12 items-center justify-center rounded-full bg-muted text-foreground',
+                    'transition-transform group-hover:scale-105 group-active:scale-95',
+                  )}
+                >
+                  <Icon className="size-5" />
+                </span>
+                <span className="text-xs font-medium text-foreground">
+                  {CHANNEL_LABEL[channel]}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </ResponsiveDialog>
     </>

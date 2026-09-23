@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { cn } from 'cn';
 import { ImageReveal } from '@/components/image-reveal';
+import { InlineAlert } from '@/components/inline-alert';
 import { Button } from '@/components/ui/button';
 import { usePolling } from '@/hooks/use-polling';
 
@@ -33,6 +34,14 @@ export function ProductRenderCard({
   const [stage, setStage] = React.useState<Stage>('idle');
   const [renderId, setRenderId] = React.useState<string | null>(null);
   const [outputUrl, setOutputUrl] = React.useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [errorKey, setErrorKey] = React.useState(0);
+
+  function failWith(message: string) {
+    setErrorMessage(message);
+    setErrorKey((k) => k + 1);
+    setStage('error');
+  }
 
   const renderMutation = useMutation({
     mutationFn: async (twinId: string) => {
@@ -47,7 +56,7 @@ export function ProductRenderCard({
     },
     onMutate: () => setStage('pending'),
     onSuccess: (json) => setRenderId(json.renderId),
-    onError: () => setStage('error'),
+    onError: (err) => failWith(err instanceof Error ? err.message : 'Something went wrong'),
   });
 
   function handleClick() {
@@ -68,7 +77,11 @@ export function ProductRenderCard({
         return false;
       }
       if (json.status === 'failed' || json.status === 'blocked') {
-        setStage('error');
+        const message =
+          json.error && typeof json.error === 'object' && 'message' in json.error
+            ? String(json.error.message)
+            : 'Something went wrong';
+        failWith(message);
         return false;
       }
     },
@@ -82,6 +95,7 @@ export function ProductRenderCard({
         from={productImageUrl ?? ''}
         to={stage === 'ready' ? outputUrl : null}
         alt={productTitle}
+        zoomable
       />
       <p className="truncate text-sm text-foreground">{productTitle}</p>
       {stage === 'idle' && (
@@ -101,9 +115,16 @@ export function ProductRenderCard({
         </Button>
       )}
       {stage === 'error' && (
-        <Button size="sm" variant="outline" className="w-full" onClick={handleClick}>
-          Try again
-        </Button>
+        <>
+          <Button size="sm" variant="outline" className="w-full" onClick={handleClick}>
+            Try again
+          </Button>
+          {errorMessage && (
+            <InlineAlert tone="destructive" resetKey={errorKey}>
+              {errorMessage}
+            </InlineAlert>
+          )}
+        </>
       )}
     </div>
   );

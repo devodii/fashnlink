@@ -12,6 +12,8 @@ export interface UrlFieldProps<
   placeholder?: string;
   disabled?: boolean;
   autoFocus?: boolean;
+  /** Overrides the DOM id (defaults to `name`) — needed when the same form shape is rendered more than once on a page, since ids must be unique. */
+  id?: string;
 }
 
 // Trims whitespace and adds https:// when the value looks like a bare
@@ -32,21 +34,23 @@ export function UrlField<TValues extends RHF.FieldValues, TName extends RHF.Path
   placeholder,
   disabled,
   autoFocus,
+  id,
 }: UrlFieldProps<TValues, TName>) {
+  const fieldId = id ?? name;
   return (
     <RHF.Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
         <FieldLayout
-          htmlFor={name}
+          htmlFor={fieldId}
           label={label}
           description={description}
           error={fieldState.error}
           className={className}
         >
           <Input
-            id={name}
+            id={fieldId}
             type="text"
             inputMode="url"
             autoComplete="url"

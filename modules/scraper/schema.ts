@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-/**
- * ; the one shape every platform adapter normalizes into. Nothing
- * downstream (wearable gate, enrichment, repos) ever looks at platform-raw
- * data again once this exists.
- */
 export const normalizedProductImageSchema = z.object({
   url: z.string(),
   alt: z.string().nullable(),

@@ -75,6 +75,7 @@ const SIGNAL_DETECTORS: Record<Platform, ((html: string, headers: Headers) => st
   lemonsqueezy: null, // hostPatterns-only, no browsable homepage at all
   gumroad: null,
   bigcartel: null,
+  jumia: null,
   generic: null,
   manual: null,
   // Never auto-detected: a store only becomes 'custom' by being provisioned

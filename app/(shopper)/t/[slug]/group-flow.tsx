@@ -12,7 +12,6 @@ import { UploadDropzone } from '@/components/upload-dropzone';
 import { VariantPicker, type VariantOption } from '@/components/variant-picker';
 import { AvatarStack } from '@/components/avatar-stack';
 import { Container } from '@/components/container';
-import { LanguagePicker } from '@/components/language-picker';
 import { LanguageSuggestBanner } from '@/components/language-suggest-banner';
 import { usePolling } from '@/hooks/use-polling';
 import { useShopperTwin, type ShopperTwin } from '../../use-shopper-twin';
@@ -27,6 +26,7 @@ export interface GroupFlowProps {
   productImageUrl: string | null;
   variantOptions: VariantOption[];
   defaultTwin: ShopperTwin | null;
+  preview: boolean;
 }
 
 export function GroupFlow({
@@ -39,6 +39,7 @@ export function GroupFlow({
   productImageUrl,
   variantOptions,
   defaultTwin,
+  preview,
 }: GroupFlowProps) {
   const { twin, status, errorMessage, errorKey, submitSelfie } = useShopperTwin(defaultTwin);
   const queryClient = useQueryClient();
@@ -143,9 +144,6 @@ export function GroupFlow({
 
   return (
     <Container size="sm" className="flex flex-1 flex-col gap-4 py-6 pb-10">
-      <div className="flex justify-start">
-        <LanguagePicker compact />
-      </div>
       <LanguageSuggestBanner />
       <div className="space-y-1">
         <p className="text-sm text-muted-foreground">{merchantName}</p>
@@ -160,7 +158,7 @@ export function GroupFlow({
         </div>
       )}
 
-      <ImageReveal from={productImageUrl ?? ''} to={outputUrl} alt={productTitle} />
+      <ImageReveal from={productImageUrl ?? ''} to={outputUrl} alt={productTitle} zoomable />
       <p className="text-sm text-foreground">{productTitle}</p>
 
       {variantOptions.length > 0 && (
@@ -175,28 +173,32 @@ export function GroupFlow({
 
       {!twinReady && (
         <div className="space-y-4 rounded-md border border-border bg-card p-4">
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="consent"
-              checked={consent}
-              onCheckedChange={(c) => setConsent(c === true)}
-            />
-            <Label htmlFor="consent" className="text-sm leading-snug font-normal">
-              I consent to my photo being used to generate a try-on render of myself.
-            </Label>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <Checkbox
-              id="age"
-              checked={ageAttested}
-              onCheckedChange={(c) => setAgeAttested(c === true)}
-            />
-            <Label htmlFor="age" className="text-sm leading-snug font-normal">
-              I am 18 or older and this is a photo of me.
-            </Label>
-          </div>
-          {consent && ageAttested ? (
-            <UploadDropzone capture="user" onFiles={submitSelfie} />
+          {!preview && (
+            <>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="consent"
+                  checked={consent}
+                  onCheckedChange={(c) => setConsent(c === true)}
+                />
+                <Label htmlFor="consent" className="text-sm leading-snug font-normal">
+                  I consent to my photo being used to generate a try-on render of myself.
+                </Label>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Checkbox
+                  id="age"
+                  checked={ageAttested}
+                  onCheckedChange={(c) => setAgeAttested(c === true)}
+                />
+                <Label htmlFor="age" className="text-sm leading-snug font-normal">
+                  I am 18 or older and this is a photo of me.
+                </Label>
+              </div>
+            </>
+          )}
+          {preview || (consent && ageAttested) ? (
+            <UploadDropzone capture="user" onFiles={submitSelfie} className="w-56" />
           ) : (
             <p className="text-xs text-muted-foreground">
               Check both boxes to take or upload a photo.

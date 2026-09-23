@@ -44,6 +44,7 @@
     "country-flag-icons": "^1.6.20",
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^13.4.0",
+    "heic2any": "^0.0.4",
     "libphonenumber-js": "^1.13.13",
     "lucide-react": "^1.47.0",
     "nanoid": "^6.0.1",

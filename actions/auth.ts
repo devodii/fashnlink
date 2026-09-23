@@ -17,7 +17,16 @@ export const auth = betterAuth({
     provider: 'pg',
     schema: { user, session, account, verification },
   }),
-  emailAndPassword: { enabled: false },
+  emailAndPassword: {
+    enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail(
+        user.email,
+        'Reset your password',
+        `<p>Click to reset your password: <a href="${url}">${url}</a></p><p>If you didn't request this, you can ignore this email.</p>`,
+      );
+    },
+  },
   socialProviders:
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
       ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET } }

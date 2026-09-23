@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { ProgressSteps } from './progress-steps';
+import { Timeline } from './timeline';
 
-const meta: Meta<typeof ProgressSteps> = {
-  component: ProgressSteps,
-  title: 'components/ProgressSteps',
+const meta: Meta<typeof Timeline> = {
+  component: Timeline,
+  title: 'components/Timeline',
   tags: ['ai-generated'],
   args: {
     steps: [
@@ -16,7 +16,7 @@ const meta: Meta<typeof ProgressSteps> = {
 };
 export default meta;
 
-type Story = StoryObj<typeof ProgressSteps>;
+type Story = StoryObj<typeof Timeline>;
 
 export const Horizontal: Story = { args: { orientation: 'horizontal' } };
 export const Vertical: Story = { args: { orientation: 'vertical' } };

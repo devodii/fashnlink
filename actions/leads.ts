@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { leads, products, renders } from '@/db/schema';
 import type { Lead, ResolvedLead } from '@/db/schema';
@@ -31,7 +31,16 @@ export async function createLeads(inputs: CreateLeadInput[]): Promise<Lead[]> {
 export async function retrieveLeads(filters: {
   merchantId?: string;
   linkIds?: string[];
+  shopperId?: string;
 }): Promise<ResolvedLead[]> {
+  if (filters.merchantId && filters.shopperId) {
+    const rows = await db
+      .select()
+      .from(leads)
+      .where(and(eq(leads.merchantId, filters.merchantId), eq(leads.shopperId, filters.shopperId)));
+    return rows;
+  }
+
   if (filters.linkIds?.length) {
     const rows = await db
       .select({ lead: leads })
