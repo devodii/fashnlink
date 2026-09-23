@@ -55,6 +55,7 @@
   --font-sans: var(--font-outfit);
   --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
   --font-mono: monospace;
+  --font-display: var(--font-display-instrument), ui-serif, Georgia, serif;
 
   --shadow-color: #000000;
   --shadow-opacity: 0.17;
@@ -231,4 +232,50 @@ body {
 
 ::view-transition-new(root) {
   animation: theme-reveal 500ms ease-in-out;
+}
+
+/* Marquee primitive (components/motion/marquee.tsx): two copies of the
+   track are rendered back to back and translated by exactly -50%/-100% so
+   the loop point is invisible. Kept in globals.css because keyframes can't
+   be scoped to a component the way Tailwind utility classes can. */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+/* AnimatedBeam (components/motion/animated-beam.tsx): the dash pattern
+   itself scrolls along the path via dashoffset, giving the illusion of a
+   pulse traveling from one node to the next. */
+@keyframes beam-dash {
+  from {
+    stroke-dashoffset: 36;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-beam-dash {
+  animation-name: beam-dash;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-beam-dash {
+    animation: none;
+  }
 }
