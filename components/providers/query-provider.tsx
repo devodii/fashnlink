@@ -36,10 +36,10 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
-// The marketing pages are what a merchant (or this repo's owner) actually
-// looks at in dev mode, so the query devtools' floating trigger button stays
-// off those two routes rather than sitting in a corner of the pitch.
-const DEVTOOLS_HIDDEN_ROUTES = ['/', '/pricing'];
+// The marketing and auth pages are what a merchant (or this repo's owner)
+// actually looks at in dev mode, so the query devtools' floating trigger
+// button stays off these routes rather than sitting in a corner of the pitch.
+const DEVTOOLS_HIDDEN_ROUTES = ['/', '/pricing', '/login', '/signup'];
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
