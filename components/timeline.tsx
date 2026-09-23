@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from 'cn';
 import { CheckIcon, XIcon } from '@phosphor-icons/react/ssr';
-import { motion, useReducedMotion, useMotionValue, animate } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Spinner } from '@/components/spinner';
 import { Presence } from '@/components/motion/presence';
 
@@ -106,93 +106,69 @@ function AnimatedTimeline({
 }) {
   const reduceMotion = useReducedMotion();
   const [activeStep, setActiveStep] = React.useState(0);
-  const [paused, setPaused] = React.useState(false);
-  const pathLength = useMotionValue(0);
-  const controlsRef = React.useRef<ReturnType<typeof animate> | null>(null);
+  const [cycle, setCycle] = React.useState(0);
 
-  // The step only ever advances when the line finishes drawing to the next
-  // dot, so the two can never drift out of sync — one animation is the
-  // single source of truth for both. Pausing pauses this same animation
-  // (framer preserves elapsed time), which is why the advance pauses too.
+  // Runs continuously and is never paused, per design — this is a passive
+  // narrative, not something the visitor is meant to interact with.
   React.useEffect(() => {
-    if (reduceMotion) {
-      pathLength.set(1);
-      return;
-    }
-    if (activeStep === 0) pathLength.jump(0);
-    const controls = animate(pathLength, (activeStep + 1) / steps.length, {
-      duration: DWELL_MS / 1000,
-      ease: 'linear',
-      onComplete: () => {
-        const next = (activeStep + 1) % steps.length;
-        onStepChange?.(next);
-        setActiveStep(next);
-      },
-    });
-    controlsRef.current = controls;
-    return () => controls.stop();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeStep, reduceMotion]);
-
-  React.useEffect(() => {
-    if (paused) controlsRef.current?.pause();
-    else controlsRef.current?.play();
-  }, [paused]);
-
-  const pauseHandlers = {
-    onMouseEnter: () => setPaused(true),
-    onMouseLeave: () => setPaused(false),
-    onFocus: () => setPaused(true),
-    onBlur: () => setPaused(false),
-  };
+    if (reduceMotion) return;
+    const id = setTimeout(() => {
+      const next = (activeStep + 1) % steps.length;
+      if (next === 0) setCycle((c) => c + 1);
+      onStepChange?.(next);
+      setActiveStep(next);
+    }, DWELL_MS);
+    return () => clearTimeout(id);
+  }, [activeStep, reduceMotion, steps.length, onStepChange]);
 
   return (
-    <div className={cn('grid min-w-0 gap-10 lg:grid-cols-2', className)} {...pauseHandlers}>
-      <div className="relative flex min-w-0 flex-col gap-10 pl-10">
-        <svg
-          aria-hidden
-          className="absolute top-0 left-3 h-full w-0.5"
-          viewBox="0 0 2 100"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M1 0 L1 100"
-            className="stroke-border"
-            strokeWidth={2}
-            vectorEffect="non-scaling-stroke"
-          />
-          <motion.path
-            d="M1 0 L1 100"
-            className="stroke-foreground"
-            strokeWidth={2}
-            vectorEffect="non-scaling-stroke"
-            style={{ pathLength }}
-          />
-        </svg>
-
+    <div className={cn('grid min-w-0 gap-10 lg:grid-cols-2', className)}>
+      {/* Remounting on every loop (via `cycle`) resets every dot/segment/text
+          motion value back to its initial state, so each replay is a clean
+          one rather than everything staying "done" after the first pass. */}
+      <div key={cycle} className="flex min-w-0 flex-col">
         {steps.map((step, i) => {
-          const reached = i <= activeStep;
+          const reached = i <= activeStep || reduceMotion;
+          const isLast = i === steps.length - 1;
           return (
-            <div key={step.label} className="relative">
-              <motion.span
-                aria-hidden
-                className={cn(
-                  'absolute top-1 -left-10 flex size-6 items-center justify-center rounded-full border text-xs font-medium',
-                  reached
-                    ? 'border-foreground bg-foreground text-background'
-                    : 'border-border bg-background text-muted-foreground',
+            <div key={step.label} className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <motion.span
+                  aria-hidden
+                  className={cn(
+                    'flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium',
+                    reached
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border bg-background text-muted-foreground',
+                  )}
+                  initial={reduceMotion ? undefined : { scale: 0.85 }}
+                  animate={{ scale: reached ? 1 : 0.85 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                >
+                  {i + 1}
+                </motion.span>
+                {!isLast && (
+                  <div className="my-1 w-0.5 flex-1 overflow-hidden rounded-full bg-border">
+                    <motion.div
+                      className="w-full origin-top bg-foreground"
+                      initial={reduceMotion ? undefined : { scaleY: 0 }}
+                      animate={{
+                        scaleY: i < activeStep || reduceMotion ? 1 : i === activeStep ? 1 : 0,
+                      }}
+                      transition={{
+                        duration: i === activeStep && !reduceMotion ? DWELL_MS / 1000 : 0,
+                        ease: 'linear',
+                      }}
+                      style={{ height: '100%' }}
+                    />
+                  </div>
                 )}
-                initial={false}
-                animate={{ scale: reached ? 1 : 0.85 }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
-              >
-                {i + 1}
-              </motion.span>
+              </div>
               <motion.div
-                initial={false}
+                initial={reduceMotion ? undefined : { opacity: 0.4 }}
                 animate={{ opacity: reached ? 1 : 0.4 }}
                 transition={{ duration: 0.4 }}
-                className="flex flex-col gap-2"
+                className={cn('flex flex-col gap-2', !isLast && 'pb-10')}
               >
                 <h3 className="text-xl font-medium text-foreground">{step.title ?? step.label}</h3>
                 {step.description && (
