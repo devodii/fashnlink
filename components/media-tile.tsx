@@ -5,10 +5,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 export interface MediaTileProps {
   src: string;
   alt: string;
-  aspect?: '3/4' | '1/1' | '9/16';
+  aspect?: '3/4' | '1/1' | '9/16' | '4/5';
   overlay?: React.ReactNode;
   onClick?: () => void;
   loading?: boolean;
+  /** Native `<img loading>` hint; defaults to 'lazy' since most tiles are below the fold or decorative. */
+  imageLoading?: 'lazy' | 'eager';
+  /** Crops the bottom watermark strip off older demo renders generated before watermarking was turned off. */
+  cropWatermark?: boolean;
   className?: string;
 }
 
@@ -16,6 +20,7 @@ const ASPECT_CLASS = {
   '3/4': 'aspect-[3/4]',
   '1/1': 'aspect-square',
   '9/16': 'aspect-[9/16]',
+  '4/5': 'aspect-[4/5]',
 } as const;
 
 export function MediaTile({
@@ -25,6 +30,8 @@ export function MediaTile({
   overlay,
   onClick,
   loading,
+  imageLoading = 'lazy',
+  cropWatermark,
   className,
 }: MediaTileProps) {
   if (loading) {
@@ -44,7 +51,14 @@ export function MediaTile({
       )}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="size-full object-cover" />
+      <img
+        src={src}
+        alt={alt}
+        loading={imageLoading}
+        decoding="async"
+        className="size-full object-cover"
+        style={cropWatermark ? { height: '110%', objectPosition: 'top' } : undefined}
+      />
       {overlay && <div className="absolute inset-0">{overlay}</div>}
     </Comp>
   );

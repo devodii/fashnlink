@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 /**
@@ -35,13 +36,21 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
+// The marketing and auth pages are what a merchant (or this repo's owner)
+// actually looks at in dev mode, so the query devtools' floating trigger
+// button stays off these routes rather than sitting in a corner of the pitch.
+const DEVTOOLS_HIDDEN_ROUTES = ['/', '/pricing', '/login', '/signup'];
+
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
+  const pathname = usePathname();
+  const showDevtools =
+    process.env.NODE_ENV === 'development' && !DEVTOOLS_HIDDEN_ROUTES.includes(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && <Devtools />}
+      {showDevtools && <Devtools />}
     </QueryClientProvider>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Outfit } from 'next/font/google';
+import { Outfit, Instrument_Serif } from 'next/font/google';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { TranslateProvider } from '@/components/translate-provider';
@@ -13,6 +13,12 @@ const outfit = Outfit({
   subsets: ['latin'],
 });
 
+const instrumentSerif = Instrument_Serif({
+  variable: '--font-display-instrument',
+  subsets: ['latin'],
+  weight: '400',
+});
+
 export const metadata: Metadata = {
   title: 'App',
   description: 'Send a link. They see it on themselves.',
@@ -23,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     <html
       lang="en"
       translate="yes"
-      className={`${outfit.variable} h-full antialiased`}
+      className={`${outfit.variable} ${instrumentSerif.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body data-gt-root className="flex min-h-full flex-col">

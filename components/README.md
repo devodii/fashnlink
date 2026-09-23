@@ -18,8 +18,8 @@ Flat, generic, reusable, no feature-scoped folders (section 1/14 of the build sp
 - **StatCard**: `{ label, value, formatter?, delta?, hint?, loading? }`. `<StatCard label="Renders" value={384} delta={12} />`
 - **KpiRow**: `{ stats: StatCardProps[] }`. Responsive 2/4-col grid of `StatCard`. `<KpiRow stats={[...]} />`
 - **StatusBadge**: `{ status, map: Record<string, { label, tone }> }`. `tone` is the shared `Tone` type from `components/dot.tsx`. `<StatusBadge status={render.status} map={STATUS_MAP} />`
-- **Timeline**: `{ items: { at, title, description?, tone? }[] }`. `<Timeline items={events} />`
-- **MediaTile**: `{ src, alt, aspect?, overlay?, onClick?, loading? }`. `<MediaTile src={url} alt="Look" />`
+- **Timeline**: `{ steps: { label, state? }[], orientation? }` or, with `animated`, `{ steps: { label, title?, description?, media? }[], animated: true, onStepChange? }` — see the dedicated section below. Scraper pipeline / twin+render progress by default. `<Timeline steps={steps} />`
+- **MediaTile**: `{ src, alt, aspect? ('3/4'|'1/1'|'9/16'|'4/5'), overlay?, onClick?, loading? }`. `<MediaTile src={url} alt="Look" />`
 - **MediaGrid**: `{ items: MediaTileProps[], columns?, emptyState? }`. `<MediaGrid items={renders} />`
 - **ImageReveal**: `{ from, to, alt, aspect? }`. Crossfades product → render via the `Reveal` motion primitive; the shopper-page hero. `<ImageReveal from={productUrl} to={renderUrl} alt="You" />`
 - **ImageCompare**: `{ before, after, alt }`. Drag-handle before/after. `<ImageCompare before={a} after={b} alt="Compare" />`
@@ -47,10 +47,9 @@ Flat, generic, reusable, no feature-scoped folders (section 1/14 of the build sp
 - **Stepper**: `{ value, onChange, min?, max?, step? }`. Numeric +/-. `<Stepper value={n} onChange={setN} />`
 - **TagInput**: `{ value: string[], onChange, placeholder? }`. `<TagInput value={tags} onChange={setTags} />`
 - **Pagination**: `{ pageIndex, pageCount, onPageChange }`. Numbered pager (`DataTable`'s own footer is Previous/Next only). `<Pagination pageIndex={i} pageCount={n} onPageChange={setI} />`
-- **ProgressSteps**: `{ steps: { label, state }[], orientation? }`. Scraper pipeline / twin+render progress. `<ProgressSteps steps={steps} />`
 - **PollOptions**: `{ options: { id, image, label, votes? }[], value?, onVote, results? }`. Animated result bars when `results` is set. `<PollOptions options={opts} onVote={vote} />`
 - **CreditMeter**: `{ balance, reserved?, cap?, variant? }`. `<CreditMeter balance={840} cap={1000} />`
-- **PricingCard**: `{ name, price, period?, features, cta, highlight?, note? }`. `<PricingCard name="Founder" price="$199" features={[...]} cta={{ label: 'Buy' }} />`
+- **PricingCard**: `{ name, price, period?, features, cta: { label, onClick?, href?, disabled? }, highlight?, note? }`. `<PricingCard name="Founder" price="$199" features={[...]} cta={{ label: 'Buy' }} />`
 - **LanguagePicker**: `{ compact? }`. Globe trigger; `DropdownMenu` on desktop, `ResponsiveDialog` list on mobile. Self-hides if the widget doesn't init within 3s of a pick. `<LanguagePicker compact />`
 - **LanguageSuggestBanner**: no props. One-line "Voir en français ?"-style prompt on first visit when the browser language matches a supported one. `<LanguageSuggestBanner />`
 
@@ -79,6 +78,22 @@ Every primitive reads `useReducedMotion` and collapses to an instant state, neve
 - **Reveal**: `{ revealed, from, to }`. The render reveal: shimmer while `!revealed`, 600ms crossfade + scale settle on completion. `ImageReveal` is the product-facing wrapper.
 - **NumberTicker**: `{ value, durationMs?, formatter? }`. Powers `CountUp`; output is `translate="no"` (section 10.7 mitigation).
 - **Pressable**: `whileTap: scale 0.98`, typed on `HTMLMotionProps<'div'>` (not `ComponentProps<'div'>`, since framer-motion's drag handlers conflict with the native DOM ones otherwise).
+- **BlurFade**: `{ delay?, duration?, once? }`. Opacity 0→1, `blur(6px)`→`blur(0)`, y 12→0, 500ms, `whileInView`. `<BlurFade><h2>...</h2></BlurFade>`
+- **WordRotate**: `{ words, intervalMs? }`. Cycles through `words` with a vertical slide (300ms), `AnimatePresence mode="wait"`. `<WordRotate words={['a', 'b']} />`
+- **Marquee**: `{ vertical?, reverse?, durationSeconds?, fade? }`. CSS `@keyframes` loop (defined in `app/globals.css`, not scopeable to a component); duplicates `children` once for a seamless loop and masks the fade edges with `mask-image` (not a color). `<Marquee vertical>{tiles}</Marquee>`
+- **AnimatedList**: `{ items, intervalMs?, maxVisible? }`. Reveals one more item on an interval, oldest drops off past `maxVisible`. `<AnimatedList items={notifications} />`
+- **AnimatedBeam**: `{ containerRef, fromRef, toRef, durationSeconds? }`. Draws an SVG line between two DOM nodes inside `containerRef` and animates a moving dash (`stroke-dasharray`/`stroke-dashoffset`) along it, `stroke-foreground` only. `<AnimatedBeam containerRef={c} fromRef={a} toRef={b} />`
+
+## Landing (`components/landing-section.tsx`, `components/bento-grid.tsx`, `components/site-header.tsx`, `components/site-footer.tsx`, `components/hero-demo.tsx`)
+
+- **LandingSection**: `{ eyebrow?, title?, description?, align?, containerSize? }`. The marketing-page section shell: small-caps eyebrow, serif `--font-display` title, `BlurFade`-in header. Distinct from the dashboard's `Section` (different typography and audience); pages under `/` and `/pricing` compose stacks of these. `<LandingSection eyebrow="Three steps" title="From link to lead.">...</LandingSection>`
+- **BentoGrid / BentoCard**: `{ colSpan?, rowSpan? }` on `BentoCard`. Plain CSS grid (`md:grid-cols-3 md:grid-rows-2`), cards are shadcn `Card` with a `translate-y` hover, no glow. `<BentoGrid><BentoCard colSpan={2}>...</BentoCard></BentoGrid>`
+- **SiteHeader / SiteFooter**: no props. Sticky header (border appears after 24px scroll) and 4-column footer shared by `/` and `/pricing`; the theme toggle and `LanguagePicker` live in the footer here, not the corner `GlobalTopBar`.
+- **HeroDemo**: `{ className? }`. The paste-a-link input + three demo chips, shared between the hero and the final CTA section; posts to `/api/public/quick-link` and surfaces the wearable gate's human messages via `InlineAlert`.
+
+## Timeline's `animated` mode (`components/timeline.tsx`)
+
+`animated?: boolean` on `Timeline` switches it from the pipeline-status stepper (`steps: { label, state }[]`) to a self-advancing narrative layout for "how it works" sections, independent of scroll position and never paused (it's a passive narrative, not something the visitor drives): a left column with one connecting segment per gap between dots, each its own track — the segments before the active step are already fully filled, the one segment between the active step and the next animates its fill over a 4s dwell, and the segments after it stay empty, so the line reads as advancing one hop at a time rather than one continuous path filling everywhere at once. Looping back to the first step remounts the whole column (keyed on a `cycle` counter) so every replay resets cleanly instead of everything staying "done" after the first pass. Past/current items are full opacity, upcoming ones dim to 40% until reached. A `media?: ReactNode` per step sticks (`lg:sticky lg:top-24`) and crossfades via `Presence` on desktop, or renders inline per-item below `lg`. `onStepChange?: (index: number) => void` fires as the active step changes. `<Timeline animated steps={[{ label: 'Paste', title: '...', description: '...', media: <X /> }]} onStepChange={track} />`
 
 ## Translation (`components/translate-provider.tsx`, `components/language-picker.tsx`)
 
