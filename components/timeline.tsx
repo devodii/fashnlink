@@ -148,13 +148,16 @@ function AnimatedTimeline({
         </svg>
 
         {steps.map((step, i) => (
-          <div key={step.label} className="relative">
+          <div
+            key={step.label}
+            className="relative lg:flex lg:min-h-[70vh] lg:flex-col lg:justify-center"
+          >
             <motion.span
               aria-hidden
               className="absolute top-1 -left-10 flex size-6 items-center justify-center rounded-full border border-border bg-background text-xs font-medium text-foreground"
               initial={reduceMotion ? undefined : { scale: 0.6 }}
               whileInView={{ scale: 1 }}
-              viewport={{ once: true, margin: '-20% 0px -20% 0px' }}
+              viewport={{ once: true, margin: '-30% 0px -30% 0px' }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
               {i + 1}
