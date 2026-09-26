@@ -192,6 +192,19 @@ function ProductStep({
   React.useEffect(() => {
     api.setOnNext(async () => {
       setError(null);
+
+      // These two branches already have their own confirmation UI below
+      // (the tracking-script embed, the found-product summary); once shown,
+      // the wizard's own Next button is what advances past them rather than
+      // a second local button also calling `api.next()` — otherwise the
+      // wizard's stale pre-confirmation handler stays registered and Next
+      // silently re-runs the original scrape/request instead of advancing.
+      if (trackingScriptSrc) return true;
+      if (results) {
+        onCreated(results[0]);
+        return true;
+      }
+
       const urls = form
         .getValues('urls')
         .map((u) => u.value.trim())
@@ -237,7 +250,7 @@ function ProductStep({
     });
     return () => api.setOnNext(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [somethingElse, selectedChip, notes]);
+  }, [somethingElse, selectedChip, notes, results, trackingScriptSrc]);
 
   if (trackingScriptSrc) {
     return (
@@ -250,9 +263,6 @@ function ProductStep({
           label="Embed snippet"
           value={`<script src="${trackingScriptSrc}" async></script>`}
         />
-        <Button onClick={() => api.next()} className="w-full">
-          Continue
-        </Button>
       </div>
     );
   }
@@ -278,19 +288,9 @@ function ProductStep({
             above were added.
           </p>
         )}
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => onResults(null)}>
-            That&apos;s not right
-          </Button>
-          <Button
-            onClick={() => {
-              onCreated(results[0]);
-              api.next();
-            }}
-          >
-            Looks good
-          </Button>
-        </div>
+        <Button variant="outline" onClick={() => onResults(null)}>
+          That&apos;s not right
+        </Button>
       </div>
     );
   }
